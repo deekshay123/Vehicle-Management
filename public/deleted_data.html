@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deleted Data - Vehicle Management System</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="custom_styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Additional styles for deleted data page */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h2 {
+            color: #333;
+        }
+       .table-container {
+          max-height: 600px;
+          overflow-y: auto;
+          position: relative;
+        }
+
+        thead tr {
+         position: sticky;
+         top: 0;
+         background-color: #2980b9;
+         color: white;
+         z-index: 2;
+        }
+
+        .search-container {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .search-container input {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1.5px solid #ccc;
+            border-radius: 5px;
+        }
+        #logoutBtn {
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        #logoutBtn:hover {
+            background-color: #1c5980;
+        }
+        .export-btn {
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .export-btn:hover {
+            background-color: #1e8449;
+        }
+        /* Pagination styles */
+        .pagination-controls {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .pagination-btn {
+            margin: 0 3px;
+            padding: 6px 12px;
+            border: 1.5px solid #2980b9;
+            background-color: white;
+            color: #2980b9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .pagination-btn:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+        .pagination-btn.active {
+            background-color: #2980b9;
+            color: white;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Deleted Vehicle and Maintenance Records</h2>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." />
+        <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." />
+        <input type="text" id="searchStatusInput" placeholder="Search by Status..." />
+    </div>
+
+    <button id="logoutBtn">Logout</button>
+
+    <div class="export-buttons" style="margin-bottom: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
+        <button id="exportExcelBtn" class="export-btn">Export to Excel</button>
+    </div>
+
+    <div class="table-container">
+        <table id="combinedTable" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #2980b9; color: white;">
+                    <th>#</th>
+                    <th>Vehicle Number</th>
+                    <th>Policy Type</th>
+                    <th>Policy Number</th>
+                    <th>Renewal Date</th>
+                    <th>Status</th>
+                    <th>Service Type</th>
+                    <th>KM Driven</th>
+                    <th>Maintenance Renewal Date</th>
+                    <th>Status</th>
+                    <th>Renewal Date 2</th>
+                    <th>Deleted Reason</th>
+                    <th>Deleted By</th>
+                    <th>Deleted At</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="paginationControls" class="pagination-controls"></div>
+    </div>
+
+    <script>
+        const API_DELETED_URL = '/api/deleted-records';
+        const itemsPerPage = 50;
+        let currentPage = 1;
+        let deletedData = [];
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dateObj = new Date(dateStr);
+            if (isNaN(dateObj)) return '';
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            let hours = dateObj.getHours();
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const strHours = String(hours).padStart(2, '0');
+            // Always show time even if input date string lacks time info
+            return `${day}-${month}-${year} ${strHours}:${minutes} ${ampm}`;
+        }
+
+        function formatDateWithoutTime(dateStr) {
+            if (!dateStr) return '';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dateObj = new Date(dateStr);
+            if (isNaN(dateObj)) return '';
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function calculateStatus(renewalDateStr) {
+            const today = new Date();
+            const renewalDate = new Date(renewalDateStr);
+            const diffTime = renewalDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 30) {
+                return 'Active';
+            } else if (diffDays > 10) {
+                return `${diffDays} days left`;
+            } else if (diffDays > 1) {
+                return 'Expiring soon';
+            } else {
+                return 'Expired';
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.querySelector('#combinedTable tbody');
+            tbody.innerHTML = '';
+            
+            data.sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
+
+
+            let startIndex = (currentPage - 1) * itemsPerPage;
+            let endIndex = Math.min(startIndex + itemsPerPage, data.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const entry = data[i];
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td>${entry.vehicleNumber || ''}</td>
+                    <td>${entry.policyType || ''}</td>
+                    <td>${entry.policyNumber || ''}</td>
+                    <td>${formatDateWithoutTime(entry.vehicleRenewalDate)}</td>
+                    <td>${calculateStatus(entry.vehicleRenewalDate)}</td>
+                    <td>${entry.maintenanceType || ''}</td>
+                    <td>${entry.kmDriven || ''}</td>
+                    <td>${formatDateWithoutTime(entry.maintenanceRenewalDate)}</td>
+                    <td>${calculateStatus(entry.maintenanceRenewalDate)}</td>
+                    <td>${formatDateWithoutTime(entry.renewalDate2)}</td>
+                    <td>${entry.deleteReason || ''}</td>
+                    <td>${entry.deletedBy || ''}</td>
+                    <td>${formatDate(entry.deletedAt)}</td>
+                `;
+                tbody.appendChild(row);
+            }
+            renderPaginationControls(data.length);
+        }
+
+        function renderPaginationControls(totalItems) {
+            const paginationContainer = document.getElementById('paginationControls');
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (totalPages <= 1) return;
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Prev';
+            prevButton.disabled = currentPage === 1;
+            prevButton.className = 'pagination-btn';
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable(deletedData);
+                }
+            });
+            paginationContainer.appendChild(prevButton);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.className = 'pagination-btn';
+                if (i === currentPage) {
+                    pageButton.classList.add('active');
+                }
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTable(deletedData);
+                });
+                paginationContainer.appendChild(pageButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Next';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.className = 'pagination-btn';
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable(deletedData);
+                }
+            });
+            paginationContainer.appendChild(nextButton);
+        }
+
+        function filterData() {
+            const vehicleNumberFilter = document.getElementById('searchVehicleNumberInput').value.trim().toLowerCase();
+            const monthFilter = document.getElementById('searchMonthInput').value.trim().toLowerCase();
+            const statusFilter = document.getElementById('searchStatusInput').value.trim().toLowerCase();
+
+            const filtered = deletedData.filter(entry => {
+                const vehicleNumberMatch = !vehicleNumberFilter || (entry.vehicleNumber && entry.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
+                const monthMatch = !monthFilter || (entry.vehicleRenewalDate && new Date(entry.vehicleRenewalDate).toLocaleString('default', { month: 'long' }).toLowerCase().includes(monthFilter));
+                const statusMatch = !statusFilter || calculateStatus(entry.vehicleRenewalDate).toLowerCase().includes(statusFilter);
+                return vehicleNumberMatch && monthMatch && statusMatch;
+            });
+            currentPage = 1;
+            renderTable(filtered);
+        }
+
+        async function loadDeletedData() {
+            try {
+                const response = await fetch(API_DELETED_URL);
+                if (!response.ok) throw new Error('Failed to fetch deleted data');
+                deletedData = await response.json();
+                renderTable(deletedData);
+            } catch (error) {
+                alert('Error loading deleted data: ' + error.message);
+            }
+        }
+
+        document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
+        document.getElementById('searchMonthInput').addEventListener('input', filterData);
+        document.getElementById('searchStatusInput').addEventListener('input', filterData);
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            window.location.href = '/login.html';
+        });
+
+        window.onload = loadDeletedData;
+    </script>
+    <script>
+        /**
+         * Export table data to PDF using jsPDF and autoTable with plugin availability check
+         */
+        function exportTableToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'pt', 'a4');
+
+                if (typeof doc.autoTable !== 'function') {
+                    alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
+                    return;
+                }
+
+                const table = document.getElementById('combinedTable');
+                const headers = [];
+                const data = [];
+
+                // Get headers from the first thead row, include all columns
+                const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
+                for (let i = 0; i < headerCells.length; i++) {
+                    headers.push(headerCells[i].textContent.trim());
+                }
+
+                // Prepare columns for autoTable with dataKey
+                const columns = headers.map(header => ({ header: header, dataKey: header }));
+
+                // Get all rows data including hidden rows (all pages)
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const rowData = {};
+                    for (let i = 0; i < row.cells.length; i++) {
+                        rowData[headers[i]] = row.cells[i].textContent.trim();
+                    }
+                    data.push(rowData);
+                });
+
+                // Helper function to format date as dd-mmm-yyyy with lowercase month
+                function formatDateDDMMMYYYY(date) {
+                    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                    const d = date.getDate().toString().padStart(2, '0');
+                    const m = months[date.getMonth()];
+                    const y = date.getFullYear();
+                    return `${d}-${m}-${y}`;
+                }
+
+                // Add heading text above the table with professional styling
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(15);
+                doc.text('Deleted Vehicle and Maintenance Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+
+                // Add current date below heading
+                const currentDateStr = formatDateDDMMMYYYY(new Date());
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
+
+                // Generate PDF with autoTable, startY adjusted to leave space for heading and date
+                doc.autoTable({
+                    columns: columns,
+                    body: data,
+                    startY: 60,
+                    styles: {
+                        cellPadding: 4,
+                        lineWidth: 0.5,
+                        lineColor: [0, 0, 0],
+                        fontSize: 10,
+                    },
+                    columnStyles: columns.reduce((acc, col, index) => {
+                        acc[col.dataKey] = { cellWidth: 'auto', halign: 'left', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
+                        return acc;
+                    }, {}),
+                    headStyles: {
+                        fillColor: [41, 128, 185],
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        halign: 'center',
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245],
+                    },
+                    didDrawPage: function (data) {
+                        console.log('didDrawPage called for page:', data.pageNumber);
+                        const pageWidth = doc.internal.pageSize.getWidth();
+                        const pageHeight = doc.internal.pageSize.getHeight();
+                        doc.setDrawColor(0);
+                        doc.setLineWidth(0.5);
+                        doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+
+                        doc.setFont('helvetica', 'italic');
+                        doc.setFontSize(10);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('all right reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+                        const pageNumber = doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
+                    }
+                });
+
+                doc.save('deleted_vehicle_maintenance_table.pdf');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Failed to generate PDF. Please check console for details.');
+            }
+        }
+
+        /**
+         * Export table data to Excel using SheetJS with styling
+         */
+        function exportTableToExcel() {
+            const table = document.getElementById('combinedTable');
+            const wb = XLSX.utils.book_new();
+
+            // Define headers matching the deleted_data.html table columns
+            const headers = [
+                '#',
+                'Vehicle Number',
+                'Policy Type',
+                'Policy Number',
+                'Renewal Date',
+                'Status',
+                'Maintenance/Tyre',
+                'KM Driven',
+                'Maintenance Renewal Date',
+                'Status',
+                'Renewal Date 2',
+                'Deleted Reason',
+                'Deleted By',
+                'Deleted At'
+            ];
+
+            // Prepare data rows from all table body rows
+            const dataRows = [];
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const rowData = [];
+                for (let i = 0; i < row.cells.length; i++) {
+                    rowData.push(row.cells[i].textContent.trim());
+                }
+                dataRows.push(rowData);
+            });
+
+            // Combine headers and data
+            const worksheetData = [headers, ...dataRows];
+
+            // Create worksheet
+            const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+
+            // Apply styling to header row
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let C = 0; C <= range.e.c; ++C) {
+                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[cellAddress]) continue;
+                if (!ws[cellAddress].s) ws[cellAddress].s = {};
+                ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
+                ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
+                ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
+                ws[cellAddress].s.border = {
+                    top: { style: "thin", color: { rgb: "000000" } },
+                    bottom: { style: "thin", color: { rgb: "000000" } },
+                    left: { style: "thin", color: { rgb: "000000" } },
+                    right: { style: "thin", color: { rgb: "000000" } }
+                };
+            }
+
+            // Set column widths for better appearance
+            ws['!cols'] = [
+                { wch: 5 },  // #
+                { wch: 15 }, // Vehicle Number
+                { wch: 15 }, // Policy Type
+                { wch: 15 }, // Policy Number
+                { wch: 15 }, // Renewal Date
+                { wch: 12 }, // Status
+                { wch: 18 }, // Maintenance/Tyre
+                { wch: 12 }, // KM Driven
+                { wch: 15 }, // Maintenance Renewal Date
+                { wch: 12 }, // Status
+                { wch: 15 }, // Renewal Date 2
+                { wch: 20 }, // Deleted Reason
+                { wch: 15 }, // Deleted By
+                { wch: 20 }  // Deleted At
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'DeletedVehicleMaintenance');
+            XLSX.writeFile(wb, 'deleted_vehicle_maintenance_table.xlsx');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
+            const exportExcelBtn = document.getElementById('exportExcelBtn');
+
+            if (exportPdfBtn) {
+                exportPdfBtn.addEventListener('click', exportTableToPDF);
+            }
+            if (exportExcelBtn) {
+                exportExcelBtn.addEventListener('click', exportTableToExcel);
+            }
+        });
+    </script>
+</body>
+</html>

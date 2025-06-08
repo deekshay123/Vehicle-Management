@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>History Service Records</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="custom_styles.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-container {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .search-container input {
+            flex: 1 1 200px;
+            max-width: 300px;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1.5px solid #ccc;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        thead tr {
+            position: sticky;
+            top: 0;
+            background-color: #2980b9;
+            color: white;
+            z-index: 2;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #2980b9;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #logoutBtn {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+        }
+        .export-btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .export-btn:hover {
+            background-color: #1e8449;
+        }
+    </style>
+</head>
+<body>
+    <button id="logoutBtn">Logout</button>
+    <h2>History of Edited Service Records</h2>
+
+    <div class="search-container">
+        <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." />
+        <input type="text" id="searchServiceTypeInput" placeholder="Search by Service Type..." />
+        <input type="text" id="searchMonthInput" placeholder="Search by Month..." />
+    </div>
+
+    <div style="text-align: right; margin-bottom: 15px;">
+        <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
+        <button id="exportExcelBtn" class="export-btn">Export to Excel</button>
+    </div>
+
+    <div style="max-height: 400px; overflow-y: auto;">
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Vehicle Number</th>
+                    <th>Service Type</th>
+                    <th>Opening KM</th>
+                    <th>Closing KM</th>
+                    <th>KM Driven</th>
+                    <th>Remarks</th>
+                    <th>Last Service Date</th>
+                    <th>Edited By</th>
+                    <th>Edited At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- History records will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        let historyData = [];
+
+        async function fetchHistoryRecords() {
+            try {
+                const response = await fetch('/api/history_records');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch history records');
+                }
+                historyData = await response.json();
+                console.log('Fetched historyData:', historyData);
+                renderTable(historyData);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dateObj = new Date(dateStr);
+            if (isNaN(dateObj)) return '';
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '';
+            const dateObj = new Date(dateStr);
+            if (isNaN(dateObj)) return '';
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            let hours = dateObj.getHours();
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const strHours = String(hours).padStart(2, '0');
+            return `${day}-${month}-${year} ${strHours}:${minutes}:${seconds} ${ampm}`;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('historyTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            // Render data in reverse order to show new data at the top
+            for (let i = data.length - 1; i >= 0; i--) {
+                const record = data[i];
+                const tr = document.createElement('tr');
+                const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
+                const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
+                const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
+                tr.innerHTML = `
+                    <td>${data.length - i}</td>
+                    <td>${record.previousData.vehicleNumber || ''}</td>
+                    <td>${serviceType}</td>
+                    <td>${record.previousData.openingKM || ''}</td>
+                    <td>${record.previousData.closingKM || ''}</td>
+                    <td>${record.previousData.kmDriven || ''}</td>
+                    <td>${record.previousData.remarks || ''}</td>
+                    <td>${lastServiceDate}</td>
+                    <td>${record.editedBy || ''}</td>
+                    <td>${record.editedAt ? formatDateTime(record.editedAt) : ''}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function filterData() {
+            const vehicleNumberFilter = document.getElementById('searchVehicleNumberInput').value.trim().toLowerCase();
+            const serviceTypeFilter = document.getElementById('searchServiceTypeInput').value.trim().toLowerCase();
+            const monthFilter = document.getElementById('searchMonthInput').value.trim().toLowerCase();
+
+            const filtered = historyData.filter(record => {
+                const vehicleNumberMatch = !vehicleNumberFilter || (record.previousData.vehicleNumber && record.previousData.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
+                const serviceTypeMatch = !serviceTypeFilter || (record.previousData.serviceType && record.previousData.serviceType.toLowerCase().includes(serviceTypeFilter));
+                let monthMatch = true;
+                if (monthFilter) {
+                    if (record.previousData.lastServiceDate) {
+                        const dateObj = new Date(record.previousData.lastServiceDate);
+                        if (!isNaN(dateObj)) {
+                            const monthName = dateObj.toLocaleString('default', { month: 'long' }).toLowerCase();
+                            monthMatch = monthName.includes(monthFilter);
+                        } else {
+                            monthMatch = false;
+                        }
+                    } else {
+                        monthMatch = false;
+                    }
+                }
+                return vehicleNumberMatch && serviceTypeMatch && monthMatch;
+            });
+            renderTable(filtered);
+        }
+
+        document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
+        document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
+        document.getElementById('searchMonthInput').addEventListener('input', filterData);
+
+        function exportTableToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'pt', 'a4');
+
+                if (typeof doc.autoTable !== 'function') {
+                    alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
+                    return;
+                }
+
+                const headers = ['#', 'Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'KM Driven', 'Remarks', 'Last Service Date', 'Edited By', 'Edited At'];
+                const data = [];
+
+                const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
+                tbodyRows.forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('td').forEach((cell, index) => {
+                        let cellText = cell.textContent.trim();
+                        // Format date columns (7 and 9 index)
+                        if ((index === 7 || index === 9) && cellText) {
+                            const dateObj = new Date(cellText);
+                            if (!isNaN(dateObj)) {
+                                const day = String(dateObj.getDate()).padStart(2, '0');
+                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                const month = months[dateObj.getMonth()];
+                                const year = dateObj.getFullYear();
+                                if (index === 7) {
+                                    // Last Service Date: dd-MMM-yyyy
+                                    cellText = `${day}-${month}-${year}`;
+                                } else if (index === 9) {
+                                    // Edited At: dd-MMM-yyyy hh:mm:ss AM/PM
+                                    let hours = dateObj.getHours();
+                                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                                    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+                                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                                    hours = hours % 12;
+                                    hours = hours ? hours : 12; // the hour '0' should be '12'
+                                    const strHours = String(hours).padStart(2, '0');
+                                    cellText = `${day}-${month}-${year} ${strHours}:${minutes}:${seconds} ${ampm}`;
+                                }
+                            }
+                        }
+                        rowData.push(cellText);
+                    });
+                    data.push(rowData);
+                });
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(15);
+                doc.text('History of Edited Service Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+
+                const currentDate = new Date();
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const month = months[currentDate.getMonth()];
+                const year = currentDate.getFullYear();
+                const currentDateStr = `${day}-${month}-${year}`;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
+
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 60,
+                    styles: {
+                        cellPadding: 4,
+                        lineWidth: 0.5,
+                        lineColor: [0, 0, 0],
+                        fontSize: 10,
+                    },
+                    headStyles: {
+                        fillColor: [41, 128, 185],
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        halign: 'center',
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245],
+                    },
+                    didDrawPage: function (data) {
+                        console.log('didDrawPage called for page:', data.pageNumber);
+                        const pageWidth = doc.internal.pageSize.getWidth();
+                        const pageHeight = doc.internal.pageSize.getHeight();
+                        doc.setDrawColor(0);
+                        doc.setLineWidth(0.5);
+                        doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+
+                        doc.setFont('helvetica', 'italic');
+                        doc.setFontSize(10);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+                        const pageNumber = doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
+                    }
+                });
+
+                doc.save('history_edited_service_records.pdf');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Failed to generate PDF. Please check console for details.');
+            }
+        }
+
+        function exportTableToExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [];
+            const headers = ['#', 'Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'KM Driven', 'Remarks', 'Last Service Date', 'Edited By', 'Edited At'];
+            ws_data.push(headers);
+
+            const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
+            tbodyRows.forEach(row => {
+                const rowData = [];
+                row.querySelectorAll('td').forEach(cell => {
+                    rowData.push(cell.textContent.trim());
+                });
+                ws_data.push(rowData);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+            // Style header row
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let C = 0; C <= range.e.c; ++C) {
+                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+                if (!ws[cellAddress]) continue;
+                if (!ws[cellAddress].s) ws[cellAddress].s = {};
+                ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
+                ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
+                ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
+                ws[cellAddress].s.border = {
+                    top: { style: "thin", color: { rgb: "000000" } },
+                    bottom: { style: "thin", color: { rgb: "000000" } },
+                    left: { style: "thin", color: { rgb: "000000" } },
+                    right: { style: "thin", color: { rgb: "000000" } }
+                };
+            }
+
+            ws['!cols'] = [
+                { wch: 5 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 12 },
+                { wch: 12 },
+                { wch: 20 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 20 }
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'HistoryEditedServiceRecords');
+            XLSX.writeFile(wb, 'history_edited_service_records.xlsx');
+        }
+
+        document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
+        document.getElementById('exportExcelBtn').addEventListener('click', exportTableToExcel);
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', { method: 'POST' });
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Logout failed');
+                }
+            } catch (error) {
+                alert('Logout failed');
+            }
+        });
+
+        // Fetch and display history records on page load
+        fetchHistoryRecords();
+    </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Vehicle Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+    @keyframes inputFocus {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .login-input:focus {
+        animation: inputFocus 0.3s ease;
+    }
+
+    @keyframes backgroundAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background: linear-gradient(270deg, #4a90e2, #50e3c2, #4a90e2);
+        background-size: 400% 400%;
+        animation: backgroundAnimation 15s ease infinite;
+    }
+
+    .login-input {
+        transition: box-shadow 0.3s ease;
+    }
+
+    .login-input:focus {
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    }
+
+    .login-button {
+        transition: transform 0.2s ease;
+    }
+
+    .login-button:hover {
+        transform: scale(1.05);
+    }
+
+    @keyframes backgroundAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background: linear-gradient(270deg, #4a90e2, #50e3c2, #4a90e2);
+        background-size: 400% 400%;
+        animation: backgroundAnimation 15s ease infinite;
+    }
+
+    .login-input {
+        transition: box-shadow 0.3s ease;
+    }
+
+    .login-input:focus {
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    }
+
+    .login-button {
+        transition: transform 0.2s ease;
+    }
+
+    .login-button:hover {
+        transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: #4a90e2; /* Lighter blue background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: #fff; /* White text color */
+    }
+
+    .login-container {
+        width: 400px;
+        padding: 40px;
+        background-color: #f7f7f7; /* Light gray background */
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease forwards;
+        border: 1px solid #ddd; /* Light gray border */
+        background-image: linear-gradient(to bottom, #f7f7f7, #e5e5e5); /* Gradient background */
+    }
+
+    .login-button {
+        width: 100%;
+        padding: 20px; /* Increased padding for better spacing */
+        background-color: #0056b3; /* Darker blue background */
+        color: #fff; /* White text color */
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Added box-shadow transition */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Increased shadow for depth */
+        animation: bounce 0.5s; /* Added bounce animation */
+    }
+
+
+    body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #4a90e2; /* Lighter blue background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #fff; /* White text color */
+}
+
+.login-container {
+    width: 400px;
+    padding: 40px;
+    background-color: #f7f7f7; /* Light gray background */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease forwards;
+    border: 1px solid #ddd; /* Light gray border */
+    background-image: linear-gradient(to bottom, #f7f7f7, #e5e5e5); /* Gradient background */
+}
+
+.login-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+    background-size: 100% 200px;
+    background-position: 0% 100%;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+
+.login-header {
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 24px;
+    color: #333; /* Dark gray text color */
+    animation: slideIn 0.5s ease forwards;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-input {
+    width: 100%;
+    padding: 2px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    color: #333; /* Dark gray text color */
+    background-color: #f9f9f9; /* Light gray background */
+    border: 1px solid #ddd; /* Light gray border */
+    font-weight: bold; /* Bold font weight */
+    height: 50px; /* Increased height for better visibility */
+    padding-left: 20px; /* Added padding for better spacing */
+}
+
+.login-input:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+    border-color: #007bff; /* Blue border color on focus */
+}
+
+.login-input::placeholder {
+    color: #999; /* Light gray placeholder color */
+    font-weight: bold; /* Bold font weight for placeholder */
+}
+.login-button {
+    width: 100%;
+    padding: 20px; /* Increased padding for better spacing */
+    background-color: #0056b3; /* Darker blue background */
+    color: #fff; /* White text color */
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Added box-shadow transition */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Increased shadow for depth */
+}
+
+.login-button:hover {
+    background-color: #0056b3; /* Dark blue background */
+    transform: translateY(-2px);
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333; /* Dark gray text color */
+}
+
+.footer a {
+    color: #333; /* Dark gray text color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #555; /* Dark gray text color */
+}
+
+.social-media {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.social-media i {
+    font-size: 24px;
+    margin: 0 10px;
+    color: #333; /* Dark gray text color */
+    transition: color 0.3s ease;
+}
+
+.social-media i:hover {
+    color: #555; /* Dark gray text color */
+}
+
+.show-password-label {
+    color:#555; /* Black text color */
+    font-size: 14px;
+    margin-left: 10px;
+    font-weight: bold; /* Bold font weight */
+}
+
+#forgotPassword {
+    color: #555; /* Black text color */
+    font-size: 14px;
+    font-weight: bold; /* Bold font weight */
+}
+
+.logo {
+    width: 100px; /* Set a fixed width for the logo */
+    height: auto; /* Maintain aspect ratio */
+    border: 7px solid rgb(235, 235, 0); /* Yellow border */
+    border-radius: 50%; /* Circular border */
+    margin-bottom: 20px; /* Space below the logo */
+    background-color: white; /* White background for the logo */
+    object-fit: cover; /* Ensure the logo is fully covered by the border */
+    padding: 0; /* Remove any padding */
+}
+.logo img {
+    width: 100%; /* Set the width of the logo image to 100% */
+    height: 100%; /* Set the height of the logo image to 100% */
+    object-fit: cover; /* Ensure the logo image is fully covered by the border */
+    border-radius: 50%; /* Circular border */
+}
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="https://www.bharathagrovet.com/images/bhart_argo_logo.png" alt="Logo" class="logo" style="float: right;">
+        <div class="login-header">
+            <h2>Vehicle Management System</h2>
+            <div class="footer">
+                <p class="developer-info">Designed by <strong>Deeksh@y</strong></p>
+            </div>
+        </div>
+        <form class="login-form" id="loginForm">
+        <input type="text" id="username" class="login-input" placeholder="Username" required aria-label="Username" style="transition: border-color 0.3s;">
+
+        <input type="password" id="password" class="login-input" placeholder="Password" required aria-label="Password" style="transition: border-color 0.3s;">
+
+            <div class="remember-me">
+                <label for="rememberMe" class="remember-me-label"></label>
+            </div>
+            <div class="show-password-container">
+                <input type="checkbox" id="showPassword" class="show-password-checkbox">
+                <label for="showPassword" class="show-password-label">
+                    <i class="fas fa-eye" id="show-password-icon"></i>
+                    <span id="show-password-text">Show Password</span>
+                </label>
+            </div>
+            <br>
+            <button type="submit" class="login-button">Login</button>
+            <div class="loading-spinner" id="loadingSpinner"></div>
+            <p class="footer"><a href="#" id="forgotPassword">Forgot Password?</a></p>
+        </form>
+        <div class="social-media">
+            <a href="#" class="social-media-link">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-media-link">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-media-link">
+                <i class="fab fa-google"></i>
+            </a>
+        </div>
+    </div>
+    <script>
+    // Show password functionality
+    const showPasswordCheckbox = document.getElementById('showPassword');
+    const passwordInput = document.getElementById('password');
+
+    showPasswordCheckbox.addEventListener('change', function() {
+        passwordInput.setAttribute('type', this.checked ? 'text' : 'password');
+    });
+
+    // Handle form submission
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Handle Database user login locally without backend call
+        if (username === 'Database' && password === 'PASSWORD@1234') {
+            window.location.href = '/deleted_data.html';
+            return;
+        }
+
+        loadingSpinner.style.display = 'block'; // Show loading spinner
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        })
+        .then(response => {
+            loadingSpinner.style.display = 'none'; // Hide loading spinner
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Invalid username or password');
+            }
+        })
+        .then(data => {
+if (data.success) {
+    if (username === 'user' && password === 'q1w2e3r4/') {
+        window.location.href = '/Project-Vehicle-Management-Feedmill-user.html'; // Redirect feedmill user to feedmill user page
+    } else if (username === 'admin' && password === 'NU67IJvWI/d') {
+        window.location.href = '/project_vehicle-Management-feedmill-admin.html'; // Redirect feedmill admin to feedmill admin page
+    } else if (username === 'user') {
+        window.location.href = '/Project-Vehicle-Management-user.html'; // Redirect user to user page
+    } else if (username === 'admin') {
+        window.location.href = '/Project-Vehicle-Management-admin.html'; // Redirect admin to admin page
+    } else if (username === 'history' && password === '@V+1+}6qDR8)') {
+        window.location.href = '/history_service.html'; // Redirect history user to history service page
+    } else {
+        alert('Unknown user role');
+    }
+} else {
+    alert('Invalid username or password. Please try again.');
+}
+        })
+        .catch(error => {
+            alert(error.message);
+        });
+    });
+</script>
+
+</body>
+</html>
