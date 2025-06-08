@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "add": "^2.0.6",
+    "choco": "^0.2.1",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "curl": "^0.1.4",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "git": "^0.1.5",
+    "mongodb": "^6.16.0",
+    "ngrok": "^5.0.0-beta.2",
+    "node": "^22.16.0",
+    "uuid": "^3.4.0",
+    "wget": "^0.0.1"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
