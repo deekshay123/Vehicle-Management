@@ -5,6 +5,78 @@ body {
     color: #333;
 }
 
+@media (max-width: 1024px) {
+    body {
+        margin: 20px;
+    }
+    form#combinedForm {
+        flex-direction: column;
+    }
+    form#combinedForm input[type="text"],
+    form#combinedForm input[type="date"],
+    form#combinedForm input[type="number"],
+    form#combinedForm button[type="submit"] {
+        flex: 1 1 100%;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .table-container {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        margin: 10px;
+    }
+    h2 {
+        font-size: 18px;
+    }
+    form#combinedForm {
+        padding: 10px;
+    }
+    #toggleFormBtn {
+        font-size: 16px;
+        padding: 8px 12px;
+    }
+    table#combinedTable thead tr th,
+    table#combinedTable tbody tr td {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+    .table-container {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        margin: 5px;
+    }
+    h2 {
+        font-size: 16px;
+    }
+    #toggleFormBtn {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+    form#combinedForm input[type="text"],
+    form#combinedForm input[type="date"],
+    form#combinedForm input[type="number"],
+    form#combinedForm button[type="submit"] {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+    table#combinedTable thead tr th,
+    table#combinedTable tbody tr td {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+    .table-container {
+        max-height: 250px;
+    }
+}
+
 h2 {
     margin-top: 40px;
     color: #2c3e50;
