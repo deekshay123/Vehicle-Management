@@ -27,7 +27,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h3>VEHICLE MANAGEMENT FOR FEEDMILL DIVISION</h3>
+        <h3>VEHICLE MANAGEMENT FOR FEEDMILL + S.K DIVISION</h3>
     </header>
      <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -229,7 +229,7 @@ function exportTableToPDF() {
         // Add heading text above the table with professional styling
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(15);
-        doc.text('BHARATH AGROVET INDUSTRIES-[FEEDMILL]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+        doc.text('BHARATH AGROVET INDUSTRIES-[FEEDMILL]+[S.K]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
         // Add current date below heading
         const currentDateStr = formatDateDDMMYYYY(new Date());
