@@ -803,6 +803,7 @@ app.post('/login', (req, res) => {
     { username: 'admin', password: 'NU67IJvWI/d', division: 'feedmill', role: 'admin' },
     { username: 'user', password: 'r4e3w2q1/', division: 'vehicle', role: 'user' }, // example for other user
     { username: 'admin', password: 'xsqaIP7&9M*|', division: 'vehicle', role: 'admin' }, // example for other admin
+    { username: 'admin', password: 'h7PSGBuG!h', division: 'headoffice', role: 'admin' }, // added missing head office admin user
     { username: 'Database', password: 'PASSWORD@1234', division: 'vehicle', role: 'admin' },
     { username: 'history', password: '@V+1+}6qDR8)', division: 'vehicle', role: 'history' }
   ];
@@ -844,6 +845,11 @@ app.get('/', (req, res) => {
 // Serve static files from the 'public' directory with auth protection for Project-Vehicle-Management-admin.html
 app.get('/Project-Vehicle-Management-admin.html', authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Project-Vehicle-Management-admin.html'));
+});
+
+// Serve static files from the 'public' directory with auth protection for project_headOffice-Management-admin.html
+app.get('/project_headOffice-Management-admin.html', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'project_headOffice-Management-admin.html'));
 });
 
 // Serve static files from the 'public' directory with auth protection for history_service.html
