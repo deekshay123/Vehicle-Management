@@ -339,9 +339,11 @@
     // Handle form submission
     document.getElementById('loginForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
         const loadingSpinner = document.getElementById('loadingSpinner');
+
+        console.log('Login attempt:', { username, password }); // Debug log
 
         // Handle Database user login locally without backend call
         if (username === 'Database' && password === 'PASSWORD@1234') {
@@ -367,6 +369,7 @@
             }
         })
         .then(data => {
+            console.log('Login response:', data); // Debug log
 if (data.success) {
     if (username === 'user' && password === 'q1w2e3r4/') {
         window.location.href = '/Project-Vehicle-Management-Feedmill-user.html'; // Redirect feedmill user to feedmill user page
@@ -374,7 +377,7 @@ if (data.success) {
         window.location.href = '/project_vehicle-Management-feedmill-admin.html'; // Redirect feedmill admin to feedmill admin page
     } else if (username === 'user') {
         window.location.href = '/Project-Vehicle-Management-user.html'; // Redirect user to user page
-    } else if (username === 'admin' && password === 'Dee@123#4567332jfr') {
+    } else if (username === 'admin' && password === 'h7PSGBuG!h') {
         window.location.href = '/project_headOffice-Management-admin.html'; // Redirect head office admin to head office admin page
     } else if (username === 'admin') {
         window.location.href = '/Project-Vehicle-Management-admin.html'; // Redirect admin to admin page
