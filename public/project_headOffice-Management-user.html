@@ -7,29 +7,15 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="custom_styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <style>
-    .app-header {
-         background: linear-gradient(90deg, #00d3b7a9, #00aa5b);
-         color: white;
-         padding: 0.1rem 5px;
-         text-align: center;
-         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-         font-weight: 700;
-         font-size: 20px;
-         letter-spacing: 1.5px;
-         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-         border-radius: 8px;
-         margin-bottom: 30px;
-    }
-    </style>
 </head>
 <body>
     <header class="app-header">
-        <h3>VEHICLE MANAGEMENT FOR IDUSTRIES & PVT LTD-[HEAD OFFICE]</h3>
+        <h3>VEHICLE MANAGEMENT FOR PROCESSING DIVISION</h3>
     </header>
     <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
         <i class="fas fa-sign-out-alt"></i> Logout
     </button>
+
     <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm">
         <span class="arrow down">&#9660;</span> Show Form
     </button>
@@ -43,7 +29,7 @@
         <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
         <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
         <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
-        <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
+        <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Maintenance/Tyre" required />
         <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
         <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
         <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
@@ -52,8 +38,8 @@
          <div class="form-group">
             <label for="renewalDate2">GPS Renewal</label>
             <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
-        </div> -->
-        <!-- <button type="submit">Add Entry</button> -->
+        </div>
+        <button type="submit">Add Entry</button> -->
     </form>
 
     <!-- Status count boxes -->
@@ -79,7 +65,7 @@
     <div class="table-container">
         <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
             <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
-            <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
+            <input type="text" id="searchStatusInput" placeholder="Search by Policy Type..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
             <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
             <input type="text" id="searchGpsRenewalDateInput" placeholder="Search by GPS Renewal Date..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
             <button id="exportPdfBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; border: 1.5px solid #2980b9; background-color: #2980b9; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); transition: background-color 0.3s ease;">Export to PDF</button>
@@ -96,8 +82,8 @@
             <thead>
                 <tr>
                     <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th>
+                    <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+                    <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
                 </tr>
                 <tr>
                     <th>#</th>
@@ -160,7 +146,7 @@
     </div>
 
     <script>
-        // * Export table data to PDF using jsPDF and autoTable with plugin availability check
+      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
 function exportTableToPDF() {
     try {
         const { jsPDF } = window.jspdf;
@@ -237,7 +223,7 @@ function exportTableToPDF() {
         // Add heading text above the table with professional styling
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(15);
-        doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+        doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
         // Add current date below heading
         const currentDateStr = formatDateDDMMYYYY(new Date());
@@ -292,7 +278,7 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('headOffice_vehicle_maintenance_table.pdf');
+        doc.save('vehicle_maintenance_table.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
@@ -309,6 +295,3 @@ function exportTableToPDF() {
     <script src="export.js"></script>
 </body>
 </html>
-
-    
-    
