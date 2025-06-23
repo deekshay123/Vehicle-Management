@@ -804,6 +804,7 @@ app.post('/login', (req, res) => {
     { username: 'user', password: 'r4e3w2q1/', division: 'vehicle', role: 'user' }, // example for other user
     { username: 'admin', password: 'xsqaIP7&9M*|', division: 'vehicle', role: 'admin' }, // example for other admin
     { username: 'admin', password: 'h7PSGBuG!h', division: 'headoffice', role: 'admin' }, // added missing head office admin user
+    { username: 'user', password: 'headoffice@123', division: 'headoffice', role: 'user' }, // added new head office user
     { username: 'Database', password: 'PASSWORD@1234', division: 'vehicle', role: 'admin' },
     { username: 'history', password: '@V+1+}6qDR8)', division: 'vehicle', role: 'history' }
   ];
