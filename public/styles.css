@@ -374,11 +374,17 @@ button.delete-btn:hover {
 .table-container {
     max-height: 600px;
     overflow-y: auto;
+    overflow-x: auto;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     transition: box-shadow 0.3s ease, border-radius 0.3s ease;
     /* Added to enable sticky header */
     position: relative;
+}
+
+table#combinedTable {
+    table-layout: fixed;
+    width: 100%;
 }
 
 table#combinedTable thead th {
