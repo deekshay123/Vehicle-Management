@@ -22,6 +22,11 @@
            margin-bottom: 30px;
            position: relative;
     }  
+    /* Hide edit and delete buttons */
+    button.edit-btn,
+    button.delete-btn {
+        display: none !important;
+    }
     </style>
 </head>
 <body>
@@ -117,7 +122,7 @@
                     <th style="text-align: center;">Status</th>
                     <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
                     <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date</th>
-<!--                     <th>Actions</th> -->
+                    <!-- <th>Actions</th> -->
                 </tr>
             </thead>
             <tbody></tbody>
