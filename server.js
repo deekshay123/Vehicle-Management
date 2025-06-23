@@ -799,9 +799,9 @@ app.post('/login', (req, res) => {
 
   // Hardcoded user credentials and roles
   const users = [
-    { username: 'user', password: 'q1w2e3r4/', division: 'feedmill', role: 'user' },
+    { username: 'user', password: 'feedmill@123', division: 'feedmill', role: 'user' },
     { username: 'admin', password: 'NU67IJvWI/d', division: 'feedmill', role: 'admin' },
-    { username: 'user', password: 'r4e3w2q1/', division: 'vehicle', role: 'user' }, // example for other user
+    { username: 'user', password: 'processing@123', division: 'vehicle', role: 'user' }, // example for other user
     { username: 'admin', password: 'xsqaIP7&9M*|', division: 'vehicle', role: 'admin' }, // example for other admin
     { username: 'admin', password: 'h7PSGBuG!h', division: 'headoffice', role: 'admin' }, // added missing head office admin user
     { username: 'user', password: 'headoffice@123', division: 'headoffice', role: 'user' }, // added new head office user
