@@ -222,10 +222,8 @@ function renderTable(data) {
         endIndex = Math.min(startIndex + itemsPerPage, data.length);
     }
 
-    const visibleColumns = getVisibleColumns();
-
     for (let i = startIndex; i < endIndex; i++) {
-        insertRow(tableBody, data[i], i + 1, visibleColumns);
+        insertRow(tableBody, data[i], i + 1);
     }
 
     // Add professional design class if more than 20 rows
@@ -361,7 +359,7 @@ function updateStatusCounts(data) {
 }
 
 
-function insertRow(tableBody, entry, rowIndex, visibleColumns) {
+function insertRow(tableBody, entry, rowIndex) {
     const newRow = tableBody.insertRow();
     newRow.setAttribute('data-id', entry._id);
 
@@ -382,7 +380,6 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
     const vehicleStatus = calculateStatus(entry.vehicleRenewalDate);
     const maintenanceStatus = calculateStatus(entry.maintenanceRenewalDate);
 
-    // Insert count cell always
     const countCell = newRow.insertCell();
     countCell.textContent = rowIndex;
 
@@ -419,121 +416,122 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
         { key: 'renewalDate2', type: 'date' }
     ];
 
-// Insert cells only for visible columns (excluding count cell at index 0)
-visibleColumns.forEach(colIndex => {
-    // Skip count column (0) as it's already inserted
-    if (colIndex === 0) return;
+    fields.forEach((field, index) => {
+        const cell = newRow.insertCell();
 
-    const field = fields[colIndex - 1]; // fields array is zero-based, columns start at 1 after count
-    if (!field) return;
+        if (field.key === 'gps') {
+            const today = new Date();
+            const renewalDate2 = new Date(entry.renewalDate2);
+            const diffTime = renewalDate2 - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    const cell = newRow.insertCell();
+            let globeClass = '';
+            if (diffDays > 30) {
+                globeClass = 'globe-icon globe-green';
+            } else if (diffDays > 15) {
+                globeClass = 'globe-icon globe-yellow';
+            } else if (diffDays > 2) {
+                globeClass = 'globe-icon globe-red blinking';
+            } else {
+                globeClass = 'globe-icon globe-red';
+            }
 
-    if (field.key === 'gps') {
-        const today = new Date();
-        const renewalDate2 = new Date(entry.renewalDate2);
-        const diffTime = renewalDate2 - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        let globeClass = '';
-        if (diffDays > 30) {
-            globeClass = 'globe-icon globe-green';
-        } else if (diffDays > 15) {
-            globeClass = 'globe-icon globe-yellow';
-        } else if (diffDays > 2) {
-            globeClass = 'globe-icon globe-red blinking';
-        } else {
-            globeClass = 'globe-icon globe-red';
+            cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
+            cell.style.textAlign = 'center';
+            cell.classList.add('gps-column-shadow');
+            return;
         }
 
-        cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
-        cell.style.textAlign = 'center';
-        cell.classList.add('gps-column-shadow');
-        return;
-    }
+        if (field.key === 'renewalDate2') {
+            const span = document.createElement('span');
+            let displayValue = originalValues.renewalDate2;
+            if (displayValue) {
+                displayValue = (function formatDate(dateStr) {
+                    if (!dateStr) return '';
+                    const months = [
+                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                    ];
+                    const dateObj = new Date(dateStr);
+                    if (isNaN(dateObj)) return '';
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = months[dateObj.getMonth()];
+                    const year = dateObj.getFullYear();
+                    return `${day}-${month}-${year}`;
+                })(displayValue);
+            } else {
+                displayValue = '';
+            }
+            span.textContent = displayValue;
+            cell.appendChild(span);
 
-    if (field.key === 'renewalDate2') {
+            const input = document.createElement('input');
+            input.type = 'date';
+            if (originalValues.renewalDate2) {
+                const d = new Date(originalValues.renewalDate2);
+                if (!isNaN(d)) {
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    input.value = `${yyyy}-${mm}-${dd}`;
+                }
+            }
+            input.style.display = 'none';
+            input.classList.add('inline-edit-input');
+            cell.appendChild(input);
+
+            cell.style.textAlign = 'center';
+            return;
+        }
+
         const span = document.createElement('span');
-        let displayValue = originalValues.renewalDate2;
-        if (displayValue) {
-            displayValue = (function formatDate(dateStr) {
-                if (!dateStr) return '';
-                const months = [
-                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-                ];
-                const dateObj = new Date(dateStr);
-                if (isNaN(dateObj)) return '';
-                const day = String(dateObj.getDate()).padStart(2, '0');
-                const month = months[dateObj.getMonth()];
-                const year = dateObj.getFullYear();
-                return `${day}-${month}-${year}`;
-            })(displayValue);
-        } else {
-            displayValue = '';
+        let displayValue = originalValues[field.key];
+        if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate') {
+            if (field.key === 'maintenanceStatusText') {
+                // This block is replaced below
+            } else {
+                displayValue = formatDate(displayValue);
+            }
+        }
+        if (field.key === 'maintenanceStatusText') {
+            // Replace maintenanceStatusText display with time difference string
+            displayValue = formatTimeDifferenceFromToday(entry.maintenanceRenewalDate);
         }
         span.textContent = displayValue;
         cell.appendChild(span);
 
-        const input = document.createElement('input');
-        input.type = 'date';
-        if (originalValues.renewalDate2) {
-            const d = new Date(originalValues.renewalDate2);
-            if (!isNaN(d)) {
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                input.value = `${yyyy}-${mm}-${dd}`;
-            }
-        }
-        input.style.display = 'none';
-        input.classList.add('inline-edit-input');
-        cell.appendChild(input);
-
-        cell.style.textAlign = 'center';
-        return;
+if (!field.readonly) {
+    const input = document.createElement('input');
+    input.type = field.type === 'gps' ? 'text' : field.type;
+    input.value = originalValues[field.key] || '';
+    input.style.display = 'none';
+    input.classList.add('inline-edit-input');
+    // Add name attribute for openingKM, closingKM, kmDriven inputs for event listener selection
+    if (field.key === 'openingKM' || field.key === 'closingKM' || field.key === 'kmDriven') {
+        input.name = field.key;
     }
+    cell.appendChild(input);
+}
 
-    const span = document.createElement('span');
-    let displayValue = originalValues[field.key];
-    if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate') {
+        if (field.key === 'vehicleStatusText') {
+            cell.className = vehicleStatus.className;
+            cell.style.textAlign = 'center';
+        }
         if (field.key === 'maintenanceStatusText') {
-            // This block is replaced below
-        } else {
-            displayValue = formatDate(displayValue);
+            // Remove the className assignment to avoid active/expiring/expired styling
+            // cell.className = maintenanceStatus.className;
+            cell.style.textAlign = 'center';
+            cell.style.color = 'indigo'; // Add red color to the text
         }
-    }
-    if (field.key === 'maintenanceStatusText') {
-        // Replace maintenanceStatusText display with time difference string
-        displayValue = formatTimeDifferenceFromToday(entry.maintenanceRenewalDate);
-    }
-    span.textContent = displayValue;
-    cell.appendChild(span);
 
-    if (!field.readonly) {
-        const input = document.createElement('input');
-        input.type = field.type === 'gps' ? 'text' : field.type;
-        input.value = originalValues[field.key] || '';
-        input.style.display = 'none';
-        input.classList.add('inline-edit-input');
-        // Add name attribute for openingKM, closingKM, kmDriven inputs for event listener selection
-        if (field.key === 'openingKM' || field.key === 'closingKM' || field.key === 'kmDriven') {
-            input.name = field.key;
+        if ([0, 1, 2, 3, 5, 7].includes(index)) {
+            cell.style.textAlign = 'left';
+        } else if ([4, 8].includes(index)) {
+            cell.style.textAlign = 'center';
+        } else if (index === 6) {
+            cell.style.textAlign = 'center';
         }
-        cell.appendChild(input);
-    }
-
-    if (field.key === 'vehicleStatusText') {
-        cell.className = vehicleStatus.className;
-        cell.style.textAlign = 'center';
-    }
-    if (field.key === 'maintenanceStatusText') {
-        // Remove the className assignment to avoid active/expiring/expired styling
-        // cell.className = maintenanceStatus.className;
-        cell.style.textAlign = 'center';
-        cell.style.color = 'indigo'; // Add red color to the text
-    }
-});
+    });
 
     if (window.location.pathname.endsWith('Project-Vehicle-Management-user.html') || window.location.pathname.endsWith('Project-Vehicle-Management-Feedmill-user.html')) {
         const actionsCell = newRow.insertCell();
@@ -1079,66 +1077,34 @@ const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 
-
 function combinedFilter() {
-    const searchTexts = {
-        month: searchMonthInput.value.trim().toLowerCase(),
-        status: searchStatusInput.value.trim().toLowerCase(),
-        vehicleNumber: searchVehicleNumberInput.value.trim().toLowerCase()
-    };
-    filterTableByVisibleColumns(searchTexts);
+    const monthText = searchMonthInput.value.trim().toLowerCase();
+    const statusText = searchStatusInput.value.trim().toLowerCase();
+    const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
+    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
 }
 
 searchMonthInput.addEventListener('input', combinedFilter);
 searchStatusInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
-function filterTableByVisibleColumns(searchTexts) {
+function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText) {
     const data = window.currentData || [];
-    const visibleColumns = getVisibleColumns();
-
     const filteredData = data.filter(entry => {
-        // For each visible column, check if the corresponding data matches the search input if applicable
-        // We will check only the columns that have a data key and are visible
+        const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
+        const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
 
-        // For month search, check vehicleRenewalDate and maintenanceRenewalDate if those columns are visible
-        let monthMatch = true;
-        if (searchTexts.month) {
-            monthMatch = false;
-            if (visibleColumns.includes(4)) { // vehicleRenewalDate
-                const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
-                if (vehicleMonth.includes(searchTexts.month)) monthMatch = true;
-            }
-            if (!monthMatch && visibleColumns.includes(11)) { // maintenanceRenewalDate
-                const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
-                if (maintenanceMonth.includes(searchTexts.month)) monthMatch = true;
-            }
-        }
+        // Filter by policyType instead of status
+        const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
 
-        // For status search, check policyType if visible
-        let statusMatch = true;
-        if (searchTexts.status) {
-            statusMatch = false;
-            if (visibleColumns.includes(2)) { // policyType
-                const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
-                if (policyType.includes(searchTexts.status)) statusMatch = true;
-            }
-        }
-
-        // For vehicleNumber search, check vehicleNumber if visible
-        let vehicleNumberMatch = true;
-        if (searchTexts.vehicleNumber) {
-            vehicleNumberMatch = false;
-            if (visibleColumns.includes(1)) { // vehicleNumber
-                if (entry.vehicleNumber.toLowerCase().includes(searchTexts.vehicleNumber)) vehicleNumberMatch = true;
-            }
-        }
+        // Check if monthText matches either vehicleMonth or maintenanceMonth
+        const monthMatch = !monthText || vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
+        const statusMatch = !statusText || policyType.includes(statusText);
+        const vehicleNumberMatch = !vehicleNumberText || entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
 
         return monthMatch && statusMatch && vehicleNumberMatch;
     });
-
     renderTable(filteredData);
-    applyColumnVisibility();
 }
 
 // Helper function to get month name from date string
@@ -1337,50 +1303,21 @@ window.onload = async function () {
         toggleFilter('all');
     });
 
-// Search inputs combined filter
-const searchMonthInput = document.getElementById('searchMonthInput');
-const searchStatusInput = document.getElementById('searchStatusInput');
-const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
+    // Search inputs combined filter
+    const searchMonthInput = document.getElementById('searchMonthInput');
+    const searchStatusInput = document.getElementById('searchStatusInput');
+    const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 
-// Helper function to get visible columns from localStorage
-function getVisibleColumns() {
-    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-    // Return array of visible column indices
-    return Object.keys(savedVisibility).filter(key => savedVisibility[key]).map(key => parseInt(key));
-}
+    function combinedFilter() {
+        const monthText = searchMonthInput.value.trim().toLowerCase();
+        const statusText = searchStatusInput.value.trim().toLowerCase();
+        const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
+        filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
+    }
 
-// Map column indices to data keys (based on table header and data structure)
-const columnIndexToDataKey = {
-    0: null, // # column, no data key
-    1: 'vehicleNumber',
-    2: 'policyType',
-    3: 'policyNumber',
-    4: 'vehicleRenewalDate',
-    5: 'vehicleStatusText',
-    6: 'maintenanceType',
-    7: 'openingKM',
-    8: 'closingKM',
-    9: 'kmDriven',
-    10: 'remarks',
-    11: 'maintenanceRenewalDate',
-    12: 'maintenanceStatusText',
-    13: 'gps', // special case, no direct data key
-    14: 'renewalDate2',
-    15: null // Actions column
-};
-
-function combinedFilter() {
-    const searchTexts = {
-        month: searchMonthInput.value.trim().toLowerCase(),
-        status: searchStatusInput.value.trim().toLowerCase(),
-        vehicleNumber: searchVehicleNumberInput.value.trim().toLowerCase()
-    };
-    filterTableByVisibleColumns(searchTexts);
-}
-
-searchMonthInput.addEventListener('input', combinedFilter);
-searchStatusInput.addEventListener('input', combinedFilter);
-searchVehicleNumberInput.addEventListener('input', combinedFilter);
+    searchMonthInput.addEventListener('input', combinedFilter);
+    searchStatusInput.addEventListener('input', combinedFilter);
+    searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
     // Add reload button event listener
     const reloadBtn = document.getElementById('reloadBtn');
