@@ -419,129 +419,121 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
         { key: 'renewalDate2', type: 'date' }
     ];
 
-    // Insert cells only for visible columns (excluding count cell at index 0)
-    visibleColumns.forEach(colIndex => {
-        // Skip count column (0) as it's already inserted
-        if (colIndex === 0) return;
+// Insert cells only for visible columns (excluding count cell at index 0)
+visibleColumns.forEach(colIndex => {
+    // Skip count column (0) as it's already inserted
+    if (colIndex === 0) return;
 
-        const field = fields[colIndex - 1]; // fields array is zero-based, columns start at 1 after count
-        if (!field) return;
+    const field = fields[colIndex - 1]; // fields array is zero-based, columns start at 1 after count
+    if (!field) return;
 
-        const cell = newRow.insertCell();
+    const cell = newRow.insertCell();
 
-        if (field.key === 'gps') {
-            const today = new Date();
-            const renewalDate2 = new Date(entry.renewalDate2);
-            const diffTime = renewalDate2 - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (field.key === 'gps') {
+        const today = new Date();
+        const renewalDate2 = new Date(entry.renewalDate2);
+        const diffTime = renewalDate2 - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            let globeClass = '';
-            if (diffDays > 30) {
-                globeClass = 'globe-icon globe-green';
-            } else if (diffDays > 15) {
-                globeClass = 'globe-icon globe-yellow';
-            } else if (diffDays > 2) {
-                globeClass = 'globe-icon globe-red blinking';
-            } else {
-                globeClass = 'globe-icon globe-red';
-            }
-
-            cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
-            cell.style.textAlign = 'center';
-            cell.classList.add('gps-column-shadow');
-            return;
+        let globeClass = '';
+        if (diffDays > 30) {
+            globeClass = 'globe-icon globe-green';
+        } else if (diffDays > 15) {
+            globeClass = 'globe-icon globe-yellow';
+        } else if (diffDays > 2) {
+            globeClass = 'globe-icon globe-red blinking';
+        } else {
+            globeClass = 'globe-icon globe-red';
         }
 
-        if (field.key === 'renewalDate2') {
-            const span = document.createElement('span');
-            let displayValue = originalValues.renewalDate2;
-            if (displayValue) {
-                displayValue = (function formatDate(dateStr) {
-                    if (!dateStr) return '';
-                    const months = [
-                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-                    ];
-                    const dateObj = new Date(dateStr);
-                    if (isNaN(dateObj)) return '';
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    const month = months[dateObj.getMonth()];
-                    const year = dateObj.getFullYear();
-                    return `${day}-${month}-${year}`;
-                })(displayValue);
-            } else {
-                displayValue = '';
-            }
-            span.textContent = displayValue;
-            cell.appendChild(span);
+        cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
+        cell.style.textAlign = 'center';
+        cell.classList.add('gps-column-shadow');
+        return;
+    }
 
-            const input = document.createElement('input');
-            input.type = 'date';
-            if (originalValues.renewalDate2) {
-                const d = new Date(originalValues.renewalDate2);
-                if (!isNaN(d)) {
-                    const yyyy = d.getFullYear();
-                    const mm = String(d.getMonth() + 1).padStart(2, '0');
-                    const dd = String(d.getDate()).padStart(2, '0');
-                    input.value = `${yyyy}-${mm}-${dd}`;
-                }
-            }
-            input.style.display = 'none';
-            input.classList.add('inline-edit-input');
-            cell.appendChild(input);
-
-            cell.style.textAlign = 'center';
-            return;
-        }
-
+    if (field.key === 'renewalDate2') {
         const span = document.createElement('span');
-        let displayValue = originalValues[field.key];
-        if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate') {
-            if (field.key === 'maintenanceStatusText') {
-                // This block is replaced below
-            } else {
-                displayValue = formatDate(displayValue);
-            }
-        }
-        if (field.key === 'maintenanceStatusText') {
-            // Replace maintenanceStatusText display with time difference string
-            displayValue = formatTimeDifferenceFromToday(entry.maintenanceRenewalDate);
+        let displayValue = originalValues.renewalDate2;
+        if (displayValue) {
+            displayValue = (function formatDate(dateStr) {
+                if (!dateStr) return '';
+                const months = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ];
+                const dateObj = new Date(dateStr);
+                if (isNaN(dateObj)) return '';
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const month = months[dateObj.getMonth()];
+                const year = dateObj.getFullYear();
+                return `${day}-${month}-${year}`;
+            })(displayValue);
+        } else {
+            displayValue = '';
         }
         span.textContent = displayValue;
         cell.appendChild(span);
 
-if (!field.readonly) {
-    const input = document.createElement('input');
-    input.type = field.type === 'gps' ? 'text' : field.type;
-    input.value = originalValues[field.key] || '';
-    input.style.display = 'none';
-    input.classList.add('inline-edit-input');
-    // Add name attribute for openingKM, closingKM, kmDriven inputs for event listener selection
-    if (field.key === 'openingKM' || field.key === 'closingKM' || field.key === 'kmDriven') {
-        input.name = field.key;
+        const input = document.createElement('input');
+        input.type = 'date';
+        if (originalValues.renewalDate2) {
+            const d = new Date(originalValues.renewalDate2);
+            if (!isNaN(d)) {
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                input.value = `${yyyy}-${mm}-${dd}`;
+            }
+        }
+        input.style.display = 'none';
+        input.classList.add('inline-edit-input');
+        cell.appendChild(input);
+
+        cell.style.textAlign = 'center';
+        return;
     }
-    cell.appendChild(input);
-}
 
-        if (field.key === 'vehicleStatusText') {
-            cell.className = vehicleStatus.className;
-            cell.style.textAlign = 'center';
-        }
+    const span = document.createElement('span');
+    let displayValue = originalValues[field.key];
+    if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate') {
         if (field.key === 'maintenanceStatusText') {
-            // Remove the className assignment to avoid active/expiring/expired styling
-            // cell.className = maintenanceStatus.className;
-            cell.style.textAlign = 'center';
-            cell.style.color = 'indigo'; // Add red color to the text
+            // This block is replaced below
+        } else {
+            displayValue = formatDate(displayValue);
         }
+    }
+    if (field.key === 'maintenanceStatusText') {
+        // Replace maintenanceStatusText display with time difference string
+        displayValue = formatTimeDifferenceFromToday(entry.maintenanceRenewalDate);
+    }
+    span.textContent = displayValue;
+    cell.appendChild(span);
 
-        if ([0, 1, 2, 3, 5, 7].includes(index)) {
-            cell.style.textAlign = 'left';
-        } else if ([4, 8].includes(index)) {
-            cell.style.textAlign = 'center';
-        } else if (index === 6) {
-            cell.style.textAlign = 'center';
+    if (!field.readonly) {
+        const input = document.createElement('input');
+        input.type = field.type === 'gps' ? 'text' : field.type;
+        input.value = originalValues[field.key] || '';
+        input.style.display = 'none';
+        input.classList.add('inline-edit-input');
+        // Add name attribute for openingKM, closingKM, kmDriven inputs for event listener selection
+        if (field.key === 'openingKM' || field.key === 'closingKM' || field.key === 'kmDriven') {
+            input.name = field.key;
         }
-    });
+        cell.appendChild(input);
+    }
+
+    if (field.key === 'vehicleStatusText') {
+        cell.className = vehicleStatus.className;
+        cell.style.textAlign = 'center';
+    }
+    if (field.key === 'maintenanceStatusText') {
+        // Remove the className assignment to avoid active/expiring/expired styling
+        // cell.className = maintenanceStatus.className;
+        cell.style.textAlign = 'center';
+        cell.style.color = 'indigo'; // Add red color to the text
+    }
+});
 
     if (window.location.pathname.endsWith('Project-Vehicle-Management-user.html') || window.location.pathname.endsWith('Project-Vehicle-Management-Feedmill-user.html')) {
         const actionsCell = newRow.insertCell();
@@ -1146,6 +1138,7 @@ function filterTableByVisibleColumns(searchTexts) {
     });
 
     renderTable(filteredData);
+    applyColumnVisibility();
 }
 
 // Helper function to get month name from date string
