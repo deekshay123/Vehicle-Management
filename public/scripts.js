@@ -222,8 +222,10 @@ function renderTable(data) {
         endIndex = Math.min(startIndex + itemsPerPage, data.length);
     }
 
+    const visibleColumns = getVisibleColumns();
+
     for (let i = startIndex; i < endIndex; i++) {
-        insertRow(tableBody, data[i], i + 1);
+        insertRow(tableBody, data[i], i + 1, visibleColumns);
     }
 
     // Add professional design class if more than 20 rows
@@ -359,7 +361,7 @@ function updateStatusCounts(data) {
 }
 
 
-function insertRow(tableBody, entry, rowIndex) {
+function insertRow(tableBody, entry, rowIndex, visibleColumns) {
     const newRow = tableBody.insertRow();
     newRow.setAttribute('data-id', entry._id);
 
@@ -380,6 +382,7 @@ function insertRow(tableBody, entry, rowIndex) {
     const vehicleStatus = calculateStatus(entry.vehicleRenewalDate);
     const maintenanceStatus = calculateStatus(entry.maintenanceRenewalDate);
 
+    // Insert count cell always
     const countCell = newRow.insertCell();
     countCell.textContent = rowIndex;
 
@@ -416,7 +419,14 @@ function insertRow(tableBody, entry, rowIndex) {
         { key: 'renewalDate2', type: 'date' }
     ];
 
-    fields.forEach((field, index) => {
+    // Insert cells only for visible columns (excluding count cell at index 0)
+    visibleColumns.forEach(colIndex => {
+        // Skip count column (0) as it's already inserted
+        if (colIndex === 0) return;
+
+        const field = fields[colIndex - 1]; // fields array is zero-based, columns start at 1 after count
+        if (!field) return;
+
         const cell = newRow.insertCell();
 
         if (field.key === 'gps') {
