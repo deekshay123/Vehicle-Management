@@ -1077,33 +1077,64 @@ const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 
+
 function combinedFilter() {
-    const monthText = searchMonthInput.value.trim().toLowerCase();
-    const statusText = searchStatusInput.value.trim().toLowerCase();
-    const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
-    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
+    const searchTexts = {
+        month: searchMonthInput.value.trim().toLowerCase(),
+        status: searchStatusInput.value.trim().toLowerCase(),
+        vehicleNumber: searchVehicleNumberInput.value.trim().toLowerCase()
+    };
+    filterTableByVisibleColumns(searchTexts);
 }
 
 searchMonthInput.addEventListener('input', combinedFilter);
 searchStatusInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
-function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText) {
+function filterTableByVisibleColumns(searchTexts) {
     const data = window.currentData || [];
+    const visibleColumns = getVisibleColumns();
+
     const filteredData = data.filter(entry => {
-        const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
-        const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
+        // For each visible column, check if the corresponding data matches the search input if applicable
+        // We will check only the columns that have a data key and are visible
 
-        // Filter by policyType instead of status
-        const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
+        // For month search, check vehicleRenewalDate and maintenanceRenewalDate if those columns are visible
+        let monthMatch = true;
+        if (searchTexts.month) {
+            monthMatch = false;
+            if (visibleColumns.includes(4)) { // vehicleRenewalDate
+                const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
+                if (vehicleMonth.includes(searchTexts.month)) monthMatch = true;
+            }
+            if (!monthMatch && visibleColumns.includes(11)) { // maintenanceRenewalDate
+                const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
+                if (maintenanceMonth.includes(searchTexts.month)) monthMatch = true;
+            }
+        }
 
-        // Check if monthText matches either vehicleMonth or maintenanceMonth
-        const monthMatch = !monthText || vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
-        const statusMatch = !statusText || policyType.includes(statusText);
-        const vehicleNumberMatch = !vehicleNumberText || entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
+        // For status search, check policyType if visible
+        let statusMatch = true;
+        if (searchTexts.status) {
+            statusMatch = false;
+            if (visibleColumns.includes(2)) { // policyType
+                const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
+                if (policyType.includes(searchTexts.status)) statusMatch = true;
+            }
+        }
+
+        // For vehicleNumber search, check vehicleNumber if visible
+        let vehicleNumberMatch = true;
+        if (searchTexts.vehicleNumber) {
+            vehicleNumberMatch = false;
+            if (visibleColumns.includes(1)) { // vehicleNumber
+                if (entry.vehicleNumber.toLowerCase().includes(searchTexts.vehicleNumber)) vehicleNumberMatch = true;
+            }
+        }
 
         return monthMatch && statusMatch && vehicleNumberMatch;
     });
+
     renderTable(filteredData);
 }
 
@@ -1303,21 +1334,50 @@ window.onload = async function () {
         toggleFilter('all');
     });
 
-    // Search inputs combined filter
-    const searchMonthInput = document.getElementById('searchMonthInput');
-    const searchStatusInput = document.getElementById('searchStatusInput');
-    const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
+// Search inputs combined filter
+const searchMonthInput = document.getElementById('searchMonthInput');
+const searchStatusInput = document.getElementById('searchStatusInput');
+const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 
-    function combinedFilter() {
-        const monthText = searchMonthInput.value.trim().toLowerCase();
-        const statusText = searchStatusInput.value.trim().toLowerCase();
-        const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
-        filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
-    }
+// Helper function to get visible columns from localStorage
+function getVisibleColumns() {
+    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+    // Return array of visible column indices
+    return Object.keys(savedVisibility).filter(key => savedVisibility[key]).map(key => parseInt(key));
+}
 
-    searchMonthInput.addEventListener('input', combinedFilter);
-    searchStatusInput.addEventListener('input', combinedFilter);
-    searchVehicleNumberInput.addEventListener('input', combinedFilter);
+// Map column indices to data keys (based on table header and data structure)
+const columnIndexToDataKey = {
+    0: null, // # column, no data key
+    1: 'vehicleNumber',
+    2: 'policyType',
+    3: 'policyNumber',
+    4: 'vehicleRenewalDate',
+    5: 'vehicleStatusText',
+    6: 'maintenanceType',
+    7: 'openingKM',
+    8: 'closingKM',
+    9: 'kmDriven',
+    10: 'remarks',
+    11: 'maintenanceRenewalDate',
+    12: 'maintenanceStatusText',
+    13: 'gps', // special case, no direct data key
+    14: 'renewalDate2',
+    15: null // Actions column
+};
+
+function combinedFilter() {
+    const searchTexts = {
+        month: searchMonthInput.value.trim().toLowerCase(),
+        status: searchStatusInput.value.trim().toLowerCase(),
+        vehicleNumber: searchVehicleNumberInput.value.trim().toLowerCase()
+    };
+    filterTableByVisibleColumns(searchTexts);
+}
+
+searchMonthInput.addEventListener('input', combinedFilter);
+searchStatusInput.addEventListener('input', combinedFilter);
+searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
     // Add reload button event listener
     const reloadBtn = document.getElementById('reloadBtn');
