@@ -1556,31 +1556,69 @@ window.onload = async function () {
         });
     }
 
-    // Function to apply column visibility based on saved settings or default (all visible)
-    function applyColumnVisibility() {
-        const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-        const headers = getColumnHeaders();
+function applyColumnVisibility() {
+    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+    const headers = getColumnHeaders();
+
+    headers.forEach(header => {
+        const colIndex = header.index;
+        const visible = savedVisibility.hasOwnProperty(colIndex) ? savedVisibility[colIndex] : true;
+
+        // Show/hide thead th
+        const th = combinedTableElement.querySelector('thead tr:nth-child(2) th:nth-child(' + (colIndex + 1) + ')');
+        if (th) {
+            th.style.display = visible ? '' : 'none';
+        }
+
+        // Show/hide tbody td
+        const rows = combinedTableElement.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const td = row.cells[colIndex];
+            if (td) {
+                td.style.display = visible ? '' : 'none';
+            }
+        });
+    });
+
+    // Also handle the first header row's colspan attribute for grouped headers
+    const firstHeaderRow = combinedTableElement.querySelector('thead tr:first-child');
+    if (firstHeaderRow) {
+        const activeCount = Object.values(savedVisibility).filter(v => v).length;
+        // Adjust colspan of grouped headers based on visible columns count
+        // For example, if there are two groups: Vehicle Details and Maintenance Details
+        // We can count how many columns belong to each group and adjust colspan accordingly
+        // This requires knowledge of which columns belong to which group
+        // For simplicity, we can recalculate colspan for each group based on visible columns
+
+        // Example: Assuming columns 1-8 are Vehicle Details, 9-16 are Maintenance Details
+        let vehicleDetailsCount = 0;
+        let maintenanceDetailsCount = 0;
 
         headers.forEach(header => {
             const colIndex = header.index;
             const visible = savedVisibility.hasOwnProperty(colIndex) ? savedVisibility[colIndex] : true;
-
-            // Show/hide thead th
-            const th = combinedTableElement.querySelector('thead tr:nth-child(2) th:nth-child(' + (colIndex + 1) + ')');
-            if (th) {
-                th.style.display = visible ? '' : 'none';
-            }
-
-            // Show/hide tbody td
-            const rows = combinedTableElement.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const td = row.cells[colIndex];
-                if (td) {
-                    td.style.display = visible ? '' : 'none';
+            if (visible) {
+                if (colIndex >= 1 && colIndex <= 8) {
+                    vehicleDetailsCount++;
+                } else if (colIndex >= 9 && colIndex <= 16) {
+                    maintenanceDetailsCount++;
                 }
-            });
+            }
         });
+
+        const vehicleDetailsTh = firstHeaderRow.querySelector('th:nth-child(2)');
+        const maintenanceDetailsTh = firstHeaderRow.querySelector('th:nth-child(3)');
+
+        if (vehicleDetailsTh) {
+            vehicleDetailsTh.colSpan = vehicleDetailsCount > 0 ? vehicleDetailsCount : 1;
+            vehicleDetailsTh.style.display = vehicleDetailsCount > 0 ? '' : 'none';
+        }
+        if (maintenanceDetailsTh) {
+            maintenanceDetailsTh.colSpan = maintenanceDetailsCount > 0 ? maintenanceDetailsCount : 1;
+            maintenanceDetailsTh.style.display = maintenanceDetailsCount > 0 ? '' : 'none';
+        }
     }
+}
 
     // Show modal on button click
     columnFilterBtn.addEventListener('click', () => {
