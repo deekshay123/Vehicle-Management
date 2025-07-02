@@ -1084,9 +1084,9 @@ function combinedFilter() {
     filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
 }
 
-searchMonthInput.removeEventListener('input', combinedFilter);
-searchStatusInput.removeEventListener('input', combinedFilter);
-searchVehicleNumberInput.removeEventListener('input', combinedFilter);
+searchMonthInput.addEventListener('input', combinedFilter);
+searchStatusInput.addEventListener('input', combinedFilter);
+searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
 function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText) {
     const data = window.currentData || [];
@@ -1303,105 +1303,21 @@ window.onload = async function () {
         toggleFilter('all');
     });
 
-const searchMonthInput = document.getElementById('searchMonthInput');
-const searchStatusInput = document.getElementById('searchStatusInput');
-const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
-const searchGpsRenewalDateInput = document.getElementById('searchGpsRenewalDateInput');
+    // Search inputs combined filter
+    const searchMonthInput = document.getElementById('searchMonthInput');
+    const searchStatusInput = document.getElementById('searchStatusInput');
+    const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 
-// Mapping of column header names to data keys
-const columnNameToDataKeyMap = {
-    'Vehicle Number': 'vehicleNumber',
-    'Policy Type': 'policyType',
-    'Policy Number': 'policyNumber',
-    'Renewal Date (Vehicle)': 'vehicleRenewalDate',
-    'Status': 'vehicleStatusText',
-    'Service Type': 'maintenanceType',
-    'Opening KM': 'openingKM',
-    'Closing KM': 'closingKM',
-    'Km Driven': 'kmDriven',
-    'Remarks': 'remarks',
-    'Last Service Date': 'maintenanceRenewalDate',
-    'GPS': 'gps',
-    'Renewal Date (GPS)': 'renewalDate2'
-};
+    function combinedFilter() {
+        const monthText = searchMonthInput.value.trim().toLowerCase();
+        const statusText = searchStatusInput.value.trim().toLowerCase();
+        const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
+        filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
+    }
 
-// Function to get selected columns from localStorage
-function getSelectedColumns() {
-    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-    const headers = getColumnHeaders();
-    return headers.filter(header => savedVisibility.hasOwnProperty(header.index) ? savedVisibility[header.index] : true);
-}
-
-// Function to filter data based on selected columns and search inputs
-function filterTableBySelectedColumns() {
-    const data = window.currentData || [];
-
-    const monthText = searchMonthInput.value.trim().toLowerCase();
-    const statusText = searchStatusInput.value.trim().toLowerCase();
-    const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
-    const gpsRenewalDateText = searchGpsRenewalDateInput ? searchGpsRenewalDateInput.value.trim().toLowerCase() : '';
-
-    const selectedColumns = getSelectedColumns();
-    const selectedDataKeys = selectedColumns.map(col => columnNameToDataKeyMap[col.name]).filter(Boolean);
-
-    const filteredData = data.filter(entry => {
-        let monthMatch = true;
-        let statusMatch = true;
-        let vehicleNumberMatch = true;
-        let gpsRenewalDateMatch = true;
-
-        if (monthText) {
-            if (selectedDataKeys.includes('vehicleRenewalDate') || selectedDataKeys.includes('maintenanceRenewalDate')) {
-                const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
-                const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
-                monthMatch = vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
-            } else {
-                monthMatch = false;
-            }
-        }
-
-        if (statusText) {
-            if (selectedDataKeys.includes('policyType')) {
-                const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
-                statusMatch = policyType.includes(statusText);
-            } else {
-                statusMatch = false;
-            }
-        }
-
-        if (vehicleNumberText) {
-            if (selectedDataKeys.includes('vehicleNumber')) {
-                vehicleNumberMatch = entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
-            } else {
-                vehicleNumberMatch = false;
-            }
-        }
-
-        if (gpsRenewalDateText) {
-            if (selectedDataKeys.includes('renewalDate2')) {
-                const gpsRenewalDate = entry.renewalDate2 ? entry.renewalDate2.toLowerCase() : '';
-                gpsRenewalDateMatch = gpsRenewalDate.includes(gpsRenewalDateText);
-            } else {
-                gpsRenewalDateMatch = false;
-            }
-        }
-
-        return monthMatch && statusMatch && vehicleNumberMatch && gpsRenewalDateMatch;
-    });
-
-    renderTable(filteredData);
-}
-
-function combinedFilter() {
-    filterTableBySelectedColumns();
-}
-
-searchMonthInput.addEventListener('input', combinedFilter);
-searchStatusInput.addEventListener('input', combinedFilter);
-searchVehicleNumberInput.addEventListener('input', combinedFilter);
-if (searchGpsRenewalDateInput) {
-    searchGpsRenewalDateInput.addEventListener('input', combinedFilter);
-}
+    searchMonthInput.addEventListener('input', combinedFilter);
+    searchStatusInput.addEventListener('input', combinedFilter);
+    searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
     // Add reload button event listener
     const reloadBtn = document.getElementById('reloadBtn');
@@ -1412,11 +1328,10 @@ if (searchGpsRenewalDateInput) {
     }
 
     // Add GPS Renewal Date search input filtering
-const combinedTable = document.getElementById('combinedTable');
-
-if (combinedTable) {
     const searchGpsRenewalDateInput = document.getElementById('searchGpsRenewalDateInput');
-    if (searchGpsRenewalDateInput) {
+    const combinedTable = document.getElementById('combinedTable');
+
+    if (searchGpsRenewalDateInput && combinedTable) {
         searchGpsRenewalDateInput.addEventListener('input', () => {
             const filterValue = searchGpsRenewalDateInput.value.toLowerCase().trim();
             const rows = combinedTable.querySelectorAll('tbody tr');
@@ -1444,7 +1359,6 @@ if (combinedTable) {
             });
         });
     }
-}
 
     // Column filter modal and button logic
     const columnFilterBtn = document.getElementById('columnFilterBtn');
@@ -1527,19 +1441,19 @@ if (combinedTable) {
         columnFilterModal.setAttribute('aria-hidden', 'false');
     });
 
-saveColumnFilterBtn.addEventListener('click', () => {
-    const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
-    const visibility = {};
-    checkboxes.forEach(checkbox => {
-        const colIndex = parseInt(checkbox.dataset.colIndex, 10);
-        visibility[colIndex] = checkbox.checked;
+    // Save button click handler
+    saveColumnFilterBtn.addEventListener('click', () => {
+        const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
+        const visibility = {};
+        checkboxes.forEach(checkbox => {
+            const colIndex = parseInt(checkbox.dataset.colIndex, 10);
+            visibility[colIndex] = checkbox.checked;
+        });
+        localStorage.setItem('columnVisibility', JSON.stringify(visibility));
+        applyColumnVisibility();
+        columnFilterModal.style.display = 'none';
+        columnFilterModal.setAttribute('aria-hidden', 'true');
     });
-    localStorage.setItem('columnVisibility', JSON.stringify(visibility));
-    applyColumnVisibility();
-    filterTableBySelectedColumns(); // Trigger filtering after applying column visibility
-    columnFilterModal.style.display = 'none';
-    columnFilterModal.setAttribute('aria-hidden', 'true');
-});
 
     // Cancel button click handler
     cancelColumnFilterBtn.addEventListener('click', () => {
