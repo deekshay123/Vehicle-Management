@@ -1076,17 +1076,102 @@ async function loadAndRender() {
 const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
+const searchGpsRenewalDateInput = document.getElementById('searchGpsRenewalDateInput');
 
-function combinedFilter() {
+// Function to get selected columns from localStorage columnVisibility
+function getSelectedColumns() {
+    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+    const headers = getColumnHeaders();
+    // Return array of objects with name and index for visible columns
+    return headers.filter(header => {
+        return savedVisibility.hasOwnProperty(header.index) ? savedVisibility[header.index] : true;
+    });
+}
+
+// Map column header names to data keys used in data objects
+const columnNameToDataKeyMap = {
+    'Vehicle Number': 'vehicleNumber',
+    'Policy Type': 'policyType',
+    'Policy Number': 'policyNumber',
+    'Renewal Date': 'vehicleRenewalDate',
+    'Status': 'vehicleStatusText',
+    'Service Type': 'maintenanceType',
+    'Opening KM': 'openingKM',
+    'Closing KM': 'closingKM',
+    'Km Driven': 'kmDriven',
+    'Remarks': 'remarks',
+    'Last Service Date': 'maintenanceRenewalDate',
+    'GPS': 'renewalDate2',
+    'Renewal Date (GPS)': 'renewalDate2',
+    'Renewal Date (Vehicle)': 'vehicleRenewalDate'
+};
+
+// New filter function to filter data based on multiple search inputs and selected columns
+function filterTableBySelectedColumns() {
+    const data = window.currentData || [];
+
     const monthText = searchMonthInput.value.trim().toLowerCase();
     const statusText = searchStatusInput.value.trim().toLowerCase();
     const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
-    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
+    const gpsRenewalDateText = searchGpsRenewalDateInput.value.trim().toLowerCase();
+
+    const selectedColumns = getSelectedColumns();
+    const selectedDataKeys = selectedColumns.map(col => columnNameToDataKeyMap[col.name]).filter(Boolean);
+
+    const filteredData = data.filter(entry => {
+        // For each search input, check if the corresponding data key is selected, then apply filter
+        let monthMatch = true;
+        let statusMatch = true;
+        let vehicleNumberMatch = true;
+        let gpsRenewalDateMatch = true;
+
+        if (monthText) {
+            if (selectedDataKeys.includes('vehicleRenewalDate') || selectedDataKeys.includes('maintenanceRenewalDate')) {
+                const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
+                const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
+                monthMatch = vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
+            } else {
+                monthMatch = true; // If columns not selected, ignore filter
+            }
+        }
+
+        if (statusText) {
+            if (selectedDataKeys.includes('policyType')) {
+                const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
+                statusMatch = policyType.includes(statusText);
+            } else {
+                statusMatch = true;
+            }
+        }
+
+        if (vehicleNumberText) {
+            if (selectedDataKeys.includes('vehicleNumber')) {
+                vehicleNumberMatch = entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
+            } else {
+                vehicleNumberMatch = true;
+            }
+        }
+
+        if (gpsRenewalDateText) {
+            if (selectedDataKeys.includes('renewalDate2')) {
+                const gpsRenewalDate = entry.renewalDate2 ? entry.renewalDate2.toLowerCase() : '';
+                gpsRenewalDateMatch = gpsRenewalDate.includes(gpsRenewalDateText);
+            } else {
+                gpsRenewalDateMatch = true;
+            }
+        }
+
+        return monthMatch && statusMatch && vehicleNumberMatch && gpsRenewalDateMatch;
+    });
+
+    renderTable(filteredData);
 }
 
-searchMonthInput.addEventListener('input', combinedFilter);
-searchStatusInput.addEventListener('input', combinedFilter);
-searchVehicleNumberInput.addEventListener('input', combinedFilter);
+// Add event listeners for multiple search inputs
+searchMonthInput.addEventListener('input', filterTableBySelectedColumns);
+searchStatusInput.addEventListener('input', filterTableBySelectedColumns);
+searchVehicleNumberInput.addEventListener('input', filterTableBySelectedColumns);
+searchGpsRenewalDateInput.addEventListener('input', filterTableBySelectedColumns);
 
 function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText) {
     const data = window.currentData || [];
