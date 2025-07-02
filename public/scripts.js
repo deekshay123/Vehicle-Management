@@ -1106,7 +1106,6 @@ const columnNameToDataKeyMap = {
     'Renewal Date (Vehicle)': 'vehicleRenewalDate'
 };
 
-// New filter function to filter data based on multiple search inputs and selected columns
 function filterTableBySelectedColumns() {
     const data = window.currentData || [];
 
@@ -1126,12 +1125,13 @@ function filterTableBySelectedColumns() {
         let gpsRenewalDateMatch = true;
 
         if (monthText) {
+            // Check if either vehicleRenewalDate or maintenanceRenewalDate column is selected
             if (selectedDataKeys.includes('vehicleRenewalDate') || selectedDataKeys.includes('maintenanceRenewalDate')) {
                 const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
                 const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
                 monthMatch = vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
             } else {
-                monthMatch = true; // If columns not selected, ignore filter
+                monthMatch = false; // If columns not selected, no match
             }
         }
 
@@ -1140,7 +1140,7 @@ function filterTableBySelectedColumns() {
                 const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
                 statusMatch = policyType.includes(statusText);
             } else {
-                statusMatch = true;
+                statusMatch = false;
             }
         }
 
@@ -1148,7 +1148,7 @@ function filterTableBySelectedColumns() {
             if (selectedDataKeys.includes('vehicleNumber')) {
                 vehicleNumberMatch = entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
             } else {
-                vehicleNumberMatch = true;
+                vehicleNumberMatch = false;
             }
         }
 
@@ -1157,7 +1157,7 @@ function filterTableBySelectedColumns() {
                 const gpsRenewalDate = entry.renewalDate2 ? entry.renewalDate2.toLowerCase() : '';
                 gpsRenewalDateMatch = gpsRenewalDate.includes(gpsRenewalDateText);
             } else {
-                gpsRenewalDateMatch = true;
+                gpsRenewalDateMatch = false;
             }
         }
 
