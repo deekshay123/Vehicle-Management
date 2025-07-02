@@ -1441,19 +1441,19 @@ window.onload = async function () {
         columnFilterModal.setAttribute('aria-hidden', 'false');
     });
 
-    // Save button click handler
-    saveColumnFilterBtn.addEventListener('click', () => {
-        const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
-        const visibility = {};
-        checkboxes.forEach(checkbox => {
-            const colIndex = parseInt(checkbox.dataset.colIndex, 10);
-            visibility[colIndex] = checkbox.checked;
-        });
-        localStorage.setItem('columnVisibility', JSON.stringify(visibility));
-        applyColumnVisibility();
-        columnFilterModal.style.display = 'none';
-        columnFilterModal.setAttribute('aria-hidden', 'true');
+saveColumnFilterBtn.addEventListener('click', () => {
+    const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
+    const visibility = {};
+    checkboxes.forEach(checkbox => {
+        const colIndex = parseInt(checkbox.dataset.colIndex, 10);
+        visibility[colIndex] = checkbox.checked;
     });
+    localStorage.setItem('columnVisibility', JSON.stringify(visibility));
+    applyColumnVisibility();
+    filterTableBySelectedColumns(); // Trigger filtering after applying column visibility
+    columnFilterModal.style.display = 'none';
+    columnFilterModal.setAttribute('aria-hidden', 'true');
+});
 
     // Cancel button click handler
     cancelColumnFilterBtn.addEventListener('click', () => {
