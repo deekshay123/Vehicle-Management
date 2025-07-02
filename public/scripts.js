@@ -1076,165 +1076,17 @@ async function loadAndRender() {
 const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
-const searchGpsRenewalDateInput = document.getElementById('searchGpsRenewalDateInput');
 
-// Function to get selected columns from localStorage columnVisibility
-function getSelectedColumns() {
-    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-    const headers = getColumnHeaders();
-    // Return array of objects with name and index for visible columns
-    return headers.filter(header => {
-        return savedVisibility.hasOwnProperty(header.index) ? savedVisibility[header.index] : true;
-    });
-}
-
-function getPageType() {
-    const path = window.location.pathname.toLowerCase();
-    if (path.includes('feedmill')) {
-        return 'feedmill';
-    } else if (path.includes('headoffice')) {
-        return 'headoffice';
-    } else if (path.includes('vehicle-management')) {
-        return 'vehicle-management';
-    } else {
-        return 'default';
-    }
-}
-
-// Map column header names to data keys used in data objects for different pages
-const columnNameToDataKeyMapByPage = {
-    'feedmill': {
-        'Vehicle Number': 'vehicleNumber',
-        'Policy Type': 'policyType',
-        'Policy Number': 'policyNumber',
-        'Renewal Date': 'vehicleRenewalDate',
-        'Status': 'vehicleStatusText',
-        'Service Type': 'maintenanceType',
-        'Opening KM': 'openingKM',
-        'Closing KM': 'closingKM',
-        'Km Driven': 'kmDriven',
-        'Remarks': 'remarks',
-        'Last Service Date': 'maintenanceRenewalDate',
-        'GPS': 'renewalDate2',
-        'Renewal Date (GPS)': 'renewalDate2',
-        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
-    },
-    'headoffice': {
-        'Vehicle Number': 'vehicleNumber',
-        'Policy Type': 'policyType',
-        'Policy Number': 'policyNumber',
-        'Renewal Date': 'vehicleRenewalDate',
-        'Status': 'vehicleStatusText',
-        'Service Type': 'maintenanceType',
-        'Opening KM': 'openingKM',
-        'Closing KM': 'closingKM',
-        'Km Driven': 'kmDriven',
-        'Remarks': 'remarks',
-        'Last Service Date': 'maintenanceRenewalDate',
-        'GPS': 'renewalDate2',
-        'Renewal Date (GPS)': 'renewalDate2',
-        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
-    },
-    'vehicle-management': {
-        'Vehicle Number': 'vehicleNumber',
-        'Policy Type': 'policyType',
-        'Policy Number': 'policyNumber',
-        'Renewal Date': 'vehicleRenewalDate',
-        'Status': 'vehicleStatusText',
-        'Service Type': 'maintenanceType',
-        'Opening KM': 'openingKM',
-        'Closing KM': 'closingKM',
-        'Km Driven': 'kmDriven',
-        'Remarks': 'remarks',
-        'Last Service Date': 'maintenanceRenewalDate',
-        'GPS': 'renewalDate2',
-        'Renewal Date (GPS)': 'renewalDate2',
-        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
-    },
-    'default': {
-        'Vehicle Number': 'vehicleNumber',
-        'Policy Type': 'policyType',
-        'Policy Number': 'policyNumber',
-        'Renewal Date': 'vehicleRenewalDate',
-        'Status': 'vehicleStatusText',
-        'Service Type': 'maintenanceType',
-        'Opening KM': 'openingKM',
-        'Closing KM': 'closingKM',
-        'Km Driven': 'kmDriven',
-        'Remarks': 'remarks',
-        'Last Service Date': 'maintenanceRenewalDate',
-        'GPS': 'renewalDate2',
-        'Renewal Date (GPS)': 'renewalDate2',
-        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
-    }
-};
-
-function filterTableBySelectedColumns() {
-    const data = window.currentData || [];
-
+function combinedFilter() {
     const monthText = searchMonthInput.value.trim().toLowerCase();
     const statusText = searchStatusInput.value.trim().toLowerCase();
     const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
-    const gpsRenewalDateText = searchGpsRenewalDateInput.value.trim().toLowerCase();
-
-    const selectedColumns = getSelectedColumns();
-    const selectedDataKeys = selectedColumns.map(col => columnNameToDataKeyMap[col.name]).filter(Boolean);
-
-    const filteredData = data.filter(entry => {
-        // For each search input, check if the corresponding data key is selected, then apply filter
-        let monthMatch = true;
-        let statusMatch = true;
-        let vehicleNumberMatch = true;
-        let gpsRenewalDateMatch = true;
-
-        if (monthText) {
-            // Check if either vehicleRenewalDate or maintenanceRenewalDate column is selected
-            if (selectedDataKeys.includes('vehicleRenewalDate') || selectedDataKeys.includes('maintenanceRenewalDate')) {
-                const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
-                const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
-                monthMatch = vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
-            } else {
-                monthMatch = false; // If columns not selected, no match
-            }
-        }
-
-        if (statusText) {
-            if (selectedDataKeys.includes('policyType')) {
-                const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
-                statusMatch = policyType.includes(statusText);
-            } else {
-                statusMatch = false;
-            }
-        }
-
-        if (vehicleNumberText) {
-            if (selectedDataKeys.includes('vehicleNumber')) {
-                vehicleNumberMatch = entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
-            } else {
-                vehicleNumberMatch = false;
-            }
-        }
-
-        if (gpsRenewalDateText) {
-            if (selectedDataKeys.includes('renewalDate2')) {
-                const gpsRenewalDate = entry.renewalDate2 ? entry.renewalDate2.toLowerCase() : '';
-                gpsRenewalDateMatch = gpsRenewalDate.includes(gpsRenewalDateText);
-            } else {
-                gpsRenewalDateMatch = false;
-            }
-        }
-
-        return monthMatch && statusMatch && vehicleNumberMatch && gpsRenewalDateMatch;
-    });
-
-    renderTable(filteredData);
+    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
 }
 
-// Add event listeners for multiple search inputs
-searchMonthInput.addEventListener('input', filterTableBySelectedColumns);
-searchStatusInput.addEventListener('input', filterTableBySelectedColumns);
-searchVehicleNumberInput.addEventListener('input', filterTableBySelectedColumns);
-searchGpsRenewalDateInput.addEventListener('input', filterTableBySelectedColumns);
+searchMonthInput.addEventListener('input', combinedFilter);
+searchStatusInput.addEventListener('input', combinedFilter);
+searchVehicleNumberInput.addEventListener('input', combinedFilter);
 
 function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText) {
     const data = window.currentData || [];
@@ -1556,69 +1408,31 @@ window.onload = async function () {
         });
     }
 
-function applyColumnVisibility() {
-    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-    const headers = getColumnHeaders();
-
-    headers.forEach(header => {
-        const colIndex = header.index;
-        const visible = savedVisibility.hasOwnProperty(colIndex) ? savedVisibility[colIndex] : true;
-
-        // Show/hide thead th
-        const th = combinedTableElement.querySelector('thead tr:nth-child(2) th:nth-child(' + (colIndex + 1) + ')');
-        if (th) {
-            th.style.display = visible ? '' : 'none';
-        }
-
-        // Show/hide tbody td
-        const rows = combinedTableElement.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const td = row.cells[colIndex];
-            if (td) {
-                td.style.display = visible ? '' : 'none';
-            }
-        });
-    });
-
-    // Also handle the first header row's colspan attribute for grouped headers
-    const firstHeaderRow = combinedTableElement.querySelector('thead tr:first-child');
-    if (firstHeaderRow) {
-        const activeCount = Object.values(savedVisibility).filter(v => v).length;
-        // Adjust colspan of grouped headers based on visible columns count
-        // For example, if there are two groups: Vehicle Details and Maintenance Details
-        // We can count how many columns belong to each group and adjust colspan accordingly
-        // This requires knowledge of which columns belong to which group
-        // For simplicity, we can recalculate colspan for each group based on visible columns
-
-        // Example: Assuming columns 1-8 are Vehicle Details, 9-16 are Maintenance Details
-        let vehicleDetailsCount = 0;
-        let maintenanceDetailsCount = 0;
+    // Function to apply column visibility based on saved settings or default (all visible)
+    function applyColumnVisibility() {
+        const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+        const headers = getColumnHeaders();
 
         headers.forEach(header => {
             const colIndex = header.index;
             const visible = savedVisibility.hasOwnProperty(colIndex) ? savedVisibility[colIndex] : true;
-            if (visible) {
-                if (colIndex >= 1 && colIndex <= 8) {
-                    vehicleDetailsCount++;
-                } else if (colIndex >= 9 && colIndex <= 16) {
-                    maintenanceDetailsCount++;
-                }
+
+            // Show/hide thead th
+            const th = combinedTableElement.querySelector('thead tr:nth-child(2) th:nth-child(' + (colIndex + 1) + ')');
+            if (th) {
+                th.style.display = visible ? '' : 'none';
             }
+
+            // Show/hide tbody td
+            const rows = combinedTableElement.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const td = row.cells[colIndex];
+                if (td) {
+                    td.style.display = visible ? '' : 'none';
+                }
+            });
         });
-
-        const vehicleDetailsTh = firstHeaderRow.querySelector('th:nth-child(2)');
-        const maintenanceDetailsTh = firstHeaderRow.querySelector('th:nth-child(3)');
-
-        if (vehicleDetailsTh) {
-            vehicleDetailsTh.colSpan = vehicleDetailsCount > 0 ? vehicleDetailsCount : 1;
-            vehicleDetailsTh.style.display = vehicleDetailsCount > 0 ? '' : 'none';
-        }
-        if (maintenanceDetailsTh) {
-            maintenanceDetailsTh.colSpan = maintenanceDetailsCount > 0 ? maintenanceDetailsCount : 1;
-            maintenanceDetailsTh.style.display = maintenanceDetailsCount > 0 ? '' : 'none';
-        }
     }
-}
 
     // Show modal on button click
     columnFilterBtn.addEventListener('click', () => {
