@@ -1088,22 +1088,85 @@ function getSelectedColumns() {
     });
 }
 
-// Map column header names to data keys used in data objects
-const columnNameToDataKeyMap = {
-    'Vehicle Number': 'vehicleNumber',
-    'Policy Type': 'policyType',
-    'Policy Number': 'policyNumber',
-    'Renewal Date': 'vehicleRenewalDate',
-    'Status': 'vehicleStatusText',
-    'Service Type': 'maintenanceType',
-    'Opening KM': 'openingKM',
-    'Closing KM': 'closingKM',
-    'Km Driven': 'kmDriven',
-    'Remarks': 'remarks',
-    'Last Service Date': 'maintenanceRenewalDate',
-    'GPS': 'renewalDate2',
-    'Renewal Date (GPS)': 'renewalDate2',
-    'Renewal Date (Vehicle)': 'vehicleRenewalDate'
+function getPageType() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('feedmill')) {
+        return 'feedmill';
+    } else if (path.includes('headoffice')) {
+        return 'headoffice';
+    } else if (path.includes('vehicle-management')) {
+        return 'vehicle-management';
+    } else {
+        return 'default';
+    }
+}
+
+// Map column header names to data keys used in data objects for different pages
+const columnNameToDataKeyMapByPage = {
+    'feedmill': {
+        'Vehicle Number': 'vehicleNumber',
+        'Policy Type': 'policyType',
+        'Policy Number': 'policyNumber',
+        'Renewal Date': 'vehicleRenewalDate',
+        'Status': 'vehicleStatusText',
+        'Service Type': 'maintenanceType',
+        'Opening KM': 'openingKM',
+        'Closing KM': 'closingKM',
+        'Km Driven': 'kmDriven',
+        'Remarks': 'remarks',
+        'Last Service Date': 'maintenanceRenewalDate',
+        'GPS': 'renewalDate2',
+        'Renewal Date (GPS)': 'renewalDate2',
+        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
+    },
+    'headoffice': {
+        'Vehicle Number': 'vehicleNumber',
+        'Policy Type': 'policyType',
+        'Policy Number': 'policyNumber',
+        'Renewal Date': 'vehicleRenewalDate',
+        'Status': 'vehicleStatusText',
+        'Service Type': 'maintenanceType',
+        'Opening KM': 'openingKM',
+        'Closing KM': 'closingKM',
+        'Km Driven': 'kmDriven',
+        'Remarks': 'remarks',
+        'Last Service Date': 'maintenanceRenewalDate',
+        'GPS': 'renewalDate2',
+        'Renewal Date (GPS)': 'renewalDate2',
+        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
+    },
+    'vehicle-management': {
+        'Vehicle Number': 'vehicleNumber',
+        'Policy Type': 'policyType',
+        'Policy Number': 'policyNumber',
+        'Renewal Date': 'vehicleRenewalDate',
+        'Status': 'vehicleStatusText',
+        'Service Type': 'maintenanceType',
+        'Opening KM': 'openingKM',
+        'Closing KM': 'closingKM',
+        'Km Driven': 'kmDriven',
+        'Remarks': 'remarks',
+        'Last Service Date': 'maintenanceRenewalDate',
+        'GPS': 'renewalDate2',
+        'Renewal Date (GPS)': 'renewalDate2',
+        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
+    },
+    'default': {
+        'Vehicle Number': 'vehicleNumber',
+        'Policy Type': 'policyType',
+        'Policy Number': 'policyNumber',
+        'Renewal Date': 'vehicleRenewalDate',
+        'Status': 'vehicleStatusText',
+        'Service Type': 'maintenanceType',
+        'Opening KM': 'openingKM',
+        'Closing KM': 'closingKM',
+        'Km Driven': 'kmDriven',
+        'Remarks': 'remarks',
+        'Last Service Date': 'maintenanceRenewalDate',
+        'GPS': 'renewalDate2',
+        'Renewal Date (GPS)': 'renewalDate2',
+        'Renewal Date (Vehicle)': 'vehicleRenewalDate'
+    }
 };
 
 function filterTableBySelectedColumns() {
