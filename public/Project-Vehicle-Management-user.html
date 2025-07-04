@@ -206,21 +206,8 @@ function exportTableToPDF() {
             if (row.style.display === 'none') return; // skip hidden rows if any
             const rowData = {};
             visibleColumns.forEach((colIndex, idx) => {
+                // Export the exact displayed text from the cell to match UI
                 let cellText = row.cells[colIndex].textContent.trim();
-                // For status columns, use status text from global data to match UI
-                if (colIndex === 5) {
-                    const dataEntry = window.currentData ? window.currentData[rowIndex] : null;
-                    if (dataEntry) {
-                        const statusObj = calculateStatus(dataEntry.vehicleRenewalDate);
-                        cellText = statusObj.text;
-                    }
-                } else if (colIndex === 12) {
-                    const dataEntry = window.currentData ? window.currentData[rowIndex] : null;
-                    if (dataEntry) {
-                        const statusObj = calculateStatus(dataEntry.maintenanceRenewalDate);
-                        cellText = statusObj.text;
-                    }
-                }
                 rowData[headers[idx]] = cellText;
             });
             data.push(rowData);
