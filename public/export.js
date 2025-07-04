@@ -33,14 +33,16 @@ function exportTableToExcel() {
     // Prepare data rows from table body for visible columns only
     const rows = table.querySelectorAll('tbody tr');
 
-    rows.forEach(row => {
-        if (row.style.display === 'none') return; // skip hidden rows if any
-        const rowData = [];
-        visibleColumns.forEach(colIndex => {
-            rowData.push(row.cells[colIndex].textContent.trim());
+        rows.forEach((row, rowIndex) => {
+            if (row.style.display === 'none') return; // skip hidden rows if any
+            const rowData = [];
+            visibleColumns.forEach(colIndex => {
+                // Export the exact displayed text from the cell to match UI
+                let cellText = row.cells[colIndex].textContent.trim();
+                rowData.push(cellText);
+            });
+            worksheetData.push(rowData);
         });
-        worksheetData.push(rowData);
-    });
 
     // Create worksheet from array of arrays
     const ws = XLSX.utils.aoa_to_sheet(worksheetData);
