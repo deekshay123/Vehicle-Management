@@ -82,7 +82,8 @@
             <thead>
                 <tr>
                     <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="20" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+                    <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+                    <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
                 </tr>
                 <tr>
                     <th>#</th>
@@ -201,11 +202,19 @@ function exportTableToPDF() {
             }
         });
 
-        rows.forEach(row => {
+        rows.forEach((row, rowIndex) => {
             if (row.style.display === 'none') return; // skip hidden rows if any
             const rowData = {};
             visibleColumns.forEach((colIndex, idx) => {
                 let cellText = row.cells[colIndex].textContent.trim();
+                // For status column (index 5), use status text from global data to match UI
+                if (colIndex === 5) {
+                    const dataEntry = window.currentData ? window.currentData[rowIndex] : null;
+                    if (dataEntry) {
+                        const statusObj = calculateStatus(dataEntry.vehicleRenewalDate);
+                        cellText = statusObj.text;
+                    }
+                }
                 rowData[headers[idx]] = cellText;
             });
             data.push(rowData);
@@ -277,7 +286,7 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('Processing+[R.O]_Vehicle-Maintainance.pdf');
+        doc.save('vehicle_maintenance_table.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
