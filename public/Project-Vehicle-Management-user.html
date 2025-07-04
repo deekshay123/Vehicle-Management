@@ -91,7 +91,7 @@
                     <th>Policy Type</th>
                     <th>Policy Number</th>
                     <th>Renewal Date</th>
-                    <th>Status</th>
+                    <th>Status (I)</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -207,11 +207,17 @@ function exportTableToPDF() {
             const rowData = {};
             visibleColumns.forEach((colIndex, idx) => {
                 let cellText = row.cells[colIndex].textContent.trim();
-                // For status column (index 5), use status text from global data to match UI
+                // For status columns, use status text from global data to match UI
                 if (colIndex === 5) {
                     const dataEntry = window.currentData ? window.currentData[rowIndex] : null;
                     if (dataEntry) {
                         const statusObj = calculateStatus(dataEntry.vehicleRenewalDate);
+                        cellText = statusObj.text;
+                    }
+                } else if (colIndex === 12) {
+                    const dataEntry = window.currentData ? window.currentData[rowIndex] : null;
+                    if (dataEntry) {
+                        const statusObj = calculateStatus(dataEntry.maintenanceRenewalDate);
                         cellText = statusObj.text;
                     }
                 }
