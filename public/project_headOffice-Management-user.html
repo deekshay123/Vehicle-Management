@@ -228,6 +228,13 @@ function exportTableToPDF() {
             const rowData = {};
             visibleColumns.forEach((colIndex, idx) => {
                 let cellText = row.cells[colIndex].textContent.trim();
+                // For status column (index 5), ensure to export the status text as shown in UI
+                if (colIndex === 5) {
+                    const statusSpan = row.cells[colIndex].querySelector('span');
+                    if (statusSpan) {
+                        cellText = statusSpan.textContent.trim();
+                    }
+                }
                 rowData[headers[idx]] = cellText;
             });
             data.push(rowData);
