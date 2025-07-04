@@ -1092,13 +1092,12 @@ function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberTex
     const data = window.currentData || [];
     const filteredData = data.filter(entry => {
         const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
-        const maintenanceMonth = getMonthName(entry.maintenanceRenewalDate);
 
         // Filter by policyType instead of status
         const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
 
-        // Check if monthText matches either vehicleMonth or maintenanceMonth
-        const monthMatch = !monthText || vehicleMonth.includes(monthText) || maintenanceMonth.includes(monthText);
+        // Check if monthText matches vehicleMonth only (exclude maintenanceMonth)
+        const monthMatch = !monthText || vehicleMonth.includes(monthText);
         const statusMatch = !statusText || policyType.includes(statusText);
         const vehicleNumberMatch = !vehicleNumberText || entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
 
