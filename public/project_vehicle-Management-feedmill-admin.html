@@ -218,6 +218,37 @@ function exportTableToPDF() {
             data.push(rowData);
         });
 
+        // Sort data by 'Renewal Date (Vehicle)' full date ascending
+        data.sort((a, b) => {
+            function parseDate(dateStr) {
+                if (!dateStr) return new Date(0);
+                // Parse date in dd-MMM-yyyy format, e.g., 01-Jan-2024
+                const months = {
+                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+                };
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = months[parts[1]];
+                    const year = parseInt(parts[2], 10);
+                    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                        return new Date(year, month, day);
+                    }
+                }
+                // Fallback to Date parse
+                const parsedDate = new Date(dateStr);
+                if (isNaN(parsedDate)) {
+                    // If parsing fails, return epoch start to push invalid dates to start
+                    return new Date(0);
+                }
+                return parsedDate;
+            }
+            // Defensive check for missing keys
+            if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
+            return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
+        });
+
         // Helper function to format date as dd-mm-yyyy
         function formatDateDDMMYYYY(date) {
             const d = date.getDate().toString().padStart(2, '0');
