@@ -102,28 +102,28 @@
         <table id="combinedTable">
             <thead>
                 <tr>
-                    <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="14" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-                    <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
-                </tr>
-                <tr>
-                    <th>#</th>
-                    <th>Vehicle Number</th>
-                    <th>Policy Type</th>
-                    <th>Policy Number</th>
-                    <th>Renewal Date</th>
-                    <th>Status</th>
-                    <th>Service Type</th>
-                    <th>Opening KM</th>
-                    <th>Closing KM</th>
-                    <th>Km Driven</th>
-                    <th>Remarks</th>
-                    <th>Last Service Date</th>
-                    <th style="text-align: center;">Status</th>
-                    <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
-                    <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date</th>
-                    <!-- <th>Actions</th> -->
-                </tr>
+            <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
+            <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+            <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+        </tr>
+        <tr>
+            <th>#</th>
+            <th>Vehicle Number</th>
+            <th>Policy Type</th>
+            <th>Policy Number</th>
+            <th>Renewal Date</th>
+            <th>Status (I)</th>
+            <th>Service Type</th>
+            <th>Opening KM</th>
+            <th>Closing KM</th>
+            <th>Km Driven</th>
+            <th>Remarks</th>
+            <th>Last Service Date</th>
+            <th style="text-align: center;">Status</th>
+            <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
+            <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date</th>
+            <!-- <th>Actions</th> -->
+        </tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -228,13 +228,6 @@ function exportTableToPDF() {
             const rowData = {};
             visibleColumns.forEach((colIndex, idx) => {
                 let cellText = row.cells[colIndex].textContent.trim();
-                // For status column (index 5), ensure to export the status text as shown in UI
-                if (colIndex === 5) {
-                    const statusSpan = row.cells[colIndex].querySelector('span');
-                    if (statusSpan) {
-                        cellText = statusSpan.textContent.trim();
-                    }
-                }
                 rowData[headers[idx]] = cellText;
             });
             data.push(rowData);
