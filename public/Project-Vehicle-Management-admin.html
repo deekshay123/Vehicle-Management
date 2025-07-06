@@ -207,24 +207,18 @@ function exportTableToPDF() {
         data.sort((a, b) => {
             function parseDate(dateStr) {
                 if (!dateStr) return new Date(0);
-                // Try to parse date in formats: dd-mm-yyyy, yyyy-mm-dd, dd/mm/yyyy
-                let parts;
-                if (dateStr.includes('-')) {
-                    parts = dateStr.split('-');
-                    if (parts.length === 3) {
-                        if (parts[0].length === 4) {
-                            // yyyy-mm-dd
-                            return new Date(parts[0], parts[1] - 1, parts[2]);
-                        } else {
-                            // dd-mm-yyyy
-                            return new Date(parts[2], parts[1] - 1, parts[0]);
-                        }
-                    }
-                } else if (dateStr.includes('/')) {
-                    parts = dateStr.split('/');
-                    if (parts.length === 3) {
-                        // dd/mm/yyyy
-                        return new Date(parts[2], parts[1] - 1, parts[0]);
+                // Parse date in dd-MMM-yyyy format, e.g., 01-Jan-2024
+                const months = {
+                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+                };
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = months[parts[1]];
+                    const year = parseInt(parts[2], 10);
+                    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                        return new Date(year, month, day);
                     }
                 }
                 // Fallback to Date parse
