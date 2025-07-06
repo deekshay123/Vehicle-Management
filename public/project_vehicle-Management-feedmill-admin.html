@@ -98,8 +98,8 @@
             <thead>
                 <tr>
                     <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="16" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-<!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th>
                 </tr>
                 <tr>
                     <th>#</th>
@@ -107,7 +107,7 @@
                     <th>Policy Type</th>
                     <th>Policy Number</th>
                     <th>Renewal Date</th>
-                    <th>Status (I)</th>
+                    <th>Status</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -186,7 +186,7 @@ function exportTableToPDF() {
         const visibleColumns = [];
         for (let i = 0; i < headerCells.length - 1; i++) {
             const isVisible = savedVisibility.hasOwnProperty(i) ? savedVisibility[i] : true;
-            if (headerCells[i].style.display !== 'none' && isVisible && i !== 12) {
+            if (headerCells[i].style.display !== 'none' && isVisible) {
                 visibleColumns.push(i);
                 // Assign unique header names for renewal date columns to avoid key collision
                 if (headerCells[i].innerText.trim() === 'Renewal Date') {
@@ -284,7 +284,7 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('Feedmill_Vehicle_Management.pdf');
+        doc.save('vehicle_maintenance_table.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
