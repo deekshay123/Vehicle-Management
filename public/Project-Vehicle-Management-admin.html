@@ -228,7 +228,12 @@ function exportTableToPDF() {
                     }
                 }
                 // Fallback to Date parse
-                return new Date(dateStr);
+                const parsedDate = new Date(dateStr);
+                if (isNaN(parsedDate)) {
+                    // If parsing fails, return epoch start to push invalid dates to start
+                    return new Date(0);
+                }
+                return parsedDate;
             }
             // Defensive check for missing keys
             if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
