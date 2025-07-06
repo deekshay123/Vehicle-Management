@@ -203,36 +203,36 @@ function exportTableToPDF() {
             data.push(rowData);
         });
 
-        // Sort data by 'Renewal Date (Vehicle)' month ascending
+        // Sort data by 'Renewal Date (Vehicle)' full date ascending
         data.sort((a, b) => {
-            const monthOrder = { '01': 1, '02': 2, '03': 3, '04': 4, '05': 5, '06': 6, '07': 7, '08': 8, '09': 9, '10': 10, '11': 11, '12': 12 };
-            function getMonth(dateStr) {
-                if (!dateStr) return 0;
-                // Expecting date format dd-mm-yyyy or yyyy-mm-dd or ISO format
-                // Try to parse month from known formats
-                let month = 0;
+            function parseDate(dateStr) {
+                if (!dateStr) return new Date(0);
+                // Try to parse date in formats: dd-mm-yyyy, yyyy-mm-dd, dd/mm/yyyy
+                let parts;
                 if (dateStr.includes('-')) {
-                    const parts = dateStr.split('-');
+                    parts = dateStr.split('-');
                     if (parts.length === 3) {
-                        // Check if first part is year or day
                         if (parts[0].length === 4) {
                             // yyyy-mm-dd
-                            month = parts[1];
+                            return new Date(parts[0], parts[1] - 1, parts[2]);
                         } else {
                             // dd-mm-yyyy
-                            month = parts[1];
+                            return new Date(parts[2], parts[1] - 1, parts[0]);
                         }
                     }
                 } else if (dateStr.includes('/')) {
-                    const parts = dateStr.split('/');
+                    parts = dateStr.split('/');
                     if (parts.length === 3) {
                         // dd/mm/yyyy
-                        month = parts[1];
+                        return new Date(parts[2], parts[1] - 1, parts[0]);
                     }
                 }
-                return monthOrder[month] || 0;
+                // Fallback to Date parse
+                return new Date(dateStr);
             }
-            return getMonth(a['Renewal Date (Vehicle)']) - getMonth(b['Renewal Date (Vehicle)']);
+            // Defensive check for missing keys
+            if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
+            return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
         });
 
         // Helper function to format date as dd-mm-yyyy
