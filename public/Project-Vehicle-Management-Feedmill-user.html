@@ -96,8 +96,8 @@
             <thead>
                 <tr>
                     <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th>
+                    <th colspan="18" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+<!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
                 </tr>
                 <tr>
                     <th>#</th>
@@ -322,7 +322,7 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('vehicle_maintenance_table.pdf');
+        doc.save('Feedmill_Vehicle_Report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
