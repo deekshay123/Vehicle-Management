@@ -7,31 +7,10 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="custom_styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <style>
-        .app-header {
-            background: linear-gradient(90deg, #6d0077a9, #00397f);
-            color: white;
-            padding: 0.1rem 5px;
-            text-align: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 700;
-            font-size: 20px;
-            letter-spacing: 1.5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        /* Hide edit and delete buttons */
-        button.edit-btn,
-        button.delete-btn {
-            display: none !important;
-        }
-    </style>
 </head>
 <body>
     <header class="app-header">
-        <h3>VEHICLE MANAGEMENT FOR INDUSTRIES & PVT LTD-[HEAD-OFFICE]</h3>
+        <h3>VEHICLE MANAGEMENT FOR PROCESSING DIVISION</h3>
     </header>
     <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -102,28 +81,28 @@
         <table id="combinedTable">
             <thead>
                 <tr>
-            <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-            <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-            <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
-        </tr>
-        <tr>
-            <th>#</th>
-            <th>Vehicle Number</th>
-            <th>Policy Type</th>
-            <th>Policy Number</th>
-            <th>Renewal Date</th>
-            <th>Status (I)</th>
-            <th>Service Type</th>
-            <th>Opening KM</th>
-            <th>Closing KM</th>
-            <th>Km Driven</th>
-            <th>Remarks</th>
-            <th>Last Service Date</th>
-            <th style="text-align: center;">Status</th>
-            <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
-            <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date</th>
-            <!-- <th>Actions</th> -->
-        </tr>
+                    <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
+                    <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+                    <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+                </tr>
+                <tr>
+                    <th>#</th>
+                    <th>Vehicle Number</th>
+                    <th>Policy Type</th>
+                    <th>Policy Number</th>
+                    <th>Renewal Date</th>
+                    <th>Status (I)</th>
+                    <th>Service Type</th>
+                    <th>Opening KM</th>
+                    <th>Closing KM</th>
+                    <th>Km Driven</th>
+                    <th>Remarks</th>
+                    <th>Last Service Date</th>
+                    <th style="text-align: center;">Status</th>
+                    <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
+                    <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date</th>
+                    <!-- <th>Actions</th> -->
+                </tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -232,7 +211,7 @@ function exportTableToPDF() {
             });
             data.push(rowData);
         });
-        
+
         // Sort data by 'Renewal Date (Vehicle)' full date ascending
         data.sort((a, b) => {
             function parseDate(dateStr) {
@@ -275,7 +254,7 @@ function exportTableToPDF() {
         // Add heading text above the table with professional styling
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(15);
-        doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD-OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+        doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
         // Add current date below heading
         const currentDateStr = formatDateDDMMYYYY(new Date());
@@ -330,188 +309,14 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('headOffice_vehicle_maintenance_table.pdf');
+        doc.save('vehicle_maintenance_table.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
     }
 }
         // Set division in localStorage for this tab
-        localStorage.setItem('division', 'headoffice');
-    </script>
-=======
-    <script>
-      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
-function exportTableToPDF() {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'pt', 'a4');
-
-        if (typeof doc.autoTable !== 'function') {
-            alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
-            return;
-        }
-
-        const table = document.getElementById('combinedTable');
-        const headers = [];
-        const data = [];
-
-        // Get header cells from second row of thead
-        const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-
-        // Get saved column visibility from localStorage
-        const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-
-        // Determine visible columns based on saved visibility and exclude last Actions column (index 16)
-        const visibleColumns = [];
-        for (let i = 0; i < headerCells.length - 1; i++) {
-            const isVisible = savedVisibility.hasOwnProperty(i) ? savedVisibility[i] : true;
-            if (headerCells[i].style.display !== 'none' && isVisible) {
-                visibleColumns.push(i);
-                // Assign unique header names for renewal date columns to avoid key collision
-                if (headerCells[i].innerText.trim() === 'Renewal Date') {
-                    if (i === 4) {
-                        headers.push('Renewal Date (Vehicle)');
-                    } else if (i === 14) {
-                        headers.push('Renewal Date (GPS)');
-                    } else {
-                        headers.push(headerCells[i].innerText.trim());
-                    }
-                } else {
-                    headers.push(headerCells[i].innerText.trim());
-                }
-            }
-        }
-
-        // Prepare columns for autoTable with unique dataKey
-        const columns = headers.map(header => ({ header: header, dataKey: header }));
-
-        // Get visible rows data excluding last Actions column and only visible columns
-        const rows = table.querySelectorAll('tbody tr');
-
-        // Forcibly show 15th column cells before export to ensure data is included
-        rows.forEach(row => {
-            const cell = row.cells[14];
-            if (cell) {
-                cell.style.display = '';
-            }
-        });
-
-        rows.forEach(row => {
-            if (row.style.display === 'none') return; // skip hidden rows if any
-            const rowData = {};
-            visibleColumns.forEach((colIndex, idx) => {
-                let cellText = row.cells[colIndex].textContent.trim();
-                rowData[headers[idx]] = cellText;
-            });
-            data.push(rowData);
-        });
-        
-        // Sort data by 'Renewal Date (Vehicle)' full date ascending
-        data.sort((a, b) => {
-            function parseDate(dateStr) {
-                if (!dateStr) return new Date(0);
-                // Parse date in dd-MMM-yyyy format, e.g., 01-Jan-2024
-                const months = {
-                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-                };
-                const parts = dateStr.split('-');
-                if (parts.length === 3) {
-                    const day = parseInt(parts[0], 10);
-                    const month = months[parts[1]];
-                    const year = parseInt(parts[2], 10);
-                    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-                        return new Date(year, month, day);
-                    }
-                }
-                // Fallback to Date parse
-                const parsedDate = new Date(dateStr);
-                if (isNaN(parsedDate)) {
-                    // If parsing fails, return epoch start to push invalid dates to start
-                    return new Date(0);
-                }
-                return parsedDate;
-            }
-            // Defensive check for missing keys
-            if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
-            return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
-        });
-
-        // Helper function to format date as dd-mm-yyyy
-        function formatDateDDMMYYYY(date) {
-            const d = date.getDate().toString().padStart(2, '0');
-            const m = (date.getMonth() + 1).toString().padStart(2, '0');
-            const y = date.getFullYear();
-            return `${d}-${m}-${y}`;
-        }
-
-        // Add heading text above the table with professional styling
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(15);
-        doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD-OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
-
-        // Add current date below heading
-        const currentDateStr = formatDateDDMMYYYY(new Date());
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
-
-        // Generate PDF with autoTable, startY adjusted to leave space for heading and date
-        doc.autoTable({
-            columns: columns,
-            body: data,
-            startY: 60,
-            styles: {
-                cellPadding: 4,
-                lineWidth: 0.5,
-                lineColor: [0, 0, 0],
-                fontSize: 10,
-            },
-            columnStyles: columns.reduce((acc, col, index) => {
-                acc[col.dataKey] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
-                return acc;
-            }, {}),
-            headStyles: {
-                fillColor: [41, 128, 185],
-                textColor: 255,
-                fontStyle: 'bold',
-                halign: 'center',
-            },
-            alternateRowStyles: {
-                fillColor: [245, 245, 245],
-            },
-            didDrawPage: function (data) {
-                console.log('didDrawPage called for page:', data.pageNumber);
-                // Add a horizontal line above footer
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                doc.setDrawColor(0);
-                doc.setLineWidth(0.5);
-                doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
-
-                // Add footer text at the bottom center with italic style
-                doc.setFont('helvetica', 'italic');
-                doc.setFontSize(10);
-                doc.setTextColor(150, 150, 150);
-                doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
-
-                // Add page number at bottom right corner in small font
-                const pageNumber = doc.internal.getNumberOfPages();
-                doc.setFontSize(8);
-                doc.setTextColor(150, 150, 150);
-                doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
-            }
-        });
-
-        doc.save('headOffice_vehicle_maintenance_table.pdf');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Failed to generate PDF. Please check console for details.');
-    }
-}
-        // Set division in localStorage for this tab
-        localStorage.setItem('division', 'headoffice');
+        localStorage.setItem('division', 'vehicle');
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
