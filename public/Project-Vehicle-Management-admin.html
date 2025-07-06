@@ -203,6 +203,38 @@ function exportTableToPDF() {
             data.push(rowData);
         });
 
+        // Sort data by 'Renewal Date (Vehicle)' month ascending
+        data.sort((a, b) => {
+            const monthOrder = { '01': 1, '02': 2, '03': 3, '04': 4, '05': 5, '06': 6, '07': 7, '08': 8, '09': 9, '10': 10, '11': 11, '12': 12 };
+            function getMonth(dateStr) {
+                if (!dateStr) return 0;
+                // Expecting date format dd-mm-yyyy or yyyy-mm-dd or ISO format
+                // Try to parse month from known formats
+                let month = 0;
+                if (dateStr.includes('-')) {
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        // Check if first part is year or day
+                        if (parts[0].length === 4) {
+                            // yyyy-mm-dd
+                            month = parts[1];
+                        } else {
+                            // dd-mm-yyyy
+                            month = parts[1];
+                        }
+                    }
+                } else if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        // dd/mm/yyyy
+                        month = parts[1];
+                    }
+                }
+                return monthOrder[month] || 0;
+            }
+            return getMonth(a['Renewal Date (Vehicle)']) - getMonth(b['Renewal Date (Vehicle)']);
+        });
+
         // Helper function to format date as dd-mm-yyyy
         function formatDateDDMMYYYY(date) {
             const d = date.getDate().toString().padStart(2, '0');
