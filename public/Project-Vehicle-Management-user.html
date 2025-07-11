@@ -212,6 +212,14 @@ function exportTableToPDF() {
             data.push(rowData);
         });
 
+        // Add serial number in data starting from 1
+        data.forEach((rowData, index) => {
+            rowData['#'] = (index + 1).toString();
+        });
+
+        // Add serial number column at the beginning of columns array
+        columns.unshift({ header: '#', dataKey: '#' });
+
         // Sort data by 'Renewal Date (Vehicle)' full date ascending
         data.sort((a, b) => {
             function parseDate(dateStr) {
@@ -309,7 +317,7 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('Processing_Vehicle_Report.pdf');
+        doc.save('vehicle_maintenance_table.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
