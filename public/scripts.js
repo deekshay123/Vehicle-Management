@@ -213,15 +213,6 @@ function renderTable(data) {
     const tableBody = document.getElementById('combinedTable').getElementsByTagName('tbody')[0];
     tableBody.innerHTML = '';
 
-    // Get saved column visibility from localStorage
-    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-    const headers = getColumnHeaders();
-
-    // Filter headers to only visible columns
-    const visibleColumns = headers.filter(header => {
-        return savedVisibility.hasOwnProperty(header.index) ? savedVisibility[header.index] : true;
-    });
-
     let startIndex = 0;
     let endIndex = data.length;
 
@@ -232,7 +223,7 @@ function renderTable(data) {
     }
 
     for (let i = startIndex; i < endIndex; i++) {
-        insertRow(tableBody, data[i], i + 1, visibleColumns);
+        insertRow(tableBody, data[i], i + 1);
     }
 
     // Add professional design class if more than 20 rows
@@ -368,7 +359,7 @@ function updateStatusCounts(data) {
 }
 
 
-function insertRow(tableBody, entry, rowIndex, visibleColumns) {
+function insertRow(tableBody, entry, rowIndex) {
     const newRow = tableBody.insertRow();
     newRow.setAttribute('data-id', entry._id);
 
@@ -389,12 +380,8 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
     const vehicleStatus = calculateStatus(entry.vehicleRenewalDate);
     const maintenanceStatus = calculateStatus(entry.maintenanceRenewalDate);
 
-    // Insert count cell only if visible
-    const countHeaderVisible = visibleColumns.some(col => col.index === 0);
-    if (countHeaderVisible) {
-        const countCell = newRow.insertCell();
-        countCell.textContent = rowIndex;
-    }
+    const countCell = newRow.insertCell();
+    countCell.textContent = rowIndex;
 
     const originalValues = {
         vehicleNumber: entry.vehicleNumber,
@@ -429,28 +416,7 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
         { key: 'renewalDate2', type: 'date' }
     ];
 
-    // We need to map visibleColumns to fields and insert only visible columns
-    // visibleColumns index corresponds to the column index in the table header (0-based)
-    // The first column (index 0) is the count column, then fields start from index 1
-
-    // Create a map of column index to field index (fields start at colIndex 1)
-    const colIndexToFieldIndex = {};
-    for (let i = 0; i < fields.length; i++) {
-        colIndexToFieldIndex[i + 1] = i;
-    }
-
-    visibleColumns.forEach(col => {
-        const colIndex = col.index;
-        if (colIndex === 0) {
-            // Count column already handled above
-            return;
-        }
-        const fieldIndex = colIndexToFieldIndex[colIndex];
-        if (fieldIndex === undefined) {
-            // Possibly an unknown column, skip
-            return;
-        }
-        const field = fields[fieldIndex];
+    fields.forEach((field, index) => {
         const cell = newRow.insertCell();
 
         if (field.key === 'gps') {
@@ -534,18 +500,18 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
         span.textContent = displayValue;
         cell.appendChild(span);
 
-        if (!field.readonly) {
-            const input = document.createElement('input');
-            input.type = field.type === 'gps' ? 'text' : field.type;
-            input.value = originalValues[field.key] || '';
-            input.style.display = 'none';
-            input.classList.add('inline-edit-input');
-            // Add name attribute for openingKM, closingKM, kmDriven inputs for event listener selection
-            if (field.key === 'openingKM' || field.key === 'closingKM' || field.key === 'kmDriven') {
-                input.name = field.key;
-            }
-            cell.appendChild(input);
-        }
+if (!field.readonly) {
+    const input = document.createElement('input');
+    input.type = field.type === 'gps' ? 'text' : field.type;
+    input.value = originalValues[field.key] || '';
+    input.style.display = 'none';
+    input.classList.add('inline-edit-input');
+    // Add name attribute for openingKM, closingKM, kmDriven inputs for event listener selection
+    if (field.key === 'openingKM' || field.key === 'closingKM' || field.key === 'kmDriven') {
+        input.name = field.key;
+    }
+    cell.appendChild(input);
+}
 
         if (field.key === 'vehicleStatusText') {
             cell.className = vehicleStatus.className;
@@ -558,24 +524,22 @@ function insertRow(tableBody, entry, rowIndex, visibleColumns) {
             cell.style.color = 'indigo'; // Add red color to the text
         }
 
-        if ([0, 1, 2, 3, 5, 7].includes(fieldIndex)) {
+        if ([0, 1, 2, 3, 5, 7].includes(index)) {
             cell.style.textAlign = 'left';
-        } else if ([4, 8].includes(fieldIndex)) {
+        } else if ([4, 8].includes(index)) {
             cell.style.textAlign = 'center';
-        } else if (fieldIndex === 6) {
+        } else if (index === 6) {
             cell.style.textAlign = 'center';
         }
     });
 
-
-    // Actions cell is always inserted at the end
-    const actionsCell = newRow.insertCell();
-    actionsCell.classList.add('actions-cell');
-
-    // Determine if actions cell should be visible based on page
     if (window.location.pathname.endsWith('Project-Vehicle-Management-user.html') || window.location.pathname.endsWith('Project-Vehicle-Management-Feedmill-user.html')) {
+        const actionsCell = newRow.insertCell();
+        actionsCell.classList.add('actions-cell');
         actionsCell.style.display = 'none';
     } else {
+        const actionsCell = newRow.insertCell();
+        actionsCell.classList.add('actions-cell');
         actionsCell.innerHTML = '<button class="edit-btn">Edit</button><button class="delete-btn">Delete</button>';
 
         const editBtn = actionsCell.querySelector('.edit-btn');
@@ -1443,24 +1407,31 @@ window.onload = async function () {
         });
     }
 
-// Function to apply column visibility based on saved settings or default (all visible)
-function applyColumnVisibility() {
-    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-    const headers = getColumnHeaders();
+    // Function to apply column visibility based on saved settings or default (all visible)
+    function applyColumnVisibility() {
+        const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+        const headers = getColumnHeaders();
 
-    headers.forEach(header => {
-        const colIndex = header.index;
-        const visible = savedVisibility.hasOwnProperty(colIndex) ? savedVisibility[colIndex] : true;
+        headers.forEach(header => {
+            const colIndex = header.index;
+            const visible = savedVisibility.hasOwnProperty(colIndex) ? savedVisibility[colIndex] : true;
 
-        // Show/hide thead th
-        const th = combinedTableElement.querySelector('thead tr:nth-child(2) th:nth-child(' + (colIndex + 1) + ')');
-        if (th) {
-            th.style.display = visible ? '' : 'none';
-        }
+            // Show/hide thead th
+            const th = combinedTableElement.querySelector('thead tr:nth-child(2) th:nth-child(' + (colIndex + 1) + ')');
+            if (th) {
+                th.style.display = visible ? '' : 'none';
+            }
 
-        // We no longer show/hide tbody cells here because tbody cells are controlled by renderTable and insertRow
-    });
-}
+            // Show/hide tbody td
+            const rows = combinedTableElement.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const td = row.cells[colIndex];
+                if (td) {
+                    td.style.display = visible ? '' : 'none';
+                }
+            });
+        });
+    }
 
     // Show modal on button click
     columnFilterBtn.addEventListener('click', () => {
