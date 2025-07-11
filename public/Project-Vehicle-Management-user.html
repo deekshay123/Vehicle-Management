@@ -212,18 +212,11 @@ function exportTableToPDF() {
             data.push(rowData);
         });
 
-        // Add serial number in data starting from 1 in series corresponding to original table order
-        data.forEach((rowData, index) => {
-            rowData['#'] = (index + 1).toString();
-        });
-
-        // Add serial number column at the beginning of columns array
-        columns.unshift({ header: '#', dataKey: '#' });
-
-        // Keep existing sorting by 'Renewal Date (Vehicle)' if needed
+        // Sort data by 'Renewal Date (Vehicle)' full date ascending
         data.sort((a, b) => {
             function parseDate(dateStr) {
                 if (!dateStr) return new Date(0);
+                // Parse date in dd-MMM-yyyy format, e.g., 01-Jan-2024
                 const months = {
                     Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
                     Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
@@ -237,15 +230,34 @@ function exportTableToPDF() {
                         return new Date(year, month, day);
                     }
                 }
+                // Fallback to Date parse
                 const parsedDate = new Date(dateStr);
                 if (isNaN(parsedDate)) {
+                    // If parsing fails, return epoch start to push invalid dates to start
                     return new Date(0);
                 }
                 return parsedDate;
             }
+            // Defensive check for missing keys
             if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
             return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
         });
+
+        // Renumber serial numbers starting from 1 in sorted data
+        const serialNumberHeader = headers.find(header => header === '#');
+        if (serialNumberHeader) {
+            data.forEach((rowData, index) => {
+                rowData[serialNumberHeader] = (index + 1).toString();
+            });
+        }
+
+        // Helper function to format date as dd-mm-yyyy
+        function formatDateDDMMYYYY(date) {
+            const d = date.getDate().toString().padStart(2, '0');
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const y = date.getFullYear();
+            return `${d}-${m}-${y}`;
+        }
 
         // Add heading text above the table with professional styling
         doc.setFont('helvetica', 'bold');
@@ -253,10 +265,7 @@ function exportTableToPDF() {
         doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
         // Add current date below heading
-        const currentDateStr = (() => {
-            const d = new Date();
-            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()}`;
-        })();
+        const currentDateStr = formatDateDDMMYYYY(new Date());
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(12);
         doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
@@ -286,15 +295,21 @@ function exportTableToPDF() {
                 fillColor: [245, 245, 245],
             },
             didDrawPage: function (data) {
+                console.log('didDrawPage called for page:', data.pageNumber);
+                // Add a horizontal line above footer
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
                 doc.setDrawColor(0);
                 doc.setLineWidth(0.5);
                 doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+
+                // Add footer text at the bottom center with italic style
                 doc.setFont('helvetica', 'italic');
                 doc.setFontSize(10);
                 doc.setTextColor(150, 150, 150);
                 doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+                // Add page number at bottom right corner in small font
                 const pageNumber = doc.internal.getNumberOfPages();
                 doc.setFontSize(8);
                 doc.setTextColor(150, 150, 150);
