@@ -98,8 +98,8 @@
             <thead>
                 <tr>
                     <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="18" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-<!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+                    <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th>
                 </tr>
                 <tr>
                     <th>#</th>
@@ -107,7 +107,7 @@
                     <th>Policy Type</th>
                     <th>Policy Number</th>
                     <th>Renewal Date</th>
-                    <th>Status (I)</th>
+                    <th>Status</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -249,6 +249,14 @@ function exportTableToPDF() {
             return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
         });
 
+        // Renumber serial numbers starting from 1 in sorted data
+        const serialNumberHeader = headers.find(header => header === '#');
+        if (serialNumberHeader) {
+            data.forEach((rowData, index) => {
+                rowData[serialNumberHeader] = (index + 1).toString();
+            });
+        }
+
         // Helper function to format date as dd-mm-yyyy
         function formatDateDDMMYYYY(date) {
             const d = date.getDate().toString().padStart(2, '0');
@@ -315,7 +323,7 @@ function exportTableToPDF() {
             }
         });
 
-        doc.save('Feedmill_Vehicle_Report.pdf');
+        doc.save('vehicle_maintenance_table.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
         alert('Failed to generate PDF. Please check console for details.');
