@@ -255,6 +255,7 @@ function exportTableToPDF() {
             if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
             return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
         });
+        
 
         // Renumber serial numbers starting from 1 in sorted data
         const serialNumberHeader = headers.find(header => header === '#');
