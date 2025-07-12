@@ -99,9 +99,9 @@ function formatTimeDifferenceFromToday(dateStr) {
 // API base URL
 const API_BASE_URL = '/api/records';
 
-// Get division from localStorage for this tab
+// Get division from sessionStorage for this tab
 function getDivision() {
-    return localStorage.getItem('division') || '';
+    return sessionStorage.getItem('division') || '';
 }
 
 // Helper to add division header to fetch options
