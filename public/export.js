@@ -23,26 +23,63 @@ function exportTableToExcel() {
         }
     }
 
-    // Prepare header rows with merged cells based on visible columns
-    // Since the original header1 and header2 are fixed, we need to dynamically create headers matching visible columns
-    // For simplicity, we will create a single header row with visible column names
-
-    const worksheetData = [];
-    worksheetData.push(headers);
-
     // Prepare data rows from table body for visible columns only
     const rows = table.querySelectorAll('tbody tr');
+    const dataObjects = [];
 
-        rows.forEach((row, rowIndex) => {
-            if (row.style.display === 'none') return; // skip hidden rows if any
-            const rowData = [];
-            visibleColumns.forEach(colIndex => {
-                // Export the exact displayed text from the cell to match UI
-                let cellText = row.cells[colIndex].textContent.trim();
-                rowData.push(cellText);
-            });
-            worksheetData.push(rowData);
+    rows.forEach(row => {
+        if (row.style.display === 'none') return; // skip hidden rows if any
+        const rowData = {};
+        visibleColumns.forEach((colIndex, idx) => {
+            let cellText = row.cells[colIndex].textContent.trim();
+            rowData[headers[idx]] = cellText;
         });
+        dataObjects.push(rowData);
+    });
+
+    // Sort dataObjects by 'Renewal Date (Vehicle)' ascending
+    function parseDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        const months = {
+            Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+            Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+        };
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0], 10);
+            const month = months[parts[1]];
+            const year = parseInt(parts[2], 10);
+            if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                return new Date(year, month, day);
+            }
+        }
+        const parsedDate = new Date(dateStr);
+        if (isNaN(parsedDate)) {
+            return new Date(0);
+        }
+        return parsedDate;
+    }
+
+    dataObjects.sort((a, b) => {
+        if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
+        return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
+    });
+
+    // Renumber serial numbers starting from 1
+    const serialNumberHeader = headers.find(header => header === '#');
+    if (serialNumberHeader) {
+        dataObjects.forEach((rowData, index) => {
+            rowData[serialNumberHeader] = (index + 1).toString();
+        });
+    }
+
+    // Convert dataObjects back to array of arrays for worksheet
+    const worksheetData = [];
+    worksheetData.push(headers);
+    dataObjects.forEach(rowData => {
+        const rowArray = headers.map(header => rowData[header] || '');
+        worksheetData.push(rowArray);
+    });
 
     // Create worksheet from array of arrays
     const ws = XLSX.utils.aoa_to_sheet(worksheetData);
