@@ -336,8 +336,8 @@ function exportTableToPDF() {
         alert('Failed to generate PDF. Please check console for details.');
     }
 }
-// Set division in localStorage for this tab
-localStorage.setItem('division', 'headoffice');
+       // Set division in sessionStorage for this tab
+       sessionStorage.setItem('division', 'headoffice');
 </script>
 <script src="scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
