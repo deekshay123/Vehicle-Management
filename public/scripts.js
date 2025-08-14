@@ -385,26 +385,30 @@ function insertRow(tableBody, entry, rowIndex) {
 
     const originalValues = {
         vehicleNumber: entry.vehicleNumber,
+        makeModel: entry.makeModel,
         policyType: entry.policyType,
         policyNumber: entry.policyNumber,
         vehicleRenewalDate: entry.vehicleRenewalDate,
         vehicleStatusText: vehicleStatus.text,
+        division: entry.division,
         maintenanceType: entry.maintenanceType,
         openingKM: entry.openingKM,
         closingKM: entry.closingKM,
         kmDriven: entry.kmDriven,
+        remarks: entry.remarks || '',
         maintenanceRenewalDate: entry.maintenanceRenewalDate,
         maintenanceStatusText: maintenanceStatus.text,
-        renewalDate2: entry.renewalDate2,
-        remarks: entry.remarks || ''
+        renewalDate2: entry.renewalDate2
     };
 
     const fields = [
         { key: 'vehicleNumber', type: 'text' },
+        { key: 'makeModel', type: 'text' },
         { key: 'policyType', type: 'text' },
         { key: 'policyNumber', type: 'text' },
         { key: 'vehicleRenewalDate', type: 'date' },
         { key: 'vehicleStatusText', type: 'text', readonly: true },
+        { key: 'division', type: 'text' },
         { key: 'maintenanceType', type: 'text' },
         { key: 'openingKM', type: 'number' },
         { key: 'closingKM', type: 'number' },
