@@ -23,12 +23,14 @@
 <form
         id="combinedForm"
         style="display:none; max-height:0; overflow:hidden;"
-        onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
+        onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'makeModel', 'policyType', 'policyNumber', 'renewalDate', 'division', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
     >
         <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
+        <input type="text" id="makeModel" name="makeModel" placeholder="Make-Model" required />
         <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
         <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
         <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
+        <input type="text" id="division" name="division" placeholder="Division" required />
         <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
         <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
         <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
@@ -88,9 +90,11 @@
                 <tr>
                     <th>#</th>
                     <th>Vehicle Number</th>
+                    <th>Make-Model</th>
                     <th>Policy Type</th>
                     <th>Policy Number</th>
                     <th>Renewal Date</th>
+                    <th>Division</th>
                     <th>Status (I)</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
