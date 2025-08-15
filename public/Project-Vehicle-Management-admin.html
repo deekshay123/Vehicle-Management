@@ -148,6 +148,26 @@
     <script>
     // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'pt', 'a4');
+
+            if (typeof doc.autoTable !== 'function') {
+                alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
+                return;
+            }
+
+            const table = document.getElementById('combinedTable');
+            // Get saved column visibility from localStorage
+            const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+            // All possible headers in order, Vehicle Type after Vehicle Number
+            const allHeaders = ['#', 'Vehicle Number', 'Vehicle Type', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Division', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
+            // Get visible column indices from the table head
+            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
+            const visibleIndices = [];
+            headerCells.forEach((th, idx) => {
+                if (th.style.display !== 'none') visibleIndices.push(idx);
+            });
             // Get header names for visible columns
             const headers = visibleIndices.map(idx => allHeaders[idx]);
         try {
