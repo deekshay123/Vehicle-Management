@@ -148,6 +148,8 @@
     <script>
     // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
+            // Get header names for visible columns
+            const headers = visibleIndices.map(idx => allHeaders[idx]);
         try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'pt', 'a4');
