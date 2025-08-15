@@ -1,3 +1,4 @@
+vehicle-admin
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -243,12 +244,20 @@
                 let typeRows = allRows.filter(r => r._vehicleType === type);
                 divisionOrder.forEach(division => {
                     let divisionRows = typeRows.filter(r => r._division === division);
-                    // Sort by year, then month
+                    // Sort by year, then month, then day
                     divisionRows.sort((a, b) => {
                         if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
                         let aIdx = monthOrder.indexOf(a._renewalMonth);
                         let bIdx = monthOrder.indexOf(b._renewalMonth);
-                        return aIdx - bIdx;
+                        if (aIdx !== bIdx) return aIdx - bIdx;
+                        // Parse day
+                        let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
+                        let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                        let aParts = aDate.split('-');
+                        let bParts = bDate.split('-');
+                        let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                        let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                        return aDay - bDay;
                     });
                     divisionRows.forEach(r => {
                         delete r._vehicleType;
@@ -264,7 +273,14 @@
                     if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
                     let aIdx = monthOrder.indexOf(a._renewalMonth);
                     let bIdx = monthOrder.indexOf(b._renewalMonth);
-                    return aIdx - bIdx;
+                    if (aIdx !== bIdx) return aIdx - bIdx;
+                    let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
+                    let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                    let aParts = aDate.split('-');
+                    let bParts = bDate.split('-');
+                    let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                    let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                    return aDay - bDay;
                 });
                 otherDivisionRows.forEach(r => {
                     delete r._vehicleType;
