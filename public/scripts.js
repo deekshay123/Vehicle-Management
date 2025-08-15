@@ -1076,32 +1076,31 @@ async function loadAndRender() {
 const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
+const searchVehicleNumberInput2 = document.getElementById('searchVehicleNumberInput2');
 
 function combinedFilter() {
     const monthText = searchMonthInput.value.trim().toLowerCase();
     const statusText = searchStatusInput.value.trim().toLowerCase();
     const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
-    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText);
+    const vehicleNumberText2 = searchVehicleNumberInput2.value.trim().toLowerCase();
+    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText, vehicleNumberText2);
 }
 
 searchMonthInput.addEventListener('input', combinedFilter);
 searchStatusInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput.addEventListener('input', combinedFilter);
+searchVehicleNumberInput2.addEventListener('input', combinedFilter);
 
-function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText) {
+function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText, vehicleNumberText2) {
     const data = window.currentData || [];
     const filteredData = data.filter(entry => {
         const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
-
-        // Filter by policyType instead of status
         const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
-
-        // Check if monthText matches vehicleMonth only (exclude maintenanceMonth)
         const monthMatch = !monthText || vehicleMonth.includes(monthText);
         const statusMatch = !statusText || policyType.includes(statusText);
         const vehicleNumberMatch = !vehicleNumberText || entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
-
-        return monthMatch && statusMatch && vehicleNumberMatch;
+        const vehicleNumberMatch2 = !vehicleNumberText2 || entry.vehicleNumber.toLowerCase().includes(vehicleNumberText2);
+        return monthMatch && statusMatch && vehicleNumberMatch && vehicleNumberMatch2;
     });
     renderTable(filteredData);
 }
