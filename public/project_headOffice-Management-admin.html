@@ -162,7 +162,8 @@
         </div>
     </div>
 
-    <script> // * Export table data to PDF using jsPDF and autoTable with plugin availability check
+    <script> 
+        // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
         try {
             const { jsPDF } = window.jspdf;
@@ -234,7 +235,7 @@
                 // Add helper fields for grouping/sorting
                 rowData._vehicleType = vehicleType;
                 rowData._division = division;
-                // Parse year and month from Renewal Date(Vehicles)
+                // Parse year and month from Renewal Date(Vehicle)
                 let renewalDate = rowData['Renewal Date(Vehicles)'] || rowData['Renewal Date (Vehicles)'] || '';
                 let year = 0, month = '';
                 if (renewalDate) {
@@ -251,7 +252,7 @@
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]','[S.K]';
+            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
             const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             let data = [];
             let uniqueSet = new Set();
@@ -326,7 +327,7 @@
             // Add heading text above the table with professional styling
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(15);
-            doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+            doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
             // Add current date below heading
             const currentDateStr = formatDateDDMMYYYY(new Date());
@@ -385,6 +386,7 @@
                 }
             });
 
+
         doc.save('headOffice_vehicle_report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
@@ -402,6 +404,7 @@
 <script src="export.js"></script>
 </body>
 </html>
+
 
 
 
