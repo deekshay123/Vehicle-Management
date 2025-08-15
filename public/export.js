@@ -8,8 +8,12 @@ function exportTableToExcel() {
 
     // Determine visible columns (excluding last Actions column)
     const visibleColumns = [];
-    const headers = [];
+    let headers = [];
     for (let i = 0; i < headerCells.length; i++) {
+        // Exclude the last column if it is the Actions column (assuming last column index)
+        if (i === headerCells.length - 1) {
+            continue;
+        }
         if (headerCells[i].style.display !== 'none') {
             visibleColumns.push(i);
             // Rename headers for renewal date columns for clarity
@@ -22,17 +26,53 @@ function exportTableToExcel() {
             }
         }
     }
+    // Always add Vehicle Type, Make-Model, Division after Vehicle Number
+    const insertAfter = (arr, afterKey, newKey) => {
+        const idx = arr.indexOf(afterKey);
+        if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
+    };
+    insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
+    insertAfter(headers, 'Vehicle Type', 'Make-Model');
+    insertAfter(headers, 'Make-Model', 'Division');
 
-    // Prepare data rows from table body for visible columns only
+    // Prepare data rows from table body for visible columns + extra columns
     const rows = table.querySelectorAll('tbody tr');
     const dataObjects = [];
 
     rows.forEach(row => {
         if (row.style.display === 'none') return; // skip hidden rows if any
+        const cells = row.cells;
         const rowData = {};
-        visibleColumns.forEach((colIndex, idx) => {
-            let cellText = row.cells[colIndex].textContent.trim();
-            rowData[headers[idx]] = cellText;
+        // Parse Vehicle Number for Division, Make-Model, Vehicle Type
+        let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
+        let vehicleNumber = '';
+        let makeModelArr = [];
+        let division = '';
+        let vehicleTypeArr = [];
+        const parts = vehicleNumberFull.split('[');
+        vehicleNumber = parts[0].trim();
+        for (let i = 1; i < parts.length; i++) {
+            const part = parts[i].replace(']', '').trim();
+            if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
+                division = `[${part}]`;
+            } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                vehicleTypeArr.push(`[${part}]`);
+            } else {
+                makeModelArr.push(`[${part}]`);
+            }
+        }
+        headers.forEach((header, idx) => {
+            switch(header) {
+                case '#': rowData[header] = row.cells[0] ? row.cells[0].textContent.trim() : (dataObjects.length + 1).toString(); break;
+                case 'Vehicle Number': rowData[header] = vehicleNumber; break;
+                case 'Vehicle Type': rowData[header] = vehicleTypeArr.join(' '); break;
+                case 'Division': rowData[header] = division; break;
+                case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                default:
+                    // Find column index for this header
+                    let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
+                    rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
+            }
         });
         dataObjects.push(rowData);
     });
@@ -96,7 +136,7 @@ function exportTableToExcel() {
         ws[cellAddress].s.border = {
             top: { style: "thin", color: { rgb: "000000" } },
             bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000e000" } },
             right: { style: "thin", color: { rgb: "000000" } }
         };
     }
