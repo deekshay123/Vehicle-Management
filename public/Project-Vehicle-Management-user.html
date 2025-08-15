@@ -147,7 +147,7 @@
     </div>
 
     <script>
-     // * Export table data to PDF using jsPDF and autoTable with plugin availability check
+      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
         try {
             const { jsPDF } = window.jspdf;
@@ -369,7 +369,6 @@
                     doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
                 }
             });
-
         doc.save('processing_vehicle_report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
