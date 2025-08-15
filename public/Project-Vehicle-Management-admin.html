@@ -235,11 +235,12 @@ vehicle-admin
                 allRows.push(rowData);
             });
 
-            // Group and sort data
+            // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
             const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
             const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            const data = [];
+            let data = [];
+            let uniqueSet = new Set();
             typeOrder.forEach(type => {
                 let typeRows = allRows.filter(r => r._vehicleType === type);
                 divisionOrder.forEach(division => {
@@ -260,11 +261,16 @@ vehicle-admin
                         return aDay - bDay;
                     });
                     divisionRows.forEach(r => {
-                        delete r._vehicleType;
-                        delete r._division;
-                        delete r._renewalYear;
-                        delete r._renewalMonth;
-                        data.push(r);
+                        // Create a unique key for each row
+                        let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicle)'] || r['Renewal Date (Vehicle)']}_${r['Division']}_${r['Make-Model']}`;
+                        if (!uniqueSet.has(uniqueKey)) {
+                            uniqueSet.add(uniqueKey);
+                            delete r._vehicleType;
+                            delete r._division;
+                            delete r._renewalYear;
+                            delete r._renewalMonth;
+                            data.push(r);
+                        }
                     });
                 });
                 // Other divisions
@@ -283,11 +289,15 @@ vehicle-admin
                     return aDay - bDay;
                 });
                 otherDivisionRows.forEach(r => {
-                    delete r._vehicleType;
-                    delete r._division;
-                    delete r._renewalYear;
-                    delete r._renewalMonth;
-                    data.push(r);
+                    let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicle)'] || r['Renewal Date (Vehicle)']}_${r['Division']}_${r['Make-Model']}`;
+                    if (!uniqueSet.has(uniqueKey)) {
+                        uniqueSet.add(uniqueKey);
+                        delete r._vehicleType;
+                        delete r._division;
+                        delete r._renewalYear;
+                        delete r._renewalMonth;
+                        data.push(r);
+                    }
                 });
             });
 
