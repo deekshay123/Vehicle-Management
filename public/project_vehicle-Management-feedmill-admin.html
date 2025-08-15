@@ -106,7 +106,7 @@
                     <th>Vehicle Number</th>
                     <th>Policy Type</th>
                     <th>Policy Number</th>
-                    <th>Renewal Date(Vehicle)</th>
+                    <th>Renewal Date(Vehicles)</th>
                     <th>Status</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
@@ -193,8 +193,9 @@
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
             insertAfter(headers, 'Make-Model', 'Division');
 
-            const data = [];
+            // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
+            let allRows = [];
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
@@ -204,7 +205,7 @@
                 let vehicleNumber = '';
                 let makeModelArr = [];
                 let division = '';
-                let vehicleTypeArr = [];
+                let vehicleType = '';
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
@@ -212,7 +213,7 @@
                     if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
-                        vehicleTypeArr.push(`[${part}]`);
+                        vehicleType = `[${part.toUpperCase()}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
@@ -221,16 +222,96 @@
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
-                        case 'Vehicle Type': rowData[header] = vehicleTypeArr.join(' '); break;
+                        case 'Vehicle Type': rowData[header] = vehicleType; break;
                         case 'Division': rowData[header] = division; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
                         default:
-                            // Find column index for this header
                             let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
                             rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
                     }
                 });
-                data.push(rowData);
+                // Add helper fields for grouping/sorting
+                rowData._vehicleType = vehicleType;
+                rowData._division = division;
+                // Parse year and month from Renewal Date(Vehicle)
+                let renewalDate = rowData['Renewal Date(Vehicle)'] || rowData['Renewal Date (Vehicle)'] || '';
+                let year = 0, month = '';
+                if (renewalDate) {
+                    const parts = renewalDate.split('-');
+                    if (parts.length === 3) {
+                        month = parts[1];
+                        year = parseInt(parts[2], 10);
+                    }
+                }
+                rowData._renewalYear = year;
+                rowData._renewalMonth = month;
+                allRows.push(rowData);
+            });
+
+            // Group and sort data, filter out duplicates
+            const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
+            const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            let data = [];
+            let uniqueSet = new Set();
+            typeOrder.forEach(type => {
+                let typeRows = allRows.filter(r => r._vehicleType === type);
+                divisionOrder.forEach(division => {
+                    let divisionRows = typeRows.filter(r => r._division === division);
+                    // Sort by year, then month, then day
+                    divisionRows.sort((a, b) => {
+                        if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+                        let aIdx = monthOrder.indexOf(a._renewalMonth);
+                        let bIdx = monthOrder.indexOf(b._renewalMonth);
+                        if (aIdx !== bIdx) return aIdx - bIdx;
+                        // Parse day
+                        let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
+                        let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                        let aParts = aDate.split('-');
+                        let bParts = bDate.split('-');
+                        let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                        let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                        return aDay - bDay;
+                    });
+                    divisionRows.forEach(r => {
+                        // Create a unique key for each row
+                        let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicle)'] || r['Renewal Date (Vehicle)']}_${r['Division']}_${r['Make-Model']}`;
+                        if (!uniqueSet.has(uniqueKey)) {
+                            uniqueSet.add(uniqueKey);
+                            delete r._vehicleType;
+                            delete r._division;
+                            delete r._renewalYear;
+                            delete r._renewalMonth;
+                            data.push(r);
+                        }
+                    });
+                });
+                // Other divisions
+                let otherDivisionRows = typeRows.filter(r => !divisionOrder.includes(r._division));
+                otherDivisionRows.sort((a, b) => {
+                    if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+                    let aIdx = monthOrder.indexOf(a._renewalMonth);
+                    let bIdx = monthOrder.indexOf(b._renewalMonth);
+                    if (aIdx !== bIdx) return aIdx - bIdx;
+                    let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
+                    let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                    let aParts = aDate.split('-');
+                    let bParts = bDate.split('-');
+                    let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                    let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                    return aDay - bDay;
+                });
+                otherDivisionRows.forEach(r => {
+                    let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicle)'] || r['Renewal Date (Vehicle)']}_${r['Division']}_${r['Make-Model']}`;
+                    if (!uniqueSet.has(uniqueKey)) {
+                        uniqueSet.add(uniqueKey);
+                        delete r._vehicleType;
+                        delete r._division;
+                        delete r._renewalYear;
+                        delete r._renewalMonth;
+                        data.push(r);
+                    }
+                });
             });
 
             // Helper function to format date as dd-mm-yyyy
@@ -253,6 +334,12 @@
             doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
 
             // Generate PDF with autoTable, startY adjusted to leave space for heading and date
+            // Ensure '#' column is serial after filtering and sorting
+            data.forEach((row, idx) => {
+                if (row['#'] !== undefined) {
+                    row['#'] = (idx + 1).toString();
+                }
+            });
             doc.autoTable({
                 columns: headers.map(header => ({ header: header, dataKey: header })),
                 body: data,
@@ -297,6 +384,36 @@
                 }
             });
 
+            doc.save('Feedmill_vehicle_report.pdf');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please check console for details.');
+        }
+    }
+        // Set division in sessionStorage for this tab
+        sessionStorage.setItem('division', 'vehicle');
+    </script>
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+            doc.save('processing+[R.O]_vehicle_report.pdf');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please check console for details.');
+        }
+    }
+        // Set division in sessionStorage for this tab
+        sessionStorage.setItem('division', 'vehicle');
+    </script>
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
         doc.save('feedmill_vehicle_report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
