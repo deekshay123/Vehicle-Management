@@ -1,3 +1,4 @@
+vehicle-admin
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -320,6 +321,12 @@
             doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
 
             // Generate PDF with autoTable, startY adjusted to leave space for heading and date
+            // Ensure '#' column is serial after filtering and sorting
+            data.forEach((row, idx) => {
+                if (row['#'] !== undefined) {
+                    row['#'] = (idx + 1).toString();
+                }
+            });
             doc.autoTable({
                 columns: headers.map(header => ({ header: header, dataKey: header })),
                 body: data,
