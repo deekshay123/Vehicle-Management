@@ -1,3 +1,4 @@
+vehicle-admin
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -181,8 +182,6 @@
 
             const data = [];
             const rows = table.querySelectorAll('tbody tr');
-            // Collect all row data first
-            let allRows = [];
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
@@ -192,7 +191,7 @@
                 let vehicleNumber = '';
                 let makeModelArr = [];
                 let division = '';
-                let vehicleType = '';
+                let vehicleTypeArr = [];
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
@@ -200,7 +199,7 @@
                     if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
-                        vehicleType = part.toLowerCase();
+                        vehicleTypeArr.push(`[${part}]`);
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
@@ -209,77 +208,16 @@
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
-                        case 'Vehicle Type': rowData[header] = vehicleType ? `[${vehicleType}]` : ''; break;
+                        case 'Vehicle Type': rowData[header] = vehicleTypeArr.join(' '); break;
                         case 'Division': rowData[header] = division; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
                         default:
+                            // Find column index for this header
                             let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
                             rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
                     }
                 });
-                // Add vehicleType for grouping
-                rowData._vehicleType = vehicleType;
-                // Parse month from Renewal Date(Vehicle) for sorting
-                let renewalDate = rowData['Renewal Date(Vehicle)'] || rowData['Renewal Date (Vehicle)'] || '';
-                let month = '';
-                if (renewalDate) {
-                    const parts = renewalDate.split('-');
-                    if (parts.length === 3) month = parts[1];
-                }
-                rowData._renewalMonth = month;
-                allRows.push(rowData);
-            });
-
-            // Group by vehicle type: 2 wheel, 4 wheel, heavy
-            const typeOrder = ['2 wheel', '4 wheel', 'heavy'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
-            const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            typeOrder.forEach(type => {
-                // Filter rows for this type
-                let groupRows = allRows.filter(r => r._vehicleType === type);
-                // Group by division within this type
-                divisionOrder.forEach(division => {
-                    let divisionRows = groupRows.filter(r => r['Division'] === division);
-                    // Sort by year, then by renewal month order
-                    divisionRows.sort((a, b) => {
-                        // Parse year from renewal date
-                        let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
-                        let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
-                        let aParts = aDate.split('-');
-                        let bParts = bDate.split('-');
-                        let aYear = aParts.length === 3 ? parseInt(aParts[2], 10) : 0;
-                        let bYear = bParts.length === 3 ? parseInt(bParts[2], 10) : 0;
-                        if (aYear !== bYear) return aYear - bYear;
-                        let aIdx = monthOrder.indexOf(a._renewalMonth);
-                        let bIdx = monthOrder.indexOf(b._renewalMonth);
-                        return aIdx - bIdx;
-                    });
-                    // Remove helper fields and push to data
-                    divisionRows.forEach(r => {
-                        delete r._vehicleType;
-                        delete r._renewalMonth;
-                        data.push(r);
-                    });
-                });
-                // Also include rows with other divisions not in divisionOrder
-                let otherDivisionRows = groupRows.filter(r => !divisionOrder.includes(r['Division']));
-                otherDivisionRows.sort((a, b) => {
-                    let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
-                    let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
-                    let aParts = aDate.split('-');
-                    let bParts = bDate.split('-');
-                    let aYear = aParts.length === 3 ? parseInt(aParts[2], 10) : 0;
-                    let bYear = bParts.length === 3 ? parseInt(bParts[2], 10) : 0;
-                    if (aYear !== bYear) return aYear - bYear;
-                    let aIdx = monthOrder.indexOf(a._renewalMonth);
-                    let bIdx = monthOrder.indexOf(b._renewalMonth);
-                    return aIdx - bIdx;
-                });
-                otherDivisionRows.forEach(r => {
-                    delete r._vehicleType;
-                    delete r._renewalMonth;
-                    data.push(r);
-                });
+                data.push(rowData);
             });
 
             // Helper function to format date as dd-mm-yyyy
