@@ -147,7 +147,7 @@
     </div>
 
     <script>
-       // * Export table data to PDF using jsPDF and autoTable with plugin availability check
+          // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
         try {
             const { jsPDF } = window.jspdf;
@@ -369,12 +369,13 @@
                     doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
                 }
             });
-        doc.save('processing_vehicle_report.pdf');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Failed to generate PDF. Please check console for details.');
+
+            doc.save('processing+[R.O]_vehicle_report.pdf');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please check console for details.');
+        }
     }
-}
         // Set division in sessionStorage for this tab
         sessionStorage.setItem('division', 'vehicle');
     </script>
@@ -384,5 +385,3 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="export.js"></script>
-</body>
-</html>
