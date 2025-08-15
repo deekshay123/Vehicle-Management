@@ -232,18 +232,50 @@
 
             // Group by vehicle type: 2 wheel, 4 wheel, heavy
             const typeOrder = ['2 wheel', '4 wheel', 'heavy'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
+            const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             typeOrder.forEach(type => {
                 // Filter rows for this type
                 let groupRows = allRows.filter(r => r._vehicleType === type);
-                // Sort by renewal month order
-                const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                groupRows.sort((a, b) => {
+                // Group by division within this type
+                divisionOrder.forEach(division => {
+                    let divisionRows = groupRows.filter(r => r['Division'] === division);
+                    // Sort by year, then by renewal month order
+                    divisionRows.sort((a, b) => {
+                        // Parse year from renewal date
+                        let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
+                        let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                        let aParts = aDate.split('-');
+                        let bParts = bDate.split('-');
+                        let aYear = aParts.length === 3 ? parseInt(aParts[2], 10) : 0;
+                        let bYear = bParts.length === 3 ? parseInt(bParts[2], 10) : 0;
+                        if (aYear !== bYear) return aYear - bYear;
+                        let aIdx = monthOrder.indexOf(a._renewalMonth);
+                        let bIdx = monthOrder.indexOf(b._renewalMonth);
+                        return aIdx - bIdx;
+                    });
+                    // Remove helper fields and push to data
+                    divisionRows.forEach(r => {
+                        delete r._vehicleType;
+                        delete r._renewalMonth;
+                        data.push(r);
+                    });
+                });
+                // Also include rows with other divisions not in divisionOrder
+                let otherDivisionRows = groupRows.filter(r => !divisionOrder.includes(r['Division']));
+                otherDivisionRows.sort((a, b) => {
+                    let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
+                    let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                    let aParts = aDate.split('-');
+                    let bParts = bDate.split('-');
+                    let aYear = aParts.length === 3 ? parseInt(aParts[2], 10) : 0;
+                    let bYear = bParts.length === 3 ? parseInt(bParts[2], 10) : 0;
+                    if (aYear !== bYear) return aYear - bYear;
                     let aIdx = monthOrder.indexOf(a._renewalMonth);
                     let bIdx = monthOrder.indexOf(b._renewalMonth);
                     return aIdx - bIdx;
                 });
-                // Remove helper fields and push to data
-                groupRows.forEach(r => {
+                otherDivisionRows.forEach(r => {
                     delete r._vehicleType;
                     delete r._renewalMonth;
                     data.push(r);
