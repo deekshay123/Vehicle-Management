@@ -165,6 +165,10 @@
             // Get visible column indices from the table head
             const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
             const visibleIndices = [];
+            headerCells.forEach((th, idx) => {
+                if (th.style.display !== 'none') visibleIndices.push(idx);
+            });
+            const rows = table.querySelectorAll('tbody tr');
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
