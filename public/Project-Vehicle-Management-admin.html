@@ -88,13 +88,10 @@
                 <tr>
                     <th>#</th>
                     <th>Vehicle Number</th>
-                    <th>Vehicle Type</th>
-                    <th>Make-Model</th>
                     <th>Policy Type</th>
                     <th>Policy Number</th>
                     <th>Renewal Date</th>
                     <th>Status (I)</th>
-                    <th>Division</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -165,20 +162,21 @@
             const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
             const visibleColumns = [];
             let headers = [];
+            // Get visible headers from table
             for (let i = 0; i < headerCells.length; i++) {
-                const headerText = headerCells[i].textContent.trim();
-                if (headerText === 'Division' || headerText === 'Make-Model' || headerText === 'Vehicle Type') {
-                    // Always include Division, Make-Model, Vehicle Type in PDF export
-                    headers.push(headerText);
-                } else if (headerCells[i].style.display !== 'none') {
+                if (headerCells[i].style.display !== 'none') {
                     visibleColumns.push(i);
-                    headers.push(headerText);
+                    headers.push(headerCells[i].textContent.trim());
                 }
             }
-            // Ensure Division, Make-Model, Vehicle Type are present in headers for PDF
-            if (!headers.includes('Vehicle Type')) headers.splice(2, 0, 'Vehicle Type');
-            if (!headers.includes('Make-Model')) headers.splice(3, 0, 'Make-Model');
-            if (!headers.includes('Division')) headers.splice(8, 0, 'Division');
+            // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
+            const insertAfter = (arr, afterKey, newKey) => {
+                const idx = arr.indexOf(afterKey);
+                if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
+            };
+            insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
+            insertAfter(headers, 'Vehicle Type', 'Make-Model');
+            insertAfter(headers, 'Make-Model', 'Division');
 
             const data = [];
             const rows = table.querySelectorAll('tbody tr');
