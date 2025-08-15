@@ -234,7 +234,7 @@
                 rowData._vehicleType = vehicleType;
                 rowData._division = division;
                 // Parse year and month from Renewal Date(Vehicle)
-                let renewalDate = rowData['Renewal Date(Vehicle)'] || rowData['Renewal Date (Vehicle)'] || '';
+                let renewalDate = rowData['Renewal Date(Vehicles)'] || rowData['Renewal Date (Vehicles)'] || '';
                 let year = 0, month = '';
                 if (renewalDate) {
                     const parts = renewalDate.split('-');
@@ -265,8 +265,8 @@
                         let bIdx = monthOrder.indexOf(b._renewalMonth);
                         if (aIdx !== bIdx) return aIdx - bIdx;
                         // Parse day
-                        let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
-                        let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                        let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+                        let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
                         let aParts = aDate.split('-');
                         let bParts = bDate.split('-');
                         let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
@@ -275,7 +275,7 @@
                     });
                     divisionRows.forEach(r => {
                         // Create a unique key for each row
-                        let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicle)'] || r['Renewal Date (Vehicle)']}_${r['Division']}_${r['Make-Model']}`;
+                        let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
                         if (!uniqueSet.has(uniqueKey)) {
                             uniqueSet.add(uniqueKey);
                             delete r._vehicleType;
@@ -293,8 +293,8 @@
                     let aIdx = monthOrder.indexOf(a._renewalMonth);
                     let bIdx = monthOrder.indexOf(b._renewalMonth);
                     if (aIdx !== bIdx) return aIdx - bIdx;
-                    let aDate = a['Renewal Date(Vehicle)'] || a['Renewal Date (Vehicle)'] || '';
-                    let bDate = b['Renewal Date(Vehicle)'] || b['Renewal Date (Vehicle)'] || '';
+                    let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+                    let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
                     let aParts = aDate.split('-');
                     let bParts = bDate.split('-');
                     let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
@@ -302,7 +302,7 @@
                     return aDay - bDay;
                 });
                 otherDivisionRows.forEach(r => {
-                    let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicle)'] || r['Renewal Date (Vehicle)']}_${r['Division']}_${r['Make-Model']}`;
+                    let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
                     if (!uniqueSet.has(uniqueKey)) {
                         uniqueSet.add(uniqueKey);
                         delete r._vehicleType;
