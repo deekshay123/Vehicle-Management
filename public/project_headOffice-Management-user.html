@@ -168,174 +168,228 @@
     </div>
     <script>
       // * Export table data to PDF using jsPDF and autoTable with plugin availability check
-function exportTableToPDF() {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'pt', 'a4');
+    function exportTableToPDF() {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'pt', 'a4');
 
-        if (typeof doc.autoTable !== 'function') {
-            alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
-            return;
-        }
+            if (typeof doc.autoTable !== 'function') {
+                alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
+                return;
+            }
 
-        const table = document.getElementById('combinedTable');
-        const headers = [];
-        const data = [];
+            const table = document.getElementById('combinedTable');
+            // Get visible header cells from the second row of thead
+            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
+            const visibleColumns = [];
+            let headers = [];
+            // Get visible headers from table
+            for (let i = 0; i < headerCells.length; i++) {
+                if (headerCells[i].style.display !== 'none') {
+                    visibleColumns.push(i);
+                    headers.push(headerCells[i].textContent.trim());
+                }
+            }
+            // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
+            const insertAfter = (arr, afterKey, newKey) => {
+                const idx = arr.indexOf(afterKey);
+                if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
+            };
+            insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
+            insertAfter(headers, 'Vehicle Type', 'Make-Model');
+            insertAfter(headers, 'Make-Model', 'Division');
 
-        // Get header cells from second row of thead
-        const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-
-        // Get saved column visibility from localStorage
-        const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-
-        // Determine visible columns based on saved visibility and exclude last Actions column (index 16)
-        const visibleColumns = [];
-        for (let i = 0; i < headerCells.length - 1; i++) {
-            const isVisible = savedVisibility.hasOwnProperty(i) ? savedVisibility[i] : true;
-            if (headerCells[i].style.display !== 'none' && isVisible) {
-                visibleColumns.push(i);
-                // Assign unique header names for renewal date columns to avoid key collision
-                if (headerCells[i].innerText.trim() === 'Renewal Date') {
-                    if (i === 4) {
-                        headers.push('Renewal Date (Vehicle)');
-                    } else if (i === 14) {
-                        headers.push('Renewal Date (GPS)');
+            // Collect all row data first
+            const rows = table.querySelectorAll('tbody tr');
+            let allRows = [];
+            rows.forEach((row, index) => {
+                if (row.style.display === 'none') return;
+                const cells = row.cells;
+                const rowData = {};
+                // Parse Vehicle Number for Division, Make-Model, Vehicle Type
+                let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
+                let vehicleNumber = '';
+                let makeModelArr = [];
+                let division = '';
+                let vehicleType = '';
+                const parts = vehicleNumberFull.split('[');
+                vehicleNumber = parts[0].trim();
+                for (let i = 1; i < parts.length; i++) {
+                    const part = parts[i].replace(']', '').trim();
+                    if (["PRO", "R.O", "H.O" ,"S.K" ,"INT" ,"PVT"].includes(part.toUpperCase())) {
+                        division = `[${part}]`;
+                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                        vehicleType = `[${part.toUpperCase()}]`;
                     } else {
-                        headers.push(headerCells[i].innerText.trim());
-                    }
-                } else {
-                    headers.push(headerCells[i].innerText.trim());
-                }
-            }
-        }
-
-        // Prepare columns for autoTable with unique dataKey
-        const columns = headers.map(header => ({ header: header, dataKey: header }));
-
-        // Get visible rows data excluding last Actions column and only visible columns
-        const rows = table.querySelectorAll('tbody tr');
-
-        // Forcibly show 15th column cells before export to ensure data is included
-        rows.forEach(row => {
-            const cell = row.cells[14];
-            if (cell) {
-                cell.style.display = '';
-            }
-        });
-
-        rows.forEach(row => {
-            if (row.style.display === 'none') return; // skip hidden rows if any
-            const rowData = {};
-            visibleColumns.forEach((colIndex, idx) => {
-                let cellText = row.cells[colIndex].textContent.trim();
-                rowData[headers[idx]] = cellText;
-            });
-            data.push(rowData);
-        });
-        
-        // Sort data by 'Renewal Date (Vehicle)' full date ascending
-        data.sort((a, b) => {
-            function parseDate(dateStr) {
-                if (!dateStr) return new Date(0);
-                // Parse date in dd-MMM-yyyy format, e.g., 01-Jan-2024
-                const months = {
-                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-                };
-                const parts = dateStr.split('-');
-                if (parts.length === 3) {
-                    const day = parseInt(parts[0], 10);
-                    const month = months[parts[1]];
-                    const year = parseInt(parts[2], 10);
-                    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-                        return new Date(year, month, day);
+                        makeModelArr.push(`[${part}]`);
                     }
                 }
-                // Fallback to Date parse
-                const parsedDate = new Date(dateStr);
-                if (isNaN(parsedDate)) {
-                    // If parsing fails, return epoch start to push invalid dates to start
-                    return new Date(0);
+                headers.forEach((header, hIdx) => {
+                    switch(header) {
+                        case '#': rowData[header] = (index + 1).toString(); break;
+                        case 'Vehicle Number': rowData[header] = vehicleNumber; break;
+                        case 'Vehicle Type': rowData[header] = vehicleType; break;
+                        case 'Division': rowData[header] = division; break;
+                        case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                        default:
+                            let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
+                            rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
+                    }
+                });
+                // Add helper fields for grouping/sorting
+                rowData._vehicleType = vehicleType;
+                rowData._division = division;
+                // Parse year and month from Renewal Date(Vehicle)
+                let renewalDate = rowData['Renewal Date(Vehicles)'] || rowData['Renewal Date (Vehicles)'] || '';
+                let year = 0, month = '';
+                if (renewalDate) {
+                    const parts = renewalDate.split('-');
+                    if (parts.length === 3) {
+                        month = parts[1];
+                        year = parseInt(parts[2], 10);
+                    }
                 }
-                return parsedDate;
-            }
-            // Defensive check for missing keys
-            if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
-            return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
-        });
-        // Renumber serial numbers starting from 1 in sorted data
-        const serialNumberHeader = headers.find(header => header === '#');
-        if (serialNumberHeader) {
-            data.forEach((rowData, index) => {
-                rowData[serialNumberHeader] = (index + 1).toString();
+                rowData._renewalYear = year;
+                rowData._renewalMonth = month;
+                allRows.push(rowData);
             });
-        }
 
-        // Helper function to format date as dd-mm-yyyy
-        function formatDateDDMMYYYY(date) {
-            const d = date.getDate().toString().padStart(2, '0');
-            const m = (date.getMonth() + 1).toString().padStart(2, '0');
-            const y = date.getFullYear();
-            return `${d}-${m}-${y}`;
-        }
+            // Group and sort data, filter out duplicates
+            const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]', '[S.K]', '[INT]'];
+            const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            let data = [];
+            let uniqueSet = new Set();
+            typeOrder.forEach(type => {
+                let typeRows = allRows.filter(r => r._vehicleType === type);
+                divisionOrder.forEach(division => {
+                    let divisionRows = typeRows.filter(r => r._division === division);
+                    // Sort by year, then month, then day
+                    divisionRows.sort((a, b) => {
+                        if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+                        let aIdx = monthOrder.indexOf(a._renewalMonth);
+                        let bIdx = monthOrder.indexOf(b._renewalMonth);
+                        if (aIdx !== bIdx) return aIdx - bIdx;
+                        // Parse day
+                        let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+                        let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
+                        let aParts = aDate.split('-');
+                        let bParts = bDate.split('-');
+                        let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                        let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                        return aDay - bDay;
+                    });
+                    divisionRows.forEach(r => {
+                        // Create a unique key for each row
+                        let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
+                        if (!uniqueSet.has(uniqueKey)) {
+                            uniqueSet.add(uniqueKey);
+                            delete r._vehicleType;
+                            delete r._division;
+                            delete r._renewalYear;
+                            delete r._renewalMonth;
+                            data.push(r);
+                        }
+                    });
+                });
+                // Other divisions
+                let otherDivisionRows = typeRows.filter(r => !divisionOrder.includes(r._division));
+                otherDivisionRows.sort((a, b) => {
+                    if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+                    let aIdx = monthOrder.indexOf(a._renewalMonth);
+                    let bIdx = monthOrder.indexOf(b._renewalMonth);
+                    if (aIdx !== bIdx) return aIdx - bIdx;
+                    let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+                    let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
+                    let aParts = aDate.split('-');
+                    let bParts = bDate.split('-');
+                    let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                    let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                    return aDay - bDay;
+                });
+                otherDivisionRows.forEach(r => {
+                    let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
+                    if (!uniqueSet.has(uniqueKey)) {
+                        uniqueSet.add(uniqueKey);
+                        delete r._vehicleType;
+                        delete r._division;
+                        delete r._renewalYear;
+                        delete r._renewalMonth;
+                        data.push(r);
+                    }
+                });
+            });
 
-        // Add heading text above the table with professional styling
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(15);
-        doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD-OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
-
-        // Add current date below heading
-        const currentDateStr = formatDateDDMMYYYY(new Date());
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
-
-        // Generate PDF with autoTable, startY adjusted to leave space for heading and date
-        doc.autoTable({
-            columns: columns,
-            body: data,
-            startY: 60,
-            styles: {
-                cellPadding: 4,
-                lineWidth: 0.5,
-                lineColor: [0, 0, 0],
-                fontSize: 10,
-            },
-            columnStyles: columns.reduce((acc, col, index) => {
-                acc[col.dataKey] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
-                return acc;
-            }, {}),
-            headStyles: {
-                fillColor: [41, 128, 185],
-                textColor: 255,
-                fontStyle: 'bold',
-                halign: 'center',
-            },
-            alternateRowStyles: {
-                fillColor: [245, 245, 245],
-            },
-            didDrawPage: function (data) {
-                console.log('didDrawPage called for page:', data.pageNumber);
-                // Add a horizontal line above footer
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                doc.setDrawColor(0);
-                doc.setLineWidth(0.5);
-                doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
-
-                // Add footer text at the bottom center with italic style
-                doc.setFont('helvetica', 'italic');
-                doc.setFontSize(10);
-                doc.setTextColor(150, 150, 150);
-                doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
-
-                // Add page number at bottom right corner in small font
-                const pageNumber = doc.internal.getNumberOfPages();
-                doc.setFontSize(8);
-                doc.setTextColor(150, 150, 150);
-                doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
+            // Helper function to format date as dd-mm-yyyy
+            function formatDateDDMMYYYY(date) {
+                const d = date.getDate().toString().padStart(2, '0');
+                const m = (date.getMonth() + 1).toString().padStart(2, '0');
+                const y = date.getFullYear();
+                return `${d}-${m}-${y}`;
             }
-        });
+
+            // Add heading text above the table with professional styling
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(15);
+            doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD-OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+
+            // Add current date below heading
+            const currentDateStr = formatDateDDMMYYYY(new Date());
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
+
+            // Generate PDF with autoTable, startY adjusted to leave space for heading and date
+            // Ensure '#' column is serial after filtering and sorting
+            data.forEach((row, idx) => {
+                if (row['#'] !== undefined) {
+                    row['#'] = (idx + 1).toString();
+                }
+            });
+            doc.autoTable({
+                columns: headers.map(header => ({ header: header, dataKey: header })),
+                body: data,
+                startY: 60,
+                styles: {
+                    cellPadding: 4,
+                    lineWidth: 0.5,
+                    lineColor: [0, 0, 0],
+                    fontSize: 10,
+                },
+                columnStyles: headers.reduce((acc, header, index) => {
+                    acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
+                    return acc;
+                }, {}),
+                headStyles: {
+                    fillColor: [41, 128, 185],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                didDrawPage: function (data) {
+                    // Add a horizontal line above footer
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+                    doc.setDrawColor(0);
+                    doc.setLineWidth(0.5);
+                    doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+
+                    // Add footer text at the bottom center with italic style
+                    doc.setFont('helvetica', 'italic');
+                    doc.setFontSize(10);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+                    // Add page number at bottom right corner in small font
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
+                }
+            });
+
 
         doc.save('headOffice_vehicle_report.pdf');
     } catch (error) {
@@ -354,4 +408,5 @@ function exportTableToPDF() {
     <script src="export.js"></script>
 </body>
 </html>
+
 
