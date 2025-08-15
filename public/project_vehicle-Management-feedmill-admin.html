@@ -325,7 +325,7 @@
             // Add heading text above the table with professional styling
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(15);
-            doc.text('BHARATH AGROVET INDUSTRIES-[FEEDMILL]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+            doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
             // Add current date below heading
             const currentDateStr = formatDateDDMMYYYY(new Date());
@@ -384,36 +384,6 @@
                 }
             });
 
-            doc.save('Feedmill_vehicle_report.pdf');
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF. Please check console for details.');
-        }
-    }
-        // Set division in sessionStorage for this tab
-        sessionStorage.setItem('division', 'vehicle');
-    </script>
-    <script src="scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="export.js"></script>
-            doc.save('processing+[R.O]_vehicle_report.pdf');
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF. Please check console for details.');
-        }
-    }
-        // Set division in sessionStorage for this tab
-        sessionStorage.setItem('division', 'vehicle');
-    </script>
-    <script src="scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="export.js"></script>
         doc.save('feedmill_vehicle_report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
