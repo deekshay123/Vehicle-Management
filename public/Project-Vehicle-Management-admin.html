@@ -169,6 +169,7 @@
                 if (th.style.display !== 'none') visibleIndices.push(idx);
             });
             const rows = table.querySelectorAll('tbody tr');
+            const data = [];
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
