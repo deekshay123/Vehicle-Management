@@ -88,10 +88,13 @@
                 <tr>
                     <th>#</th>
                     <th>Vehicle Number</th>
+                    <th>Vehicle Type</th>
+                    <th>Make-Model</th>
                     <th>Policy Type</th>
                     <th>Policy Number</th>
                     <th>Renewal Date</th>
                     <th>Status (I)</th>
+                    <th>Division</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -158,54 +161,60 @@
             }
 
             const table = document.getElementById('combinedTable');
-            // Get saved column visibility from localStorage
-            const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-            // All possible headers in order
-            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Division', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
-            // Filter headers to only visible columns
-            const headers = allHeaders.filter((_, idx) => savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true);
+            // Get visible header cells from the second row of thead
+            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
+            const visibleColumns = [];
+            let headers = [];
+            for (let i = 0; i < headerCells.length; i++) {
+                const headerText = headerCells[i].textContent.trim();
+                if (headerText === 'Division' || headerText === 'Make-Model' || headerText === 'Vehicle Type') {
+                    // Always include Division, Make-Model, Vehicle Type in PDF export
+                    headers.push(headerText);
+                } else if (headerCells[i].style.display !== 'none') {
+                    visibleColumns.push(i);
+                    headers.push(headerText);
+                }
+            }
+            // Ensure Division, Make-Model, Vehicle Type are present in headers for PDF
+            if (!headers.includes('Vehicle Type')) headers.splice(2, 0, 'Vehicle Type');
+            if (!headers.includes('Make-Model')) headers.splice(3, 0, 'Make-Model');
+            if (!headers.includes('Division')) headers.splice(8, 0, 'Division');
+
             const data = [];
             const rows = table.querySelectorAll('tbody tr');
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
                 const rowData = {};
-                // Parse vehicle number data
-                const vehicleNumberFull = cells[1].textContent.trim();
+                // Parse Vehicle Number for Division, Make-Model, Vehicle Type
+                let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
                 let vehicleNumber = '';
                 let makeModelArr = [];
                 let division = '';
+                let vehicleTypeArr = [];
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (['PRO', 'R.O', 'H.O'].includes(part.toUpperCase())) {
+                    if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
+                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                        vehicleTypeArr.push(`[${part}]`);
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
                 }
-                // Assign parsed data to row only for visible columns
-                allHeaders.forEach((header, idx) => {
-                    if (!(savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true)) return;
+                headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
-                        case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                        case 'Vehicle Type': rowData[header] = vehicleTypeArr.join(' '); break;
                         case 'Division': rowData[header] = division; break;
-                        case 'Policy Type': rowData[header] = cells[2].textContent.trim(); break;
-                        case 'Policy Number': rowData[header] = cells[3].textContent.trim(); break;
-                        case 'Renewal Date': rowData[header] = cells[4].textContent.trim(); break;
-                        case 'Status (I)': rowData[header] = cells[5].textContent.trim(); break;
-                        case 'Service Type': rowData[header] = cells[6].textContent.trim(); break;
-                        case 'Opening KM': rowData[header] = cells[7].textContent.trim(); break;
-                        case 'Closing KM': rowData[header] = cells[8].textContent.trim(); break;
-                        case 'Km Driven': rowData[header] = cells[9].textContent.trim(); break;
-                        case 'Remarks': rowData[header] = cells[10].textContent.trim(); break;
-                        case 'Last Service Date': rowData[header] = cells[11].textContent.trim(); break;
-                        case 'Status': rowData[header] = cells[12].textContent.trim(); break;
-                        case 'GPS': rowData[header] = cells[13].textContent.trim(); break;
-                        case 'Renewal Date (GPS)': rowData[header] = cells[14].textContent.trim(); break;
+                        case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                        default:
+                            // Find column index for this header
+                            let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
+                            rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
                     }
                 });
                 data.push(rowData);
