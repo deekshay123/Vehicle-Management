@@ -160,8 +160,8 @@
             const table = document.getElementById('combinedTable');
             // Get saved column visibility from localStorage
             const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-            // All possible headers in order
-            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Division', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
+            // All possible headers in order, Division moved after Renewal Date (GPS)
+            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)', 'Division'];
             // Filter headers to only visible columns
             const headers = allHeaders.filter((_, idx) => savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true);
             const data = [];
@@ -192,7 +192,6 @@
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
-                        case 'Division': rowData[header] = division; break;
                         case 'Policy Type': rowData[header] = cells[2].textContent.trim(); break;
                         case 'Policy Number': rowData[header] = cells[3].textContent.trim(); break;
                         case 'Renewal Date': rowData[header] = cells[4].textContent.trim(); break;
@@ -206,6 +205,7 @@
                         case 'Status': rowData[header] = cells[12].textContent.trim(); break;
                         case 'GPS': rowData[header] = cells[13].textContent.trim(); break;
                         case 'Renewal Date (GPS)': rowData[header] = cells[14].textContent.trim(); break;
+                        case 'Division': rowData[header] = division; break;
                     }
                 });
                 data.push(rowData);
