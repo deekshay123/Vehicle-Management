@@ -160,8 +160,8 @@
             const table = document.getElementById('combinedTable');
             // Get saved column visibility from localStorage
             const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-            // All possible headers in order, Vehicle Type after Vehicle Number
-            const allHeaders = ['#', 'Vehicle Number', 'Vehicle Type', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Division', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
+            // All possible headers in order, Division moved after Status (I)
+            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Division', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
             // Get visible column indices from the table head
             const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
             const visibleIndices = [];
@@ -170,28 +170,8 @@
             });
             // Get header names for visible columns
             const headers = visibleIndices.map(idx => allHeaders[idx]);
-        try {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'pt', 'a4');
-
-            if (typeof doc.autoTable !== 'function') {
-                alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
-                return;
-            }
-
-            const table = document.getElementById('combinedTable');
-            // Get saved column visibility from localStorage
-            const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-            // All possible headers in order, Vehicle Type after Vehicle Number
-            const allHeaders = ['#', 'Vehicle Number', 'Vehicle Type', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Division', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
-            // Get visible column indices from the table head
-            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-            const visibleIndices = [];
-            headerCells.forEach((th, idx) => {
-                if (th.style.display !== 'none') visibleIndices.push(idx);
-            });
-            const rows = table.querySelectorAll('tbody tr');
             const data = [];
+            const rows = table.querySelectorAll('tbody tr');
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
@@ -199,48 +179,42 @@
                 // Parse vehicle number data
                 const vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
                 let vehicleNumber = '';
-                let vehicleType = '';
                 let makeModelArr = [];
                 let division = '';
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
-                // Find first bracketed value for Vehicle Type, rest for Make-Model, Division as before
-                let foundType = false;
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
                     if (['PRO', 'R.O', 'H.O'].includes(part.toUpperCase())) {
                         division = `[${part}]`;
-                    } else if (!foundType) {
-                        vehicleType = `[${part}]`;
-                        foundType = true;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
                 }
                 visibleIndices.forEach(idx => {
                     const header = allHeaders[idx];
-                    if (header === '#') rowData[header] = (index + 1).toString();
-                    else if (header === 'Vehicle Number') rowData[header] = vehicleNumber;
-                    else if (header === 'Vehicle Type') rowData[header] = vehicleType;
-                    else if (header === 'Make-Model') rowData[header] = makeModelArr.join(' ');
-                    else if (header === 'Policy Type') rowData[header] = cells[2] ? cells[2].textContent.trim() : '';
-                    else if (header === 'Policy Number') rowData[header] = cells[3] ? cells[3].textContent.trim() : '';
-                    else if (header === 'Renewal Date') rowData[header] = cells[4] ? cells[4].textContent.trim() : '';
-                    else if (header === 'Status (I)') rowData[header] = cells[5] ? cells[5].textContent.trim() : '';
-                    else if (header === 'Division') rowData[header] = division;
-                    else if (header === 'Service Type') rowData[header] = cells[6] ? cells[6].textContent.trim() : '';
-                    else if (header === 'Opening KM') rowData[header] = cells[7] ? cells[7].textContent.trim() : '';
-                    else if (header === 'Closing KM') rowData[header] = cells[8] ? cells[8].textContent.trim() : '';
-                    else if (header === 'Km Driven') rowData[header] = cells[9] ? cells[9].textContent.trim() : '';
-                    else if (header === 'Remarks') rowData[header] = cells[10] ? cells[10].textContent.trim() : '';
-                    else if (header === 'Last Service Date') rowData[header] = cells[11] ? cells[11].textContent.trim() : '';
-                    else if (header === 'Status') rowData[header] = cells[12] ? cells[12].textContent.trim() : '';
-                    else if (header === 'GPS') rowData[header] = cells[13] ? cells[13].textContent.trim() : '';
-                    else if (header === 'Renewal Date (GPS)') rowData[header] = cells[14] ? cells[14].textContent.trim() : '';
+                    switch(header) {
+                        case '#': rowData[header] = (index + 1).toString(); break;
+                        case 'Vehicle Number': rowData[header] = vehicleNumber; break;
+                        case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                        case 'Policy Type': rowData[header] = cells[2] ? cells[2].textContent.trim() : ''; break;
+                        case 'Policy Number': rowData[header] = cells[3] ? cells[3].textContent.trim() : ''; break;
+                        case 'Renewal Date': rowData[header] = cells[4] ? cells[4].textContent.trim() : ''; break;
+                        case 'Status (I)': rowData[header] = cells[5] ? cells[5].textContent.trim() : ''; break;
+                        case 'Service Type': rowData[header] = cells[6] ? cells[6].textContent.trim() : ''; break;
+                        case 'Opening KM': rowData[header] = cells[7] ? cells[7].textContent.trim() : ''; break;
+                        case 'Closing KM': rowData[header] = cells[8] ? cells[8].textContent.trim() : ''; break;
+                        case 'Km Driven': rowData[header] = cells[9] ? cells[9].textContent.trim() : ''; break;
+                        case 'Remarks': rowData[header] = cells[10] ? cells[10].textContent.trim() : ''; break;
+                        case 'Last Service Date': rowData[header] = cells[11] ? cells[11].textContent.trim() : ''; break;
+                        case 'Status': rowData[header] = cells[12] ? cells[12].textContent.trim() : ''; break;
+                        case 'GPS': rowData[header] = cells[13] ? cells[13].textContent.trim() : ''; break;
+                        case 'Renewal Date (GPS)': rowData[header] = cells[14] ? cells[14].textContent.trim() : ''; break;
+                        case 'Division': rowData[header] = division; break;
+                    }
                 });
                 data.push(rowData);
             });
-                // ...existing code...
 
             // Helper function to format date as dd-mm-yyyy
             function formatDateDDMMYYYY(date) {
