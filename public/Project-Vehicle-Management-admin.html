@@ -160,16 +160,10 @@
             const table = document.getElementById('combinedTable');
             // Get saved column visibility from localStorage
             const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
-            // All possible headers in order, Division moved after Status (I)
-            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Division', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
-            // Get visible column indices from the table head
-            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-            const visibleIndices = [];
-            headerCells.forEach((th, idx) => {
-                if (th.style.display !== 'none') visibleIndices.push(idx);
-            });
-            // Get header names for visible columns
-            const headers = visibleIndices.map(idx => allHeaders[idx]);
+            // All possible headers in order, Division moved after Renewal Date (GPS)
+            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)', 'Division'];
+            // Filter headers to only visible columns
+            const headers = allHeaders.filter((_, idx) => savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true);
             const data = [];
             const rows = table.querySelectorAll('tbody tr');
             rows.forEach((row, index) => {
@@ -177,7 +171,7 @@
                 const cells = row.cells;
                 const rowData = {};
                 // Parse vehicle number data
-                const vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
+                const vehicleNumberFull = cells[1].textContent.trim();
                 let vehicleNumber = '';
                 let makeModelArr = [];
                 let division = '';
@@ -191,25 +185,26 @@
                         makeModelArr.push(`[${part}]`);
                     }
                 }
-                visibleIndices.forEach(idx => {
-                    const header = allHeaders[idx];
+                // Assign parsed data to row only for visible columns
+                allHeaders.forEach((header, idx) => {
+                    if (!(savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true)) return;
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
-                        case 'Policy Type': rowData[header] = cells[2] ? cells[2].textContent.trim() : ''; break;
-                        case 'Policy Number': rowData[header] = cells[3] ? cells[3].textContent.trim() : ''; break;
-                        case 'Renewal Date': rowData[header] = cells[4] ? cells[4].textContent.trim() : ''; break;
-                        case 'Status (I)': rowData[header] = cells[5] ? cells[5].textContent.trim() : ''; break;
-                        case 'Service Type': rowData[header] = cells[6] ? cells[6].textContent.trim() : ''; break;
-                        case 'Opening KM': rowData[header] = cells[7] ? cells[7].textContent.trim() : ''; break;
-                        case 'Closing KM': rowData[header] = cells[8] ? cells[8].textContent.trim() : ''; break;
-                        case 'Km Driven': rowData[header] = cells[9] ? cells[9].textContent.trim() : ''; break;
-                        case 'Remarks': rowData[header] = cells[10] ? cells[10].textContent.trim() : ''; break;
-                        case 'Last Service Date': rowData[header] = cells[11] ? cells[11].textContent.trim() : ''; break;
-                        case 'Status': rowData[header] = cells[12] ? cells[12].textContent.trim() : ''; break;
-                        case 'GPS': rowData[header] = cells[13] ? cells[13].textContent.trim() : ''; break;
-                        case 'Renewal Date (GPS)': rowData[header] = cells[14] ? cells[14].textContent.trim() : ''; break;
+                        case 'Policy Type': rowData[header] = cells[2].textContent.trim(); break;
+                        case 'Policy Number': rowData[header] = cells[3].textContent.trim(); break;
+                        case 'Renewal Date': rowData[header] = cells[4].textContent.trim(); break;
+                        case 'Status (I)': rowData[header] = cells[5].textContent.trim(); break;
+                        case 'Service Type': rowData[header] = cells[6].textContent.trim(); break;
+                        case 'Opening KM': rowData[header] = cells[7].textContent.trim(); break;
+                        case 'Closing KM': rowData[header] = cells[8].textContent.trim(); break;
+                        case 'Km Driven': rowData[header] = cells[9].textContent.trim(); break;
+                        case 'Remarks': rowData[header] = cells[10].textContent.trim(); break;
+                        case 'Last Service Date': rowData[header] = cells[11].textContent.trim(); break;
+                        case 'Status': rowData[header] = cells[12].textContent.trim(); break;
+                        case 'GPS': rowData[header] = cells[13].textContent.trim(); break;
+                        case 'Renewal Date (GPS)': rowData[header] = cells[14].textContent.trim(); break;
                         case 'Division': rowData[header] = division; break;
                     }
                 });
