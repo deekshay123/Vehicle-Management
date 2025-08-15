@@ -1,32 +1,15 @@
+
 // export to Excel Only-
 function exportTableToExcel() {
     const table = document.getElementById('combinedTable');
-    const wb = XLSX.utils.book_new();
-
-    // Get header cells from second row of thead
     const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-
-    // Determine visible columns (excluding last Actions column)
-    const visibleColumns = [];
     let headers = [];
     for (let i = 0; i < headerCells.length; i++) {
-        // Exclude the last column if it is the Actions column (assuming last column index)
-        if (i === headerCells.length - 1) {
-            continue;
-        }
         if (headerCells[i].style.display !== 'none') {
-            visibleColumns.push(i);
-            // Rename headers for renewal date columns for clarity
-            if (i === 4) {
-                headers.push('Renewal Date (Vehicle)');
-            } else if (i === 14) {
-                headers.push('Renewal Date (GPS)');
-            } else {
-                headers.push(headerCells[i].textContent.trim());
-            }
+            headers.push(headerCells[i].textContent.trim());
         }
     }
-    // Always add Vehicle Type, Make-Model, Division after Vehicle Number
+    // Always add Vehicle Type, Make-Model, Division to Excel export after Vehicle Number
     const insertAfter = (arr, afterKey, newKey) => {
         const idx = arr.indexOf(afterKey);
         if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
@@ -35,20 +18,18 @@ function exportTableToExcel() {
     insertAfter(headers, 'Vehicle Type', 'Make-Model');
     insertAfter(headers, 'Make-Model', 'Division');
 
-    // Prepare data rows from table body for visible columns + extra columns
+    // Collect all row data first
     const rows = table.querySelectorAll('tbody tr');
-    const dataObjects = [];
-
-    rows.forEach(row => {
-        if (row.style.display === 'none') return; // skip hidden rows if any
+    let allRows = [];
+    rows.forEach((row, index) => {
+        if (row.style.display === 'none') return;
         const cells = row.cells;
         const rowData = {};
-        // Parse Vehicle Number for Division, Make-Model, Vehicle Type
         let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
         let vehicleNumber = '';
         let makeModelArr = [];
         let division = '';
-        let vehicleTypeArr = [];
+        let vehicleType = '';
         const parts = vehicleNumberFull.split('[');
         vehicleNumber = parts[0].trim();
         for (let i = 1; i < parts.length; i++) {
@@ -56,96 +37,123 @@ function exportTableToExcel() {
             if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
                 division = `[${part}]`;
             } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
-                vehicleTypeArr.push(`[${part}]`);
+                vehicleType = `[${part.toUpperCase()}]`;
             } else {
                 makeModelArr.push(`[${part}]`);
             }
         }
-        headers.forEach((header, idx) => {
+        headers.forEach((header, hIdx) => {
             switch(header) {
-                case '#': rowData[header] = row.cells[0] ? row.cells[0].textContent.trim() : (dataObjects.length + 1).toString(); break;
+                case '#': rowData[header] = (index + 1).toString(); break;
                 case 'Vehicle Number': rowData[header] = vehicleNumber; break;
-                case 'Vehicle Type': rowData[header] = vehicleTypeArr.join(' '); break;
+                case 'Vehicle Type': rowData[header] = vehicleType; break;
                 case 'Division': rowData[header] = division; break;
                 case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
                 default:
-                    // Find column index for this header
                     let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
                     rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
             }
         });
-        dataObjects.push(rowData);
-    });
-
-    // Sort dataObjects by 'Renewal Date (Vehicle)' ascending
-    function parseDate(dateStr) {
-        if (!dateStr) return new Date(0);
-        const months = {
-            Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-            Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-        };
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            const day = parseInt(parts[0], 10);
-            const month = months[parts[1]];
-            const year = parseInt(parts[2], 10);
-            if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-                return new Date(year, month, day);
+        // Add helper fields for grouping/sorting
+        rowData._vehicleType = vehicleType;
+        rowData._division = division;
+        // Parse year and month from Renewal Date(Vehicle)
+        let renewalDate = rowData['Renewal Date(Vehicles)'] || rowData['Renewal Date (Vehicles)'] || '';
+        let year = 0, month = '';
+        if (renewalDate) {
+            const parts = renewalDate.split('-');
+            if (parts.length === 3) {
+                month = parts[1];
+                year = parseInt(parts[2], 10);
             }
         }
-        const parsedDate = new Date(dateStr);
-        if (isNaN(parsedDate)) {
-            return new Date(0);
-        }
-        return parsedDate;
-    }
-
-    dataObjects.sort((a, b) => {
-        if (!a.hasOwnProperty('Renewal Date (Vehicle)') || !b.hasOwnProperty('Renewal Date (Vehicle)')) return 0;
-        return parseDate(a['Renewal Date (Vehicle)']) - parseDate(b['Renewal Date (Vehicle)']);
+        rowData._renewalYear = year;
+        rowData._renewalMonth = month;
+        allRows.push(rowData);
     });
 
-    // Renumber serial numbers starting from 1
-    const serialNumberHeader = headers.find(header => header === '#');
-    if (serialNumberHeader) {
-        dataObjects.forEach((rowData, index) => {
-            rowData[serialNumberHeader] = (index + 1).toString();
+    // Group and sort data, filter out duplicates
+    const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
+    const divisionOrder = ['[PRO]', '[R.O]', '[H.O]','[S.K]', '[INT]','[PVT]'];
+    const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let data = [];
+    let uniqueSet = new Set();
+    typeOrder.forEach(type => {
+        let typeRows = allRows.filter(r => r._vehicleType === type);
+        divisionOrder.forEach(division => {
+            let divisionRows = typeRows.filter(r => r._division === division);
+            divisionRows.sort((a, b) => {
+                if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+                let aIdx = monthOrder.indexOf(a._renewalMonth);
+                let bIdx = monthOrder.indexOf(b._renewalMonth);
+                if (aIdx !== bIdx) return aIdx - bIdx;
+                let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+                let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
+                let aParts = aDate.split('-');
+                let bParts = bDate.split('-');
+                let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                return aDay - bDay;
+            });
+            divisionRows.forEach(r => {
+                let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
+                if (!uniqueSet.has(uniqueKey)) {
+                    uniqueSet.add(uniqueKey);
+                    delete r._vehicleType;
+                    delete r._division;
+                    delete r._renewalYear;
+                    delete r._renewalMonth;
+                    data.push(r);
+                }
+            });
         });
-    }
+        let otherDivisionRows = typeRows.filter(r => !divisionOrder.includes(r._division));
+        otherDivisionRows.sort((a, b) => {
+            if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+            let aIdx = monthOrder.indexOf(a._renewalMonth);
+            let bIdx = monthOrder.indexOf(b._renewalMonth);
+            if (aIdx !== bIdx) return aIdx - bIdx;
+            let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+            let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
+            let aParts = aDate.split('-');
+            let bParts = bDate.split('-');
+            let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+            let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+            return aDay - bDay;
+        });
+        otherDivisionRows.forEach(r => {
+            let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
+            if (!uniqueSet.has(uniqueKey)) {
+                uniqueSet.add(uniqueKey);
+                delete r._vehicleType;
+                delete r._division;
+                delete r._renewalYear;
+                delete r._renewalMonth;
+                data.push(r);
+            }
+        });
+    });
 
-    // Convert dataObjects back to array of arrays for worksheet
+    // Ensure '#' column is serial after filtering and sorting
+    data.forEach((row, idx) => {
+        if (row['#'] !== undefined) {
+            row['#'] = (idx + 1).toString();
+        }
+    });
+
+    // Convert data to worksheet
     const worksheetData = [];
     worksheetData.push(headers);
-    dataObjects.forEach(rowData => {
+    data.forEach(rowData => {
         const rowArray = headers.map(header => rowData[header] || '');
         worksheetData.push(rowArray);
     });
 
-    // Create worksheet from array of arrays
+    const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    // Apply styling: bold and background color for header row
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let C = 0; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-        if (!ws[cellAddress]) continue;
-        if (!ws[cellAddress].s) ws[cellAddress].s = {};
-        ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
-        ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
-        ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
-        ws[cellAddress].s.border = {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000e000" } },
-            right: { style: "thin", color: { rgb: "000000" } }
-        };
-    }
-
-    // Set column widths for better appearance (optional, set all to 15)
     ws['!cols'] = new Array(headers.length).fill({ wch: 15 });
-
-    XLSX.utils.book_append_sheet(wb, ws, 'VehicleMaintenance');
-    XLSX.writeFile(wb, 'vehicle_maintenance_table.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'Vehicle Report');
+    XLSX.writeFile(wb, 'processing+[R.O]_vehicle_report.xlsx');
 }
 
 window.addEventListener('DOMContentLoaded', () => {
