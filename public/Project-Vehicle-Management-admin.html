@@ -158,8 +158,12 @@
             }
 
             const table = document.getElementById('combinedTable');
-            // Custom headers for PDF export
-            const headers = ['#', 'Vehicle Number', 'Make-Model', 'Division', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
+            // Get saved column visibility from localStorage
+            const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+            // All possible headers in order
+            const allHeaders = ['#', 'Vehicle Number', 'Make-Model', 'Division', 'Policy Type', 'Policy Number', 'Renewal Date', 'Status (I)', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status', 'GPS', 'Renewal Date (GPS)'];
+            // Filter headers to only visible columns
+            const headers = allHeaders.filter((_, idx) => savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true);
             const data = [];
             const rows = table.querySelectorAll('tbody tr');
             rows.forEach((row, index) => {
@@ -171,7 +175,6 @@
                 let vehicleNumber = '';
                 let makeModelArr = [];
                 let division = '';
-                // Split by brackets to extract components
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
@@ -182,24 +185,29 @@
                         makeModelArr.push(`[${part}]`);
                     }
                 }
-                // Assign parsed data to row
-                rowData['#'] = (index + 1).toString();
-                rowData['Vehicle Number'] = vehicleNumber;
-                rowData['Make-Model'] = makeModelArr.join(' ');
-                rowData['Division'] = division;
-                rowData['Policy Type'] = cells[2].textContent.trim();
-                rowData['Policy Number'] = cells[3].textContent.trim();
-                rowData['Renewal Date'] = cells[4].textContent.trim();
-                rowData['Status (I)'] = cells[5].textContent.trim();
-                rowData['Service Type'] = cells[6].textContent.trim();
-                rowData['Opening KM'] = cells[7].textContent.trim();
-                rowData['Closing KM'] = cells[8].textContent.trim();
-                rowData['Km Driven'] = cells[9].textContent.trim();
-                rowData['Remarks'] = cells[10].textContent.trim();
-                rowData['Last Service Date'] = cells[11].textContent.trim();
-                rowData['Status'] = cells[12].textContent.trim();
-                rowData['GPS'] = cells[13].textContent.trim();
-                rowData['Renewal Date (GPS)'] = cells[14].textContent.trim();
+                // Assign parsed data to row only for visible columns
+                allHeaders.forEach((header, idx) => {
+                    if (!(savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true)) return;
+                    switch(header) {
+                        case '#': rowData[header] = (index + 1).toString(); break;
+                        case 'Vehicle Number': rowData[header] = vehicleNumber; break;
+                        case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                        case 'Division': rowData[header] = division; break;
+                        case 'Policy Type': rowData[header] = cells[2].textContent.trim(); break;
+                        case 'Policy Number': rowData[header] = cells[3].textContent.trim(); break;
+                        case 'Renewal Date': rowData[header] = cells[4].textContent.trim(); break;
+                        case 'Status (I)': rowData[header] = cells[5].textContent.trim(); break;
+                        case 'Service Type': rowData[header] = cells[6].textContent.trim(); break;
+                        case 'Opening KM': rowData[header] = cells[7].textContent.trim(); break;
+                        case 'Closing KM': rowData[header] = cells[8].textContent.trim(); break;
+                        case 'Km Driven': rowData[header] = cells[9].textContent.trim(); break;
+                        case 'Remarks': rowData[header] = cells[10].textContent.trim(); break;
+                        case 'Last Service Date': rowData[header] = cells[11].textContent.trim(); break;
+                        case 'Status': rowData[header] = cells[12].textContent.trim(); break;
+                        case 'GPS': rowData[header] = cells[13].textContent.trim(); break;
+                        case 'Renewal Date (GPS)': rowData[header] = cells[14].textContent.trim(); break;
+                    }
+                });
                 data.push(rowData);
             });
 
