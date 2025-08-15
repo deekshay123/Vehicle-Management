@@ -325,7 +325,7 @@
             // Add heading text above the table with professional styling
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(15);
-            doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+            doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
             // Add current date below heading
             const currentDateStr = formatDateDDMMYYYY(new Date());
@@ -384,7 +384,6 @@
                 }
             });
 
-
         doc.save('headOffice_vehicle_report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
@@ -402,5 +401,6 @@
 <script src="export.js"></script>
 </body>
 </html>
+
 
 
