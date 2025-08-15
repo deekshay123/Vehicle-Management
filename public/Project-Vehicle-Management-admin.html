@@ -179,7 +179,7 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (['PRO', 'FEEDMILL', 'HEADOFFICE'].includes(part.toUpperCase())) {
+                    if (['PRO', 'R.O', 'H.O'].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
