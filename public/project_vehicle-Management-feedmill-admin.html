@@ -192,7 +192,7 @@
             };
             insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
-            insertAfter(headers, 'Make-Model');
+            insertAfter(headers, 'Make-Model','division');
 
             // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
@@ -257,8 +257,8 @@
             let uniqueSet = new Set();
             typeOrder.forEach(type => {
                 let typeRows = allRows.filter(r => r._vehicleType === type);
-                // divisionOrder.forEach(division => {
-                //     let divisionRows = typeRows.filter(r => r._division === division);
+                divisionOrder.forEach(division => {
+                    let divisionRows = typeRows.filter(r => r._division === division);
                     // Sort by year, then month, then day
                     divisionRows.sort((a, b) => {
                         if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
