@@ -219,6 +219,10 @@
                         makeModelArr.push(`[${part}]`);
                     }
                 }
+                // If division is still empty, set it to [F.M]
+                if (!division) {
+                    division = '[F.M]';
+                }
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
