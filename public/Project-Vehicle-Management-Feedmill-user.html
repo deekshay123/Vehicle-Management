@@ -191,11 +191,12 @@
             };
             insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
-            insertAfter(headers, 'Make-Model', 'Division');
+            // Do NOT add Division yet
 
             // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
             let allRows = [];
+            let divisionExists = false;
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
@@ -212,6 +213,7 @@
                     const part = parts[i].replace(']', '').trim();
                     if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
+                        divisionExists = true;
                     } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
                     } else {
@@ -247,6 +249,14 @@
                 rowData._renewalMonth = month;
                 allRows.push(rowData);
             });
+
+            // Only add Division column if at least one division exists
+            if (divisionExists) {
+                insertAfter(headers, 'Make-Model', 'Division');
+            } else {
+                headers = headers.filter(h => h !== 'Division');
+                allRows.forEach(row => { delete row['Division']; });
+            }
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
