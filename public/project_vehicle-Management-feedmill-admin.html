@@ -219,16 +219,12 @@
                         makeModelArr.push(`[${part}]`);
                     }
                 }
-                // If division is still empty, set it to [F.M]
-                if (!division) {
-                    division = '[F.M]';
-                }
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
                         case 'Vehicle Type': rowData[header] = vehicleType; break;
-                        case 'Division': rowData[header] = division; break;
+                        case 'Division': rowData[header] = division ? division : '[F.M]'; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
                         default:
                             let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
