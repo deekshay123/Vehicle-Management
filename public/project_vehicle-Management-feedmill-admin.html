@@ -205,17 +205,23 @@
                 let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
                 let vehicleNumber = '';
                 let makeModelArr = [];
-                let division = '[F.M]';
+                let division = '';
                 let vehicleType = '';
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                    if (["PRO", "R.O", "H.O", "S.K", "INT", "PVT", "H.O", "F.M"].includes(part.toUpperCase())) {
+                        division = `[${part}]`;
+                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
+                }
+                // If division is still empty, set to [F.M]
+                if (!division) {
+                    division = '[F.M]';
                 }
                 headers.forEach((header, hIdx) => {
                     switch(header) {
