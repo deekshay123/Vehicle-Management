@@ -205,15 +205,13 @@
                 let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
                 let vehicleNumber = '';
                 let makeModelArr = [];
-                let division = '';
+                let division = '[F.M]';
                 let vehicleType = '';
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
-                        division = `[${part}]`;
-                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                    if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
@@ -224,7 +222,7 @@
                         case '#': rowData[header] = (index + 1).toString(); break;
                         case 'Vehicle Number': rowData[header] = vehicleNumber; break;
                         case 'Vehicle Type': rowData[header] = vehicleType; break;
-                        case 'Division': rowData[header] = division ? division : '[F.M]'; break;
+                        case 'Division': rowData[header] = division; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
                         default:
                             let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
