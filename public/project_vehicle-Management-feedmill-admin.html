@@ -193,13 +193,14 @@
             insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
             insertAfter(headers, 'Make-Model','division');
-
+                            // Always add Vehicle Type, Make-Model to PDF export after Vehicle Number
             // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
             let allRows = [];
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
+                            let divisionExists = false; // Initialize divisionExists variable
                 const rowData = {};
                 // Parse Vehicle Number for Division, Make-Model, Vehicle Type
                 let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
@@ -211,17 +212,13 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "H.O", "S.K", "INT", "PVT", "H.O", "F.M"].includes(part.toUpperCase())) {
+                    if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
-                }
-                // If division is still empty, set to [F.M]
-                if (!division) {
-                    division = '[F.M]';
                 }
                 headers.forEach((header, hIdx) => {
                     switch(header) {
