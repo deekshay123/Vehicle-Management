@@ -849,10 +849,14 @@
                         fillColor: [245, 245, 245],
                     },
                     didParseCell: function (data) {
-                        // Make Vehicle Number (column index 1) bold and blue in the body
-                        if (data.section === 'body' && data.column.index === 1) {
+                        // Make all data in the body bold
+                        if (data.section === 'body') {
                             data.cell.styles.fontStyle = 'bold';
-                            data.cell.styles.textColor = [41, 128, 185];
+                            
+                            // Make Vehicle Number (column index 1) blue
+                            if (data.column.index === 1) {
+                                data.cell.styles.textColor = [41, 128, 185];
+                            }
                         }
                     }
                 });
