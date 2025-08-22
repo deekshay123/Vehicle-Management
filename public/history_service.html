@@ -363,56 +363,115 @@ function exportTableToPDF() {
 
 // ...existing code...
 
-        function exportTableToExcel() {
-            const wb = XLSX.utils.book_new();
-            const ws_data = [];
-            const headers = ['#', 'Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'KM Driven', 'Remarks', 'Last Service Date', 'Edited By', 'Edited At'];
-            ws_data.push(headers);
+function exportTableToExcel() {
+    const wb = XLSX.utils.book_new();
+    const ws_data = [];
+    // Updated headers to match PDF export
+    const headers = [
+        '#',
+        'Vehicle Number',
+        'Vehicle Type',
+        'Make-Model',
+        'Division',
+        'Service Type',
+        'Opening KM',
+        'Closing KM',
+        'KM Driven',
+        'Remarks',
+        'Last Service Date',
+        'Edited By',
+        'Edited At'
+    ];
+    ws_data.push(headers);
 
-            const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
-            tbodyRows.forEach(row => {
-                const rowData = [];
-                row.querySelectorAll('td').forEach(cell => {
-                    rowData.push(cell.textContent.trim());
-                });
-                ws_data.push(rowData);
-            });
+    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
 
-            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
+    tbodyRows.forEach(row => {
+        const rowData = [];
+        const cells = row.querySelectorAll('td');
+        let vehicleNumberRaw = cells[1].textContent.trim();
+        let vehicleNumber = vehicleNumberRaw;
+        let vehicleType = '';
+        let makeModel = '';
+        let division = '';
 
-            // Style header row
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let C = 0; C <= range.e.c; ++C) {
-                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-                if (!ws[cellAddress]) continue;
-                if (!ws[cellAddress].s) ws[cellAddress].s = {};
-                ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
-                ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
-                ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
-                ws[cellAddress].s.border = {
-                    top: { style: "thin", color: { rgb: "000000" } },
-                    bottom: { style: "thin", color: { rgb: "000000" } },
-                    left: { style: "thin", color: { rgb: "000000" } },
-                    right: { style: "thin", color: { rgb: "000000" } }
-                };
+        // Extract all bracketed values in order
+        const bracketMatches = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g) || [];
+        let usedType = false, usedDivision = false;
+
+        // Remove all brackets for vehicle number
+        vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
+
+        // Assign bracketed values in order: type, make-model, division
+        bracketMatches.forEach(bracket => {
+            const val = bracket.replace(/[\[\]]/g, '').trim();
+            const valUpper = val.toUpperCase();
+            if (!usedType && knownTypes.includes(valUpper)) {
+                vehicleType = `[${val}]`;
+                usedType = true;
+            } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                division = `[${val}]`;
+                usedDivision = true;
+            } else if (!makeModel) {
+                makeModel = `[${val}]`;
             }
+        });
 
-            ws['!cols'] = [
-                { wch: 5 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 12 },
-                { wch: 12 },
-                { wch: 20 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 20 }
-            ];
+        rowData.push(cells[0].textContent.trim()); // #
+        rowData.push(vehicleNumber); // Vehicle Number (no brackets)
+        rowData.push(vehicleType);   // Vehicle Type in []
+        rowData.push(makeModel);     // Make-Model in []
+        rowData.push(division);      // Division in []
 
-            XLSX.utils.book_append_sheet(wb, ws, 'HistoryEditedServiceRecords');
-            XLSX.writeFile(wb, 'history_edited_service_records.xlsx');
+        // Push rest of the columns (shifted by +3)
+        for (let i = 2; i < cells.length; i++) {
+            rowData.push(cells[i].textContent.trim());
         }
+        ws_data.push(rowData);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    // Style header row
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let C = 0; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!ws[cellAddress]) continue;
+        if (!ws[cellAddress].s) ws[cellAddress].s = {};
+        ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
+        ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
+        ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
+        ws[cellAddress].s.border = {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+        };
+    }
+
+    ws['!cols'] = [
+        { wch: 5 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 20 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'HistoryEditedServiceRecords');
+    XLSX.writeFile(wb, 'history_edited_service_records.xlsx');
+}
+
+// ...existing code...
 
         document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
         document.getElementById('exportExcelBtn').addEventListener('click', exportTableToExcel);
