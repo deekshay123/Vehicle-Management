@@ -235,7 +235,10 @@
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
-                        case 'Vehicle Number': rowData[header] = vehicleNumber; break;
+                        case 'Vehicle Number': 
+                            // Apply the same styling as in the HTML table
+                            rowData[header] = vehicleNumber; 
+                            break;
                         case 'Vehicle Type': rowData[header] = vehicleType; break;
                         case 'Division': rowData[header] = division; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
@@ -376,12 +379,12 @@
                     if (header === 'Vehicle Number') {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [135, 206, 235] };
                     } else {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
                     return acc;
                 }, {}),
                 headStyles: headers.reduce((acc, header) => {
-                    acc[header] = { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold', halign: 'center' };
+                    acc[header] = { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold', halign: 'center', font: 'helvetica', fontSize: 10 };
                     return acc;
                 }, {}),
                 alternateRowStyles: {
@@ -416,6 +419,29 @@
 }
        // Set division in sessionStorage for this tab
         sessionStorage.setItem('division', 'feedmill');
+        
+        // Function to style only the vehicle number part (without brackets)
+        function styleVehicleNumbers() {
+            const vehicleCells = document.querySelectorAll('#combinedTable td:nth-child(2)');
+            
+            vehicleCells.forEach(cell => {
+                const fullText = cell.textContent.trim();
+                const parts = fullText.split('[');
+                const vehicleNumber = parts[0].trim(); // Get the actual vehicle number part
+                
+                if (vehicleNumber && parts.length > 1) {
+                    // Create HTML with the vehicle number styled and brackets in normal text
+                    const bracketContent = fullText.substring(vehicleNumber.length);
+                    cell.innerHTML = `<span style="color: #87CEEB; font-weight: bold;">${vehicleNumber}</span>${bracketContent}`;
+                }
+            });
+        }
+        
+        // Run the styling function when the page loads
+        document.addEventListener('DOMContentLoaded', styleVehicleNumbers);
+        
+        // Also run it after any table updates (you might need to call this from other scripts)
+        window.styleVehicleNumbers = styleVehicleNumbers;
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
