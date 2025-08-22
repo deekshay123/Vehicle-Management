@@ -96,7 +96,6 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            cursor: pointer;
         }
         
         .search-header h3 {
@@ -432,34 +431,6 @@
         <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
             
-        <!-- ===== SEARCH SECTION ===== -->
-        <section class="search-section">
-            <div class="search-header">
-                <h3>Search Filters</h3>
-                <button id="toggleSearchBtn" class="toggle-btn" title="Toggle search filters">
-                    <span class="arrow">▼</span>
-                </button>
-            </div>
-            <div class="search-grid" id="searchGrid">
-                <input type="text" 
-                       id="searchVehicleNumberInput" 
-                       class="search-input" 
-                       placeholder="🔍  by Vehicle Number..."
-                       aria-label="Search by Vehicle Number">
-                
-                <input type="text" 
-                       id="searchServiceTypeInput" 
-                       class="search-input" 
-                       placeholder="🔍  by Service Type..."
-                       aria-label="Search by Service Type">
-                
-                <input type="text" 
-                       id="searchMonthInput" 
-                       class="search-input" 
-                       placeholder="🔍 Search by Month..."
-                       aria-label="Search by Month">
-            </div>
-        </section>
             
             <!-- ===== EXPORT SECTION ===== -->
             <section class="export-section">
@@ -938,9 +909,8 @@
             document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
             document.getElementById('searchMonthInput').addEventListener('input', filterData);
             
-            // Toggle search button
+            // Toggle search button - only the button should trigger toggle
             document.getElementById('toggleSearchBtn').addEventListener('click', toggleSearchFilters);
-            document.querySelector('.search-header').addEventListener('click', toggleSearchFilters);
             
             // Export buttons
             document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
