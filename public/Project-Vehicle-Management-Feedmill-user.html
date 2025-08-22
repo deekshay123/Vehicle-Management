@@ -48,17 +48,18 @@
     }
 
     .app-container {
-        width: 100vw;
-        height: 100vh;
-        max-width: none;
-        margin: 0;
-        background: var(--card-bg);
-        border-radius: 0;
-        box-shadow: none;
-        overflow: auto;
-        backdrop-filter: none;
-        display: flex;
-        flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    margin: 0;
+    background: var(--card-bg);
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+    backdrop-filter: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
     }
 
     .app-header {
@@ -268,8 +269,12 @@
     }
 
     .table-container {
+        flex: 1 1 auto;
         padding: 0 2rem 2rem;
-        overflow-x: auto;
+        overflow: auto;
+        min-height: 0;
+        max-height: 100%;
+        background: transparent;
     }
 
     #combinedTable {
