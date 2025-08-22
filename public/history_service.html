@@ -225,7 +225,7 @@
         document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
         document.getElementById('searchMonthInput').addEventListener('input', filterData);
 
-       // ...existing code...
+      // ...existing code...
 
 function exportTableToPDF() {
     try {
@@ -237,11 +237,12 @@ function exportTableToPDF() {
             return;
         }
 
-        // New headers with Vehicle Type and Division
+        // Headers in required order
         const headers = [
             '#',
             'Vehicle Number',
             'Vehicle Type',
+            'Make-Model',
             'Division',
             'Service Type',
             'Opening KM',
@@ -254,39 +255,48 @@ function exportTableToPDF() {
         ];
         const data = [];
 
+        const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+        const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+
         const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
         tbodyRows.forEach(row => {
             const rowData = [];
             const cells = row.querySelectorAll('td');
-            // Parse Vehicle Number for type and division
             let vehicleNumberRaw = cells[1].textContent.trim();
             let vehicleNumber = vehicleNumberRaw;
             let vehicleType = '';
+            let makeModel = '';
             let division = '';
 
-            // Regex to extract [TYPE] and [DIVISION] from vehicle number
-            // Example: KA192032[HEAVY][H.O]
-            const typeMatch = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g);
-            if (typeMatch) {
-                // Remove all brackets for vehicle number
-                vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
-                // Find known types and divisions
-                typeMatch.forEach(bracket => {
-                    const val = bracket.replace(/[\[\]]/g, '').toUpperCase();
-                    if (['HEAVY', '2 WHEEL', '4WHEEL', '4 WHEEL', '2WHEEL'].includes(val)) {
-                        vehicleType = val;
-                    } else if (['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'].includes(val)) {
-                        division = val;
-                    }
-                });
-            }
+            // Extract all bracketed values in order
+            const bracketMatches = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g) || [];
+            let usedType = false, usedDivision = false;
+
+            // Remove all brackets for vehicle number
+            vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
+
+            // Assign bracketed values in order: type, make-model, division
+            bracketMatches.forEach(bracket => {
+                const val = bracket.replace(/[\[\]]/g, '').trim();
+                const valUpper = val.toUpperCase();
+                if (!usedType && knownTypes.includes(valUpper)) {
+                    vehicleType = `[${val}]`;
+                    usedType = true;
+                } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                    division = `[${val}]`;
+                    usedDivision = true;
+                } else if (!makeModel) {
+                    makeModel = `[${val}]`;
+                }
+            });
 
             rowData.push(cells[0].textContent.trim()); // #
             rowData.push(vehicleNumber); // Vehicle Number (no brackets)
-            rowData.push(vehicleType);   // Vehicle Type
-            rowData.push(division);      // Division
+            rowData.push(vehicleType);   // Vehicle Type in []
+            rowData.push(makeModel);     // Make-Model in []
+            rowData.push(division);      // Division in []
 
-            // Push rest of the columns (shifted by +2)
+            // Push rest of the columns (shifted by +3)
             for (let i = 2; i < cells.length; i++) {
                 rowData.push(cells[i].textContent.trim());
             }
