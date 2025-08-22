@@ -65,14 +65,18 @@
     .app-header {
         background: var(--primary-gradient);
         color: var(--text-light);
-        padding: 1.5rem 2rem;
+        padding: 2rem 2.5rem;
         text-align: center;
-        font-weight: 800;
-        font-size: 2.2rem;
-        letter-spacing: 2px;
+        font-weight: 900;
+        font-size: 2.5rem;
+        letter-spacing: 2.5px;
         text-transform: uppercase;
         position: relative;
         overflow: hidden;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(52, 152, 219, 0.18);
+        margin-bottom: 2rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .app-header::before {
@@ -270,11 +274,13 @@
 
     .table-container {
         flex: 1 1 auto;
-        padding: 0 2rem 2rem;
+        padding: 1.5rem 2.5rem 2.5rem;
         overflow: auto;
         min-height: 0;
         max-height: 100%;
-        background: transparent;
+        background: rgba(255,255,255,0.85);
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(52, 152, 219, 0.08);
     }
 
     #combinedTable {
@@ -282,10 +288,13 @@
         border-collapse: separate;
         border-spacing: 0;
         background: white;
-        border-radius: 15px;
+        border-radius: 18px;
         overflow: hidden;
-        box-shadow: var(--shadow-soft);
-        margin-top: 1rem;
+        box-shadow: 0 8px 32px rgba(52, 152, 219, 0.12);
+        margin-top: 1.5rem;
+        font-size: 1.05rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        border: 1.5px solid #e0eafc;
     }
 
     #combinedTable thead {
@@ -293,15 +302,17 @@
     }
 
     #combinedTable th {
-        padding: 1.2rem 0.8rem;
+        padding: 1.2rem 1rem;
         text-align: center;
-        font-weight: 600;
-        font-size: 0.9rem;
+        font-weight: 700;
+        font-size: 1.05rem;
         color: white;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
         border: none;
         position: relative;
+        background: var(--primary-gradient);
+        border-right: 1.5px solid #e0eafc;
     }
 
     #combinedTable th::after {
@@ -320,12 +331,13 @@
     }
 
     #combinedTable td {
-        padding: 1rem 0.8rem;
+        padding: 1rem 1rem;
         text-align: center;
         font-weight: 500;
-        font-size: 0.9rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        font-size: 1.05rem;
+        border-bottom: 1.5px solid #e0eafc;
         transition: all 0.2s ease;
+        background: rgba(255,255,255,0.98);
     }
 
     #combinedTable tr:last-child td {
@@ -333,18 +345,68 @@
     }
 
     #combinedTable tr:hover td {
-        background: rgba(102, 126, 234, 0.05);
+        background: linear-gradient(90deg, #e0eafc 0%, #f7faff 100%);
         transform: scale(1.01);
+        box-shadow: 0 2px 12px rgba(52, 152, 219, 0.08);
     }
 
     #combinedTable tr:nth-child(even) {
-        background: rgba(245, 245, 245, 0.5);
+        background: rgba(240, 248, 255, 0.7);
     }
 
     #combinedTable td:nth-child(2) {
-        color: #00b7ff;
+        color: #3498db;
         font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+    /* Enhanced form styling */
+    #combinedForm {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        background: rgba(255,255,255,0.95);
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(52, 152, 219, 0.10);
+        padding: 1.5rem 2rem;
+        margin: 1.5rem 0;
+        align-items: center;
+        justify-content: center;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #combinedForm input, #combinedForm select, #combinedForm textarea {
+        padding: 0.7rem 1rem;
+        border-radius: 8px;
+        border: 1.5px solid #e0eafc;
         font-size: 1rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f7faff;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.05);
+        margin-bottom: 0.5rem;
+        transition: border-color 0.2s;
+    }
+    #combinedForm input:focus, #combinedForm select:focus, #combinedForm textarea:focus {
+        border-color: #3498db;
+        outline: none;
+        background: #fff;
+    }
+    #combinedForm button[type="submit"] {
+        background: var(--primary-gradient);
+        color: white;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.10);
+        margin-top: 1rem;
+        transition: background 0.2s;
+    }
+    #combinedForm button[type="submit"]:hover {
+        background: linear-gradient(90deg, #3498db 0%, #2c3e50 100%);
     }
 
     .pagination-controls {
