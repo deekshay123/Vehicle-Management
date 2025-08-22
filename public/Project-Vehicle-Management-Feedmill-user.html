@@ -21,6 +21,18 @@
          border-radius: 8px;
          margin-bottom: 30px;
     }
+    
+    /* Make all table data bold */
+    #combinedTable td {
+        font-weight: bold !important;
+    }
+    
+    /* Make Vehicle Number column skyblue */
+    #combinedTable td:nth-child(2) {
+        color: #87CEEB !important; /* Skyblue color */
+        font-weight: bold !important;
+    }
+    
     </style>
 </head>
 <body>
@@ -362,18 +374,16 @@
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [0, 0, 255] };
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [135, 206, 235] };
                     } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
                     }
                     return acc;
                 }, {}),
-                headStyles: {
-                    fillColor: [41, 128, 185],
-                    textColor: 255,
-                    fontStyle: 'bold',
-                    halign: 'center'
-                },
+                headStyles: headers.reduce((acc, header) => {
+                    acc[header] = { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold', halign: 'center' };
+                    return acc;
+                }, {}),
                 alternateRowStyles: {
                     fillColor: [245, 245, 245]
                 },
