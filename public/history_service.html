@@ -12,10 +12,14 @@
     
     <!-- ===== STYLES ===== -->
     <style>
-        /* ===== BASE STYLES ===== */
+        /* =========================================================================
+           BASE STYLES
+           ========================================================================= */
         html, body {
             height: 100%;
             width: 100%;
+            margin: 0;
+            padding: 0;
         }
         
         body {
@@ -25,11 +29,11 @@
             background: #fff;
             min-height: 100vh;
             min-width: 100vw;
-            padding: 0;
-            margin: 0;
         }
         
-        /* ===== LAYOUT CONTAINER ===== */
+        /* =========================================================================
+           LAYOUT CONTAINER
+           ========================================================================= */
         .container {
             width: 100vw;
             min-height: 100vh;
@@ -42,7 +46,9 @@
             flex-direction: column;
         }
         
-        /* ===== HEADER SECTION ===== */
+        /* =========================================================================
+           HEADER SECTION
+           ========================================================================= */
         .header {
             background: #2c3e50;
             color: white;
@@ -52,6 +58,8 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+            border-bottom: 1px solid #e9ecef;
         }
         
         .header h1 {
@@ -60,7 +68,9 @@
             margin: 0;
         }
         
-        /* ===== MAIN CONTENT AREA ===== */
+        /* =========================================================================
+           MAIN CONTENT AREA
+           ========================================================================= */
         .main-content {
             flex: 1 1 auto;
             padding: 25px;
@@ -69,13 +79,53 @@
             height: 1px;
         }
         
-        /* ===== SEARCH SECTION ===== */
+        /* =========================================================================
+           SEARCH SECTION
+           ========================================================================= */
         .search-section {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 25px;
             border: 1px solid #e9ecef;
+            box-shadow: 0 1px 4px rgba(52, 152, 219, 0.06);
+        }
+        
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        
+        .search-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .toggle-btn:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .toggle-btn .arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-btn.collapsed .arrow {
+            transform: rotate(-90deg);
         }
         
         .search-grid {
@@ -88,17 +138,25 @@
             max-width: 700px;
             margin-left: auto;
             margin-right: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .search-grid.collapsed {
+            display: none;
         }
         
         .search-input {
             padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
+            border: 1.5px solid #b9d6f2;
+            border-radius: 7px;
+            font-size: 1rem;
             transition: border-color 0.3s ease;
             width: 100%;
             box-sizing: border-box;
             min-width: 0;
+            background: #fafdff;
+            color: #222;
+            box-shadow: 0 1px 2px rgba(41, 128, 185, 0.03);
         }
         
         .search-input:focus {
@@ -107,7 +165,9 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
         
-        /* ===== EXPORT SECTION ===== */
+        /* =========================================================================
+           EXPORT SECTION
+           ========================================================================= */
         .export-section {
             display: flex;
             justify-content: flex-end;
@@ -116,18 +176,21 @@
             flex-wrap: wrap;
         }
         
-        /* ===== BUTTON STYLES ===== */
+        /* =========================================================================
+           BUTTON STYLES
+           ========================================================================= */
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 7px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 1rem;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 2px 8px rgba(41, 128, 185, 0.08);
         }
         
         .btn-primary {
@@ -160,7 +223,9 @@
             transform: translateY(-2px);
         }
         
-        /* ===== TABLE CONTAINER ===== */
+        /* =========================================================================
+           TABLE CONTAINER
+           ========================================================================= */
         .table-container {
             background: white;
             border-radius: 8px;
@@ -172,9 +237,13 @@
             flex-direction: column;
             min-height: 0;
             max-height: 60vh;
+            box-shadow: 0 2px 12px rgba(41, 128, 185, 0.07);
+            margin-top: 10px;
         }
         
-        /* ===== DATA TABLE ===== */
+        /* =========================================================================
+           DATA TABLE
+           ========================================================================= */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -182,35 +251,45 @@
         }
         
         .data-table th {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
+            color: #fff;
             padding: 15px 12px;
             text-align: left;
             font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom: 2px solid #2980b9;
         }
         
         .data-table td {
             padding: 12px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: top;
+            background: #fff;
+            color: #222;
+            font-size: 0.97rem;
         }
         
-        .data-table tr:hover {
-            background-color: #f8f9fa;
+        .data-table tr:nth-child(even) td {
+            background: #f6fafd;
         }
         
-        .data-table tr:nth-child(even) {
-            background-color: #fafafa;
+        .data-table tr:hover td {
+            background: #eaf6fb;
+            transition: background 0.2s;
         }
         
-        /* ===== LOADING INDICATOR ===== */
+        /* =========================================================================
+           LOADING INDICATOR
+           ========================================================================= */
         .loading {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: #2980b9;
+            font-size: 1.1rem;
         }
         
         .loading::after {
@@ -230,12 +309,15 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* ===== STATUS MESSAGES ===== */
+        /* =========================================================================
+           STATUS MESSAGES
+           ========================================================================= */
         .status-message {
             padding: 15px;
             margin: 10px 0;
-            border-radius: 6px;
+            border-radius: 7px;
             text-align: center;
+            font-size: 1.1rem;
         }
         
         .status-error {
@@ -250,11 +332,14 @@
             border: 1px solid #c3e6cb;
         }
         
-        /* ===== RESPONSIVE DESIGN ===== */
+        /* =========================================================================
+           RESPONSIVE DESIGN
+           ========================================================================= */
         @media (max-width: 900px) {
             .search-grid {
                 grid-template-columns: 1fr;
                 max-width: 100%;
+                gap: 10px;
             }
         }
         
@@ -262,146 +347,72 @@
             .header {
                 flex-direction: column;
                 text-align: center;
+                gap: 10px;
+                padding: 14px 8px;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 1rem;
+                padding: 12px 0;
+            }
+            
+            .main-content {
+                padding: 10px 4px;
+            }
+            
+            .search-section {
+                padding: 10px 4px;
+                margin-bottom: 10px;
+                border-radius: 0;
             }
             
             .search-grid {
                 grid-template-columns: 1fr;
+                gap: 8px;
+                max-width: 100%;
+                margin: 0;
+            }
+            
+            .search-input {
+                font-size: 1rem;
+                padding: 10px 8px;
             }
             
             .export-section {
-                justify-content: center;
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 10px;
             }
             
             .table-container {
-                overflow-x: auto;
+                border-radius: 0;
+                max-height: 45vh;
+                min-height: 0;
+                margin: 0 -4px;
             }
             
             .data-table {
-                min-width: 800px;
+                font-size: 12px;
+                min-width: 600px;
             }
-            /* ...existing code... */
-
-/* --- Enhanced Mobile & Clean UI --- */
-@media (max-width: 900px) {
-    .search-grid {
-        grid-template-columns: 1fr;
-        max-width: 100%;
-        gap: 10px;
-    }
-}
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-        padding: 14px 8px;
-    }
-    .header h1 {
-        font-size: 1.2rem;
-        margin-bottom: 8px;
-    }
-    .btn {
-        width: 100%;
-        justify-content: center;
-        font-size: 1rem;
-        padding: 12px 0;
-    }
-    .main-content {
-        padding: 10px 4px;
-    }
-    .search-section {
-        padding: 10px 4px;
-        margin-bottom: 10px;
-        border-radius: 0;
-    }
-    .search-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        max-width: 100%;
-        margin: 0;
-    }
-    .search-input {
-        font-size: 1rem;
-        padding: 10px 8px;
-    }
-    .export-section {
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-    .table-container {
-        border-radius: 0;
-        max-height: 45vh;
-        min-height: 0;
-        margin: 0 -4px;
-    }
-    .data-table {
-        font-size: 12px;
-        min-width: 600px;
-    }
-    .data-table th, .data-table td {
-        padding: 8px 4px;
-    }
-    .loading, .status-message {
-        font-size: 1rem;
-        padding: 20px 4px;
-    }
-}
-
-/* --- General Clean Look --- */
-.header {
-    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
-    border-bottom: 1px solid #e9ecef;
-}
-.search-section {
-    box-shadow: 0 1px 4px rgba(52,152,219,0.06);
-}
-.table-container {
-    box-shadow: 0 2px 12px rgba(41,128,185,0.07);
-    margin-top: 10px;
-}
-.data-table th {
-    background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
-    color: #fff;
-    font-size: 1rem;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #2980b9;
-}
-.data-table td {
-    background: #fff;
-    color: #222;
-    font-size: 0.97rem;
-}
-.data-table tr:nth-child(even) td {
-    background: #f6fafd;
-}
-.data-table tr:hover td {
-    background: #eaf6fb;
-    transition: background 0.2s;
-}
-.search-input {
-    background: #fafdff;
-    border: 1.5px solid #b9d6f2;
-    color: #222;
-    font-size: 1rem;
-    border-radius: 7px;
-    box-shadow: 0 1px 2px rgba(41,128,185,0.03);
-}
-.btn {
-    box-shadow: 0 2px 8px rgba(41,128,185,0.08);
-    border-radius: 7px;
-}
-.btn-primary, .btn-success, .btn-danger {
-    font-size: 1rem;
-}
-.status-message {
-    font-size: 1.1rem;
-    border-radius: 7px;
-}
-.loading {
-    font-size: 1.1rem;
-    color: #2980b9;
-}
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 4px;
+            }
+            
+            .loading,
+            .status-message {
+                font-size: 1rem;
+                padding: 20px 4px;
+            }
         }
     </style>
 </head>
@@ -421,28 +432,34 @@
         <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
             
-            <!-- ===== SEARCH SECTION ===== -->
-            <section class="search-section">
-                <div class="search-grid">
-                    <input type="text" 
-                           id="searchVehicleNumberInput" 
-                           class="search-input" 
-                           placeholder="🔍  by Vehicle Number..."
-                           aria-label="Search by Vehicle Number">
-                    
-                    <input type="text" 
-                           id="searchServiceTypeInput" 
-                           class="search-input" 
-                           placeholder="🔍  by Service Type..."
-                           aria-label="Search by Service Type">
-                    
-                    <input type="text" 
-                           id="searchMonthInput" 
-                           class="search-input" 
-                           placeholder="🔍 Search by Month..."
-                           aria-label="Search by Month">
-                </div>
-            </section>
+        <!-- ===== SEARCH SECTION ===== -->
+        <section class="search-section">
+            <div class="search-header">
+                <h3>Search Filters</h3>
+                <button id="toggleSearchBtn" class="toggle-btn" title="Toggle search filters">
+                    <span class="arrow">▼</span>
+                </button>
+            </div>
+            <div class="search-grid" id="searchGrid">
+                <input type="text" 
+                       id="searchVehicleNumberInput" 
+                       class="search-input" 
+                       placeholder="🔍  by Vehicle Number..."
+                       aria-label="Search by Vehicle Number">
+                
+                <input type="text" 
+                       id="searchServiceTypeInput" 
+                       class="search-input" 
+                       placeholder="🔍  by Service Type..."
+                       aria-label="Search by Service Type">
+                
+                <input type="text" 
+                       id="searchMonthInput" 
+                       class="search-input" 
+                       placeholder="🔍 Search by Month..."
+                       aria-label="Search by Month">
+            </div>
+        </section>
             
             <!-- ===== EXPORT SECTION ===== -->
             <section class="export-section">
@@ -894,6 +911,25 @@
         // ===== EVENT HANDLING FUNCTIONS =====
         
         /**
+         * Toggle search filters visibility
+         */
+        function toggleSearchFilters() {
+            const searchGrid = document.getElementById('searchGrid');
+            const toggleBtn = document.getElementById('toggleSearchBtn');
+            
+            searchGrid.classList.toggle('collapsed');
+            toggleBtn.classList.toggle('collapsed');
+            
+            // Update arrow direction
+            const arrow = toggleBtn.querySelector('.arrow');
+            if (searchGrid.classList.contains('collapsed')) {
+                arrow.textContent = '▶';
+            } else {
+                arrow.textContent = '▼';
+            }
+        }
+        
+        /**
          * Setup all event listeners
          */
         function setupEventListeners() {
@@ -901,6 +937,10 @@
             document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
             document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
             document.getElementById('searchMonthInput').addEventListener('input', filterData);
+            
+            // Toggle search button
+            document.getElementById('toggleSearchBtn').addEventListener('click', toggleSearchFilters);
+            document.querySelector('.search-header').addEventListener('click', toggleSearchFilters);
             
             // Export buttons
             document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
