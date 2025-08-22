@@ -1,150 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>History Service Records</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="custom_styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Service Records - Clean UI</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
-        .search-container {
-            margin-bottom: 15px;
+        
+        /* ===== HEADER SECTION ===== */
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
-            justify-content: center;
+            gap: 15px;
         }
-        .search-container input {
-            flex: 1 1 200px;
-            max-width: 300px;
-            padding: 8px 12px;
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: 25px;
+        }
+        
+        /* ===== SEARCH SECTION ===== */
+        .search-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
-            border: 1.5px solid #ccc;
-            border-radius: 5px;
-        }
-        table {
+            transition: border-color 0.3s ease;
             width: 100%;
-            border-collapse: collapse;
-            background-color: white;
         }
-        thead tr {
-            position: sticky;
-            top: 0;
-            background-color: #2980b9;
-            color: white;
-            z-index: 2;
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #2980b9;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        #logoutBtn {
+        
+        /* ===== EXPORT SECTION ===== */
+        .export-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
             margin-bottom: 20px;
-            padding: 10px 20px;
-            background-color: #c0392b;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            float: right;
+            flex-wrap: wrap;
         }
-        .export-btn {
-            margin-left: 10px;
-            padding: 10px 20px;
-            background-color: #27ae60;
-            color: white;
+        
+        .btn {
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.3s ease;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .export-btn:hover {
-            background-color: #1e8449;
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        /* ===== TABLE SECTION ===== */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        /* ===== LOADING STATE ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-section {
+                justify-content: center;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                min-width: 800px;
+            }
+        }
+        
+        /* ===== STATUS MESSAGES ===== */
+        .status-message {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .status-error {
+            background-color: #fee;
+            color: #c0392b;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-success {
+            background-color: #eff;
+            color: #27ae60;
+            border: 1px solid #c3e6cb;
         }
     </style>
 </head>
 <body>
-    <button id="logoutBtn">Logout</button>
-    <h2>History of Edited Service Records</h2>
-
-    <div class="search-container">
-        <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." />
-        <input type="text" id="searchServiceTypeInput" placeholder="Search by Service Type..." />
-        <input type="text" id="searchMonthInput" placeholder="Search by Month..." />
-    </div>
-
-    <div style="text-align: right; margin-bottom: 15px;">
-        <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
-        <button id="exportExcelBtn" class="export-btn">Export to Excel</button>
-    </div>
-
-    <div style="max-height: 400px; overflow-y: auto;">
+    <div class="container">
+        <!-- HEADER SECTION -->
+        <header class="header">
+            <h1>📊 History of Edited Service Records</h1>
+            <button id="logoutBtn" class="btn btn-danger">
+                🚪 Logout
+            </button>
+        </header>
         
-    <div style="max-height: 400px; overflow-y: auto;">
-      <!-- ...existing code... -->
-           <table id="historyTable">
-               <thead>
-                    <tr>
-                       <th>#</th>
-                       <th>Vehicle Number</th>
-                       <th>Vehicle Type</th>
-                       <th>Make-Model</th>
-                       <th>Division</th>
-                       <th>Service Type</th>
-                       <th>Opening KM</th>
-                       <th>Closing KM</th>
-                       <th>KM Driven</th>
-                       <th>Remarks</th>
-                       <th>Last Service Date</th>
-                       <th>Edited By</th>
-                       <th>Edited At</th>
-                    </tr>
-               </thead>
-          <tbody>
-        <!-- History records will be populated here -->
-     </tbody>
-</table>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- SEARCH SECTION -->
+            <section class="search-section">
+                <div class="search-grid">
+                    <input type="text" 
+                           id="searchVehicleNumberInput" 
+                           class="search-input" 
+                           placeholder="🔍 Search by Vehicle Number..."
+                           aria-label="Search by Vehicle Number">
+                    
+                    <input type="text" 
+                           id="searchServiceTypeInput" 
+                           class="search-input" 
+                           placeholder="🔍 Search by Service Type..."
+                           aria-label="Search by Service Type">
+                    
+                    <input type="text" 
+                           id="searchMonthInput" 
+                           class="search-input" 
+                           placeholder="🔍 Search by Month..."
+                           aria-label="Search by Month">
+                </div>
+            </section>
+            
+            <!-- EXPORT SECTION -->
+            <section class="export-section">
+                <button id="exportPdfBtn" class="btn btn-primary">
+                    📄 Export to PDF
+                </button>
+                <button id="exportExcelBtn" class="btn btn-success">
+                    📊 Export to Excel
+                </button>
+            </section>
+            
+            <!-- TABLE CONTAINER -->
+            <div class="table-container">
+                <table id="historyTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Vehicle Number</th>
+                            <th>Vehicle Type</th>
+                            <th>Make-Model</th>
+                            <th>Division</th>
+                            <th>Service Type</th>
+                            <th>Opening KM</th>
+                            <th>Closing KM</th>
+                            <th>KM Driven</th>
+                            <th>Remarks</th>
+                            <th>Last Service Date</th>
+                            <th>Edited By</th>
+                            <th>Edited At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be populated here -->
+                        <tr>
+                            <td colspan="13" class="loading">Loading records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
+        // ===== GLOBAL VARIABLES =====
         let historyData = [];
-
-        async function fetchHistoryRecords() {
-            try {
-                const response = await fetch('/api/history_records');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch history records');
-                }
-                historyData = await response.json();
-                console.log('Fetched historyData:', historyData);
-                renderTable(historyData);
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-
+        const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+        const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+        
+        // ===== UTILITY FUNCTIONS =====
+        
+        /**
+         * Format date to DD-MMM-YYYY format
+         * @param {string} dateStr - ISO date string
+         * @returns {string} Formatted date
+         */
         function formatDate(dateStr) {
             if (!dateStr) return '';
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -155,96 +351,167 @@
             const year = dateObj.getFullYear();
             return `${day}-${month}-${year}`;
         }
-
+        
+        /**
+         * Format date-time to DD-MMM-YYYY HH:MM:SS AM/PM format
+         * @param {string} dateStr - ISO date string
+         * @returns {string} Formatted date-time
+         */
         function formatDateTime(dateStr) {
             if (!dateStr) return '';
             const dateObj = new Date(dateStr);
             if (isNaN(dateObj)) return '';
+            
             const day = String(dateObj.getDate()).padStart(2, '0');
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const month = months[dateObj.getMonth()];
             const year = dateObj.getFullYear();
+            
             let hours = dateObj.getHours();
             const minutes = String(dateObj.getMinutes()).padStart(2, '0');
             const seconds = String(dateObj.getSeconds()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
+            hours = hours ? hours : 12;
             const strHours = String(hours).padStart(2, '0');
+            
             return `${day}-${month}-${year} ${strHours}:${minutes}:${seconds} ${ampm}`;
         }
-
-       // ...existing code...
-
-           function renderTable(data) {
-                     const tbody = document.getElementById('historyTable').querySelector('tbody');
-                     tbody.innerHTML = '';
-                     const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
-                     const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
-
-    // Render data in reverse order to show new data at the top
-    for (let i = data.length - 1; i >= 0; i--) {
-        const record = data[i];
-        const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
-        const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
-        const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
-        let vehicleNumberRaw = record.previousData.vehicleNumber || '';
-        let vehicleNumber = vehicleNumberRaw;
-        let vehicleType = '';
-        let makeModel = '';
-        let division = '';
-
-        // Extract all bracketed values in order
-        const bracketMatches = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g) || [];
-        let usedType = false, usedDivision = false;
-
-        // Remove all brackets for vehicle number
-        vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
-
-        // Assign bracketed values in order: type, make-model, division
-        bracketMatches.forEach(bracket => {
-            const val = bracket.replace(/[\[\]]/g, '').trim();
-            const valUpper = val.toUpperCase();
-            if (!usedType && knownTypes.includes(valUpper)) {
-                vehicleType = `[${val}]`;
-                usedType = true;
-            } else if (!usedDivision && knownDivisions.includes(valUpper)) {
-                division = `[${val}]`;
-                usedDivision = true;
-            } else if (!makeModel) {
-                makeModel = `[${val}]`;
+        
+        /**
+         * Process vehicle number to extract type, make-model, and division
+         * @param {string} vehicleNumberRaw - Raw vehicle number string
+         * @returns {Object} Processed vehicle data
+         */
+        function processVehicleNumber(vehicleNumberRaw) {
+            let vehicleNumber = vehicleNumberRaw || '';
+            let vehicleType = '';
+            let makeModel = '';
+            let division = '';
+            
+            // Extract all bracketed values
+            const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
+            let usedType = false, usedDivision = false;
+            
+            // Remove all brackets for clean vehicle number
+            vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
+            
+            // Assign bracketed values in order: type, make-model, division
+            bracketMatches.forEach(bracket => {
+                const val = bracket.replace(/[\[\]]/g, '').trim();
+                const valUpper = val.toUpperCase();
+                
+                if (!usedType && knownTypes.includes(valUpper)) {
+                    vehicleType = `[${val}]`;
+                    usedType = true;
+                } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                    division = `[${val}]`;
+                    usedDivision = true;
+                } else if (!makeModel) {
+                    makeModel = `[${val}]`;
+                }
+            });
+            
+            return { vehicleNumber, vehicleType, makeModel, division };
+        }
+        
+        // ===== DATA FETCHING =====
+        
+        /**
+         * Fetch history records from API
+         */
+        async function fetchHistoryRecords() {
+            try {
+                showLoadingState();
+                
+                const response = await fetch('/api/history_records');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch history records');
+                }
+                
+                historyData = await response.json();
+                renderTable(historyData);
+                
+            } catch (error) {
+                showError('Error fetching records: ' + error.message);
             }
-        });
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${data.length - i}</td>
-            <td>${vehicleNumber}</td>
-            <td>${vehicleType}</td>
-            <td>${makeModel}</td>
-            <td>${division}</td>
-            <td>${serviceType}</td>
-            <td>${record.previousData.openingKM || ''}</td>
-            <td>${record.previousData.closingKM || ''}</td>
-            <td>${record.previousData.kmDriven || ''}</td>
-            <td>${record.previousData.remarks || ''}</td>
-            <td>${lastServiceDate}</td>
-            <td>${record.editedBy || ''}</td>
-            <td>${record.editedAt ? formatDateTime(record.editedAt) : ''}</td>
-        `;
-        tbody.appendChild(tr);
-    }
-}
-
-// ...existing code...
+        }
+        
+        // ===== TABLE RENDERING =====
+        
+        /**
+         * Render data to the table
+         * @param {Array} data - Array of history records
+         */
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="13" style="text-align: center; padding: 30px; color: #666;">
+                            📝 No records found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Render data in reverse order (newest first)
+            for (let i = data.length - 1; i >= 0; i--) {
+                const record = data[i];
+                const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
+                const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
+                const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
+                
+                // Process vehicle number
+                const vehicleData = processVehicleNumber(record.previousData.vehicleNumber || '');
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data.length - i}</td>
+                    <td><strong>${vehicleData.vehicleNumber}</strong></td>
+                    <td>${vehicleData.vehicleType}</td>
+                    <td>${vehicleData.makeModel}</td>
+                    <td>${vehicleData.division}</td>
+                    <td><span class="service-type">${serviceType}</span></td>
+                    <td>${record.previousData.openingKM || '-'}</td>
+                    <td>${record.previousData.closingKM || '-'}</td>
+                    <td><strong>${record.previousData.kmDriven || '-'}</strong></td>
+                    <td title="${record.previousData.remarks || ''}">
+                        ${record.previousData.remarks ? record.previousData.remarks.substring(0, 30) + '...' : '-'}
+                    </td>
+                    <td>${lastServiceDate}</td>
+                    <td><em>${record.editedBy || 'Unknown'}</em></td>
+                    <td><small>${record.editedAt ? formatDateTime(record.editedAt) : ''}</small></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+        
+        // ===== FILTERING =====
+        
+        /**
+         * Filter table data based on search inputs
+         */
         function filterData() {
             const vehicleNumberFilter = document.getElementById('searchVehicleNumberInput').value.trim().toLowerCase();
             const serviceTypeFilter = document.getElementById('searchServiceTypeInput').value.trim().toLowerCase();
             const monthFilter = document.getElementById('searchMonthInput').value.trim().toLowerCase();
-
+            
             const filtered = historyData.filter(record => {
-                const vehicleNumberMatch = !vehicleNumberFilter || (record.previousData.vehicleNumber && record.previousData.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
-                const serviceTypeMatch = !serviceTypeFilter || (record.previousData.serviceType && record.previousData.serviceType.toLowerCase().includes(serviceTypeFilter));
+                // Vehicle number filter
+                const vehicleNumberMatch = !vehicleNumberFilter || 
+                    (record.previousData.vehicleNumber && 
+                     record.previousData.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
+                
+                // Service type filter
+                const serviceTypeMatch = !serviceTypeFilter || 
+                    (record.previousData.serviceType && 
+                     record.previousData.serviceType.toLowerCase().includes(serviceTypeFilter));
+                
+                // Month filter
                 let monthMatch = true;
                 if (monthFilter) {
                     if (record.previousData.lastServiceDate) {
@@ -259,281 +526,228 @@
                         monthMatch = false;
                     }
                 }
+                
                 return vehicleNumberMatch && serviceTypeMatch && monthMatch;
             });
+            
             renderTable(filtered);
         }
-
-        document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
-        document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
-        document.getElementById('searchMonthInput').addEventListener('input', filterData);
-
-      // ...existing code...
-
-function exportTableToPDF() {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'pt', 'a4');
-
-        if (typeof doc.autoTable !== 'function') {
-            alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
-            return;
+        
+        // ===== EXPORT FUNCTIONS =====
+        
+        /**
+         * Export table data to PDF
+         */
+        function exportTableToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'pt', 'a4');
+                
+                if (typeof doc.autoTable !== 'function') {
+                    alert('PDF export plugin not loaded. Please refresh the page.');
+                    return;
+                }
+                
+                const headers = [
+                    '#', 'Vehicle Number', 'Vehicle Type', 'Make-Model', 'Division',
+                    'Service Type', 'Opening KM', 'Closing KM', 'KM Driven', 'Remarks',
+                    'Last Service Date', 'Edited By', 'Edited At'
+                ];
+                
+                const data = [];
+                
+                // Process data for PDF export
+                for (let i = historyData.length - 1; i >= 0; i--) {
+                    const record = historyData[i];
+                    const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
+                    const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
+                    const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
+                    
+                    const vehicleData = processVehicleNumber(record.previousData.vehicleNumber || '');
+                    
+                    data.push([
+                        historyData.length - i,
+                        vehicleData.vehicleNumber,
+                        vehicleData.vehicleType,
+                        vehicleData.makeModel,
+                        vehicleData.division,
+                        serviceType,
+                        record.previousData.openingKM || '',
+                        record.previousData.closingKM || '',
+                        record.previousData.kmDriven || '',
+                        record.previousData.remarks || '',
+                        lastServiceDate,
+                        record.editedBy || '',
+                        record.editedAt ? formatDateTime(record.editedAt) : ''
+                    ]);
+                }
+                
+                // Add title and date
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(16);
+                doc.text('History of Edited Service Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+                
+                const currentDate = new Date();
+                const formattedDate = formatDate(currentDate.toISOString());
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.text(`Date: ${formattedDate}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
+                
+                // Create table
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 60,
+                    styles: {
+                        cellPadding: 4,
+                        lineWidth: 0.5,
+                        lineColor: [0, 0, 0],
+                        fontSize: 9,
+                    },
+                    headStyles: {
+                        fillColor: [41, 128, 185],
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        halign: 'center',
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245],
+                    }
+                });
+                
+                doc.save('history_service_records.pdf');
+                
+            } catch (error) {
+                console.error('PDF export error:', error);
+                alert('Failed to generate PDF. Please try again.');
+            }
         }
-
-        // Headers in required order
-        const headers = [
-            '#',
-            'Vehicle Number',
-            'Vehicle Type',
-            'Make-Model',
-            'Division',
-            'Service Type',
-            'Opening KM',
-            'Closing KM',
-            'KM Driven',
-            'Remarks',
-            'Last Service Date',
-            'Edited By',
-            'Edited At'
-        ];
-        const data = [];
-
-        const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
-        const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
-
-        const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
-        tbodyRows.forEach(row => {
-            const rowData = [];
-            const cells = row.querySelectorAll('td');
-            let vehicleNumberRaw = cells[1].textContent.trim();
-            let vehicleNumber = vehicleNumberRaw;
-            let vehicleType = '';
-            let makeModel = '';
-            let division = '';
-
-            // Extract all bracketed values in order
-            const bracketMatches = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g) || [];
-            let usedType = false, usedDivision = false;
-
-            // Remove all brackets for vehicle number
-            vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
-
-            // Assign bracketed values in order: type, make-model, division
-            bracketMatches.forEach(bracket => {
-                const val = bracket.replace(/[\[\]]/g, '').trim();
-                const valUpper = val.toUpperCase();
-                if (!usedType && knownTypes.includes(valUpper)) {
-                    vehicleType = `[${val}]`;
-                    usedType = true;
-                } else if (!usedDivision && knownDivisions.includes(valUpper)) {
-                    division = `[${val}]`;
-                    usedDivision = true;
-                } else if (!makeModel) {
-                    makeModel = `[${val}]`;
+        
+        /**
+         * Export table data to Excel
+         */
+        function exportTableToExcel() {
+            try {
+                const wb = XLSX.utils.book_new();
+                const ws_data = [];
+                
+                // Headers
+                const headers = [
+                    '#', 'Vehicle Number', 'Vehicle Type', 'Make-Model', 'Division',
+                    'Service Type', 'Opening KM', 'Closing KM', 'KM Driven', 'Remarks',
+                    'Last Service Date', 'Edited By', 'Edited At'
+                ];
+                ws_data.push(headers);
+                
+                // Data rows
+                for (let i = historyData.length - 1; i >= 0; i--) {
+                    const record = historyData[i];
+                    const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
+                    const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
+                    const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
+                    
+                    const vehicleData = processVehicleNumber(record.previousData.vehicleNumber || '');
+                    
+                    ws_data.push([
+                        historyData.length - i,
+                        vehicleData.vehicleNumber,
+                        vehicleData.vehicleType,
+                        vehicleData.makeModel,
+                        vehicleData.division,
+                        serviceType,
+                        record.previousData.openingKM || '',
+                        record.previousData.closingKM || '',
+                        record.previousData.kmDriven || '',
+                        record.previousData.remarks || '',
+                        lastServiceDate,
+                        record.editedBy || '',
+                        record.editedAt ? formatDateTime(record.editedAt) : ''
+                    ]);
+                }
+                
+                const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                XLSX.utils.book_append_sheet(wb, ws, 'Service Records');
+                XLSX.writeFile(wb, 'history_service_records.xlsx');
+                
+            } catch (error) {
+                console.error('Excel export error:', error);
+                alert('Failed to generate Excel file. Please try again.');
+            }
+        }
+        
+        // ===== UI HELPER FUNCTIONS =====
+        
+        function showLoadingState() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="loading">Loading records...</td>
+                </tr>
+            `;
+        }
+        
+        function showError(message) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="status-message status-error">
+                        ❌ ${message}
+                    </td>
+                </tr>
+            `;
+        }
+        
+        function showSuccess(message) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="status-message status-success">
+                        ✅ ${message}
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // ===== EVENT LISTENERS =====
+        
+        function setupEventListeners() {
+            // Search inputs
+            document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
+            document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
+            document.getElementById('searchMonthInput').addEventListener('input', filterData);
+            
+            // Export buttons
+            document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
+            document.getElementById('exportExcelBtn').addEventListener('click', exportTableToExcel);
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/logout', { method: 'POST' });
+                    if (response.ok) {
+                        window.location.href = '/login.html';
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                } catch (error) {
+                    alert('Logout failed. Please check your connection.');
                 }
             });
-
-            rowData.push(cells[0].textContent.trim()); // #
-            rowData.push(vehicleNumber); // Vehicle Number (no brackets)
-            rowData.push(vehicleType);   // Vehicle Type in []
-            rowData.push(makeModel);     // Make-Model in []
-            rowData.push(division);      // Division in []
-
-            // Push rest of the columns (shifted by +3)
-            for (let i = 2; i < cells.length; i++) {
-                rowData.push(cells[i].textContent.trim());
-            }
-            data.push(rowData);
-        });
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(15);
-        doc.text('History of Edited Service Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
-
-        const currentDate = new Date();
-        const day = String(currentDate.getDate()).padStart(2, '0');
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const month = months[currentDate.getMonth()];
-        const year = currentDate.getFullYear();
-        const currentDateStr = `${day}-${month}-${year}`;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
-
-        doc.autoTable({
-            head: [headers],
-            body: data,
-            startY: 60,
-            styles: {
-                cellPadding: 4,
-                lineWidth: 0.5,
-                lineColor: [0, 0, 0],
-                fontSize: 10,
-            },
-            headStyles: {
-                fillColor: [41, 128, 185],
-                textColor: 255,
-                fontStyle: 'bold',
-                halign: 'center',
-            },
-            alternateRowStyles: {
-                fillColor: [245, 245, 245],
-            },
-            didDrawPage: function (data) {
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                doc.setDrawColor(0);
-                doc.setLineWidth(0.5);
-                doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
-
-                doc.setFont('helvetica', 'italic');
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
-
-                doc.setFontSize(8);
-                doc.setTextColor(0, 0, 0);
-                doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
-            }
-        });
-
-        doc.save('history_edited_service_records.pdf');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Failed to generate PDF. Please check console for details.');
-    }
-}
-
-// ...existing code...
-
-function exportTableToExcel() {
-    const wb = XLSX.utils.book_new();
-    const ws_data = [];
-    // Updated headers to match PDF export
-    const headers = [
-        '#',
-        'Vehicle Number',
-        'Vehicle Type',
-        'Make-Model',
-        'Division',
-        'Service Type',
-        'Opening KM',
-        'Closing KM',
-        'KM Driven',
-        'Remarks',
-        'Last Service Date',
-        'Edited By',
-        'Edited At'
-    ];
-    ws_data.push(headers);
-
-    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
-    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
-
-    const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
-    tbodyRows.forEach(row => {
-        const rowData = [];
-        const cells = row.querySelectorAll('td');
-        let vehicleNumberRaw = cells[1].textContent.trim();
-        let vehicleNumber = vehicleNumberRaw;
-        let vehicleType = '';
-        let makeModel = '';
-        let division = '';
-
-        // Extract all bracketed values in order
-        const bracketMatches = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g) || [];
-        let usedType = false, usedDivision = false;
-
-        // Remove all brackets for vehicle number
-        vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
-
-        // Assign bracketed values in order: type, make-model, division
-        bracketMatches.forEach(bracket => {
-            const val = bracket.replace(/[\[\]]/g, '').trim();
-            const valUpper = val.toUpperCase();
-            if (!usedType && knownTypes.includes(valUpper)) {
-                vehicleType = `[${val}]`;
-                usedType = true;
-            } else if (!usedDivision && knownDivisions.includes(valUpper)) {
-                division = `[${val}]`;
-                usedDivision = true;
-            } else if (!makeModel) {
-                makeModel = `[${val}]`;
-            }
-        });
-
-        rowData.push(cells[0].textContent.trim()); // #
-        rowData.push(vehicleNumber); // Vehicle Number (no brackets)
-        rowData.push(vehicleType);   // Vehicle Type in []
-        rowData.push(makeModel);     // Make-Model in []
-        rowData.push(division);      // Division in []
-
-        // Push rest of the columns (shifted by +3)
-        for (let i = 2; i < cells.length; i++) {
-            rowData.push(cells[i].textContent.trim());
         }
-        ws_data.push(rowData);
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-    // Style header row
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let C = 0; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-        if (!ws[cellAddress]) continue;
-        if (!ws[cellAddress].s) ws[cellAddress].s = {};
-        ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
-        ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
-        ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
-        ws[cellAddress].s.border = {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
-            right: { style: "thin", color: { rgb: "000000" } }
-        };
-    }
-
-    ws['!cols'] = [
-        { wch: 5 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 20 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 20 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 20 }
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'HistoryEditedServiceRecords');
-    XLSX.writeFile(wb, 'history_edited_service_records.xlsx');
-}
-
-// ...existing code...
-
-        document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
-        document.getElementById('exportExcelBtn').addEventListener('click', exportTableToExcel);
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/logout', { method: 'POST' });
-                if (response.ok) {
-                    window.location.href = '/login.html';
-                } else {
-                    alert('Logout failed');
-                }
-            } catch (error) {
-                alert('Logout failed');
-            }
-        });
-
-        // Fetch and display history records on page load
-        fetchHistoryRecords();
+        
+        // ===== INITIALIZATION =====
+        
+        /**
+         * Initialize the application
+         */
+        function init() {
+            setupEventListeners();
+            fetchHistoryRecords();
+        }
+        
+        // Start the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+        
     </script>
 </body>
 </html>
