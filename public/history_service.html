@@ -102,6 +102,9 @@
                 <tr>
                     <th>#</th>
                     <th>Vehicle Number</th>
+                    <th>Vehicle Type</th>
+                    <th>Make-Model</th>
+                    <th>Division</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -112,7 +115,6 @@
                     <th>Edited At</th>
                 </tr>
             </thead>
-            <tbody>
                 <!-- History records will be populated here -->
             </tbody>
         </table>
@@ -168,32 +170,69 @@
             return `${day}-${month}-${year} ${strHours}:${minutes}:${seconds} ${ampm}`;
         }
 
-        function renderTable(data) {
-            const tbody = document.getElementById('historyTable').querySelector('tbody');
-            tbody.innerHTML = '';
-            // Render data in reverse order to show new data at the top
-            for (let i = data.length - 1; i >= 0; i--) {
-                const record = data[i];
-                const tr = document.createElement('tr');
-                const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
-                const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
-                const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
-                tr.innerHTML = `
-                    <td>${data.length - i}</td>
-                    <td>${record.previousData.vehicleNumber || ''}</td>
-                    <td>${serviceType}</td>
-                    <td>${record.previousData.openingKM || ''}</td>
-                    <td>${record.previousData.closingKM || ''}</td>
-                    <td>${record.previousData.kmDriven || ''}</td>
-                    <td>${record.previousData.remarks || ''}</td>
-                    <td>${lastServiceDate}</td>
-                    <td>${record.editedBy || ''}</td>
-                    <td>${record.editedAt ? formatDateTime(record.editedAt) : ''}</td>
-                `;
-                tbody.appendChild(tr);
-            }
-        }
+       // ...existing code...
 
+           function renderTable(data) {
+                     const tbody = document.getElementById('historyTable').querySelector('tbody');
+                     tbody.innerHTML = '';
+                     const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+                     const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+
+    // Render data in reverse order to show new data at the top
+    for (let i = data.length - 1; i >= 0; i--) {
+        const record = data[i];
+        const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
+        const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
+        const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
+        let vehicleNumberRaw = record.previousData.vehicleNumber || '';
+        let vehicleNumber = vehicleNumberRaw;
+        let vehicleType = '';
+        let makeModel = '';
+        let division = '';
+
+        // Extract all bracketed values in order
+        const bracketMatches = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g) || [];
+        let usedType = false, usedDivision = false;
+
+        // Remove all brackets for vehicle number
+        vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
+
+        // Assign bracketed values in order: type, make-model, division
+        bracketMatches.forEach(bracket => {
+            const val = bracket.replace(/[\[\]]/g, '').trim();
+            const valUpper = val.toUpperCase();
+            if (!usedType && knownTypes.includes(valUpper)) {
+                vehicleType = `[${val}]`;
+                usedType = true;
+            } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                division = `[${val}]`;
+                usedDivision = true;
+            } else if (!makeModel) {
+                makeModel = `[${val}]`;
+            }
+        });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${data.length - i}</td>
+            <td>${vehicleNumber}</td>
+            <td>${vehicleType}</td>
+            <td>${makeModel}</td>
+            <td>${division}</td>
+            <td>${serviceType}</td>
+            <td>${record.previousData.openingKM || ''}</td>
+            <td>${record.previousData.closingKM || ''}</td>
+            <td>${record.previousData.kmDriven || ''}</td>
+            <td>${record.previousData.remarks || ''}</td>
+            <td>${lastServiceDate}</td>
+            <td>${record.editedBy || ''}</td>
+            <td>${record.editedAt ? formatDateTime(record.editedAt) : ''}</td>
+        `;
+        tbody.appendChild(tr);
+    }
+}
+
+// ...existing code...
         function filterData() {
             const vehicleNumberFilter = document.getElementById('searchVehicleNumberInput').value.trim().toLowerCase();
             const serviceTypeFilter = document.getElementById('searchServiceTypeInput').value.trim().toLowerCase();
