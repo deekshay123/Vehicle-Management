@@ -383,6 +383,35 @@
                     }
                     return acc;
                 }, {}),
+                didParseCell: function(data) {
+                    // Apply status colors to Status and Days Left columns
+                    if (data.cell.raw) {
+                        const cellValue = data.cell.raw.toString().toUpperCase();
+                        
+                        if (data.column.dataKey === 'Status' || data.column.dataKey === 'Status (I)') {
+                            if (cellValue.includes('ACTIVE')) {
+                                data.cell.styles.textColor = [0, 128, 0]; // Green
+                            } else if (cellValue.includes('EXPIRING SOON')) {
+                                data.cell.styles.textColor = [255, 165, 0]; // Orange/Yellow
+                            } else if (cellValue.includes('EXPIRED')) {
+                                data.cell.styles.textColor = [255, 0, 0]; // Red
+                            }
+                        }
+                        
+                        if (data.column.dataKey === 'DAYS LEFT' || data.column.dataKey.includes('DAYS')) {
+                            const days = parseInt(cellValue);
+                            if (!isNaN(days)) {
+                                if (days > 30) {
+                                    data.cell.styles.textColor = [0, 128, 0]; // Green
+                                } else if (days > 7) {
+                                    data.cell.styles.textColor = [255, 165, 0]; // Orange/Yellow
+                                } else {
+                                    data.cell.styles.textColor = [255, 0, 0]; // Red
+                                }
+                            }
+                        }
+                    }
+                },
                 headStyles: headers.reduce((acc, header) => {
                     acc[header] = { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold', halign: 'center', font: 'helvetica', fontSize: 10 };
                     return acc;
