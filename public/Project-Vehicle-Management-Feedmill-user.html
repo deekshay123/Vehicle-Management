@@ -957,6 +957,27 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
+    // AddRow function for table
+    function addRow(tableId, fieldIds) {
+        var table = document.getElementById(tableId);
+        var tbody = table.querySelector('tbody');
+        var row = document.createElement('tr');
+        row.innerHTML = '<td></td>';
+        fieldIds.forEach(function(id) {
+            var value = '';
+            var input = document.getElementById(id);
+            if (input) value = input.value;
+            row.innerHTML += '<td>' + value + '</td>';
+        });
+        tbody.appendChild(row);
+        // Update serial number
+        var rows = tbody.querySelectorAll('tr');
+        rows.forEach(function(r, i) {
+            if (r.cells[0]) r.cells[0].textContent = (i + 1).toString();
+        });
+        // Re-apply vehicle number styling
+        if (window.styleVehicleNumbers) window.styleVehicleNumbers();
+    }
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
