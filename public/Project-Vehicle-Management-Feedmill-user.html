@@ -361,7 +361,11 @@
                     fontSize: 10,
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
-                    acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
+                    if (header === 'Vehicle Number') {
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [0, 0, 255] };
+                    } else {
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
+                    }
                     return acc;
                 }, {}),
                 headStyles: {
