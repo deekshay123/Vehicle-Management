@@ -225,112 +225,133 @@
         document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
         document.getElementById('searchMonthInput').addEventListener('input', filterData);
 
-        function exportTableToPDF() {
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l', 'pt', 'a4');
+       // ...existing code...
 
-                if (typeof doc.autoTable !== 'function') {
-                    alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
-                    return;
-                }
+function exportTableToPDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'pt', 'a4');
 
-                const headers = ['#', 'Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'KM Driven', 'Remarks', 'Last Service Date', 'Edited By', 'Edited At'];
-                const data = [];
+        if (typeof doc.autoTable !== 'function') {
+            alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
+            return;
+        }
 
-                const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
-                tbodyRows.forEach(row => {
-                    const rowData = [];
-                    row.querySelectorAll('td').forEach((cell, index) => {
-                        let cellText = cell.textContent.trim();
-                        // Format date columns (7 and 9 index)
-                        if ((index === 7 || index === 9) && cellText) {
-                            const dateObj = new Date(cellText);
-                            if (!isNaN(dateObj)) {
-                                const day = String(dateObj.getDate()).padStart(2, '0');
-                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                                const month = months[dateObj.getMonth()];
-                                const year = dateObj.getFullYear();
-                                if (index === 7) {
-                                    // Last Service Date: dd-MMM-yyyy
-                                    cellText = `${day}-${month}-${year}`;
-                                } else if (index === 9) {
-                                    // Edited At: dd-MMM-yyyy hh:mm:ss AM/PM
-                                    let hours = dateObj.getHours();
-                                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-                                    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
-                                    const ampm = hours >= 12 ? 'PM' : 'AM';
-                                    hours = hours % 12;
-                                    hours = hours ? hours : 12; // the hour '0' should be '12'
-                                    const strHours = String(hours).padStart(2, '0');
-                                    cellText = `${day}-${month}-${year} ${strHours}:${minutes}:${seconds} ${ampm}`;
-                                }
-                            }
-                        }
-                        rowData.push(cellText);
-                    });
-                    data.push(rowData);
-                });
+        // New headers with Vehicle Type and Division
+        const headers = [
+            '#',
+            'Vehicle Number',
+            'Vehicle Type',
+            'Division',
+            'Service Type',
+            'Opening KM',
+            'Closing KM',
+            'KM Driven',
+            'Remarks',
+            'Last Service Date',
+            'Edited By',
+            'Edited At'
+        ];
+        const data = [];
 
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(15);
-                doc.text('History of Edited Service Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+        const tbodyRows = document.querySelectorAll('#historyTable tbody tr');
+        tbodyRows.forEach(row => {
+            const rowData = [];
+            const cells = row.querySelectorAll('td');
+            // Parse Vehicle Number for type and division
+            let vehicleNumberRaw = cells[1].textContent.trim();
+            let vehicleNumber = vehicleNumberRaw;
+            let vehicleType = '';
+            let division = '';
 
-                const currentDate = new Date();
-                const day = String(currentDate.getDate()).padStart(2, '0');
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                const month = months[currentDate.getMonth()];
-                const year = currentDate.getFullYear();
-                const currentDateStr = `${day}-${month}-${year}`;
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(12);
-                doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
-
-                doc.autoTable({
-                    head: [headers],
-                    body: data,
-                    startY: 60,
-                    styles: {
-                        cellPadding: 4,
-                        lineWidth: 0.5,
-                        lineColor: [0, 0, 0],
-                        fontSize: 10,
-                    },
-                    headStyles: {
-                        fillColor: [41, 128, 185],
-                        textColor: 255,
-                        fontStyle: 'bold',
-                        halign: 'center',
-                    },
-                    alternateRowStyles: {
-                        fillColor: [245, 245, 245],
-                    },
-                    didDrawPage: function (data) {
-                        console.log('didDrawPage called for page:', data.pageNumber);
-                        const pageWidth = doc.internal.pageSize.getWidth();
-                        const pageHeight = doc.internal.pageSize.getHeight();
-                        doc.setDrawColor(0);
-                        doc.setLineWidth(0.5);
-                        doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
-
-                        doc.setFont('helvetica', 'italic');
-                        doc.setFontSize(10);
-                        doc.setTextColor(0, 0, 0);
-                        doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
-
-                        const pageNumber = doc.internal.getNumberOfPages();
-                        doc.setFontSize(8);
-                        doc.setTextColor(0, 0, 0);
-                        doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
+            // Regex to extract [TYPE] and [DIVISION] from vehicle number
+            // Example: KA192032[HEAVY][H.O]
+            const typeMatch = vehicleNumberRaw.match(/\[([^\[\]]+)\]/g);
+            if (typeMatch) {
+                // Remove all brackets for vehicle number
+                vehicleNumber = vehicleNumberRaw.replace(/\[([^\[\]]+)\]/g, '').trim();
+                // Find known types and divisions
+                typeMatch.forEach(bracket => {
+                    const val = bracket.replace(/[\[\]]/g, '').toUpperCase();
+                    if (['HEAVY', '2 WHEEL', '4WHEEL', '4 WHEEL', '2WHEEL'].includes(val)) {
+                        vehicleType = val;
+                    } else if (['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'].includes(val)) {
+                        division = val;
                     }
                 });
-
-                doc.save('history_edited_service_records.pdf');
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                alert('Failed to generate PDF. Please check console for details.');
             }
-        }
+
+            rowData.push(cells[0].textContent.trim()); // #
+            rowData.push(vehicleNumber); // Vehicle Number (no brackets)
+            rowData.push(vehicleType);   // Vehicle Type
+            rowData.push(division);      // Division
+
+            // Push rest of the columns (shifted by +2)
+            for (let i = 2; i < cells.length; i++) {
+                rowData.push(cells[i].textContent.trim());
+            }
+            data.push(rowData);
+        });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.text('History of Edited Service Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+
+        const currentDate = new Date();
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[currentDate.getMonth()];
+        const year = currentDate.getFullYear();
+        const currentDateStr = `${day}-${month}-${year}`;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
+
+        doc.autoTable({
+            head: [headers],
+            body: data,
+            startY: 60,
+            styles: {
+                cellPadding: 4,
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+                fontSize: 10,
+            },
+            headStyles: {
+                fillColor: [41, 128, 185],
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'center',
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245],
+            },
+            didDrawPage: function (data) {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                doc.setDrawColor(0);
+                doc.setLineWidth(0.5);
+                doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+                doc.setFontSize(8);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
+            }
+        });
+
+        doc.save('history_edited_service_records.pdf');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF. Please check console for details.');
+    }
+}
+
+// ...existing code...
 
         function exportTableToExcel() {
             const wb = XLSX.utils.book_new();
