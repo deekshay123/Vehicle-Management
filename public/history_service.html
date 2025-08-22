@@ -431,34 +431,21 @@
         <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
             
-        <!-- ===== SEARCH SECTION ===== -->
-        <section class="search-section">
-            <div class="search-header">
-                <h3>Search Filters</h3>
-                <button id="toggleSearchBtn" class="toggle-btn" title="Toggle search filters">
-                    <span class="arrow">▼</span>
-                </button>
-            </div>
-            <div class="search-grid" id="searchGrid">
-                <input type="text" 
-                       id="searchVehicleNumberInput" 
-                       class="search-input" 
-                       placeholder="🔍  by Vehicle Number..."
-                       aria-label="Search by Vehicle Number">
+            <!-- ===== SEARCH SECTION ===== -->
+            <section class="search-section">
+                <div class="search-header">
+                    <h3>🔍 Search Filters</h3>
+                    <button id="toggleSearchBtn" class="toggle-btn">
+                        <span class="arrow">▼</span>
+                    </button>
+                </div>
                 
-                <input type="text" 
-                       id="searchServiceTypeInput" 
-                       class="search-input" 
-                       placeholder="🔍  by Service Type..."
-                       aria-label="Search by Service Type">
-                
-                <input type="text" 
-                       id="searchMonthInput" 
-                       class="search-input" 
-                       placeholder="🔍 Search by Month..."
-                       aria-label="Search by Month">
-            </div>
-        </section>
+                <div id="searchGrid" class="search-grid">
+                    <input type="text" id="searchVehicleNumberInput" class="search-input" placeholder="Search by Vehicle Number..." />
+                    <input type="text" id="searchServiceTypeInput" class="search-input" placeholder="Search by Service Type..." />
+                    <input type="text" id="searchMonthInput" class="search-input" placeholder="Search by Month..." />
+                </div>
+            </section>
             
             <!-- ===== EXPORT SECTION ===== -->
             <section class="export-section">
@@ -633,16 +620,18 @@
                     (record.previousData.vehicleNumber && 
                      record.previousData.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
                 
-                // Service type filter
+                // Service type filter - check both serviceType and maintenanceType fields
+                const serviceTypeValue = record.previousData.serviceType || record.previousData.maintenanceType || '';
                 const serviceTypeMatch = !serviceTypeFilter || 
-                    (record.previousData.serviceType && 
-                     record.previousData.serviceType.toLowerCase().includes(serviceTypeFilter));
+                    (serviceTypeValue && 
+                     serviceTypeValue.toLowerCase().includes(serviceTypeFilter));
                 
-                // Month filter
+                // Month filter - check both lastServiceDate and maintenanceRenewalDate fields
                 let monthMatch = true;
                 if (monthFilter) {
-                    if (record.previousData.lastServiceDate) {
-                        const dateObj = new Date(record.previousData.lastServiceDate);
+                    const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
+                    if (lastServiceDateRaw) {
+                        const dateObj = new Date(lastServiceDateRaw);
                         if (!isNaN(dateObj)) {
                             const monthName = dateObj.toLocaleString('default', { month: 'long' }).toLowerCase();
                             monthMatch = monthName.includes(monthFilter);
