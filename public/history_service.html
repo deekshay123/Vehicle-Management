@@ -5,26 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>History Service Records - Clean UI</title>
     
-    <!-- External Libraries -->
+    <!-- ===== EXTERNAL LIBRARIES ===== -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
+    <!-- ===== STYLES ===== -->
     <style>
+        /* ===== BASE STYLES ===== */
         html, body {
             height: 100%;
             width: 100%;
         }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: #fff; /* Remove gradient, set plain white */
+            background: #fff;
             min-height: 100vh;
             min-width: 100vw;
             padding: 0;
             margin: 0;
         }
+        
+        /* ===== LAYOUT CONTAINER ===== */
         .container {
             width: 100vw;
             min-height: 100vh;
@@ -36,6 +41,8 @@
             display: flex;
             flex-direction: column;
         }
+        
+        /* ===== HEADER SECTION ===== */
         .header {
             background: #2c3e50;
             color: white;
@@ -46,11 +53,14 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+        
         .header h1 {
             font-size: 1.8rem;
             font-weight: 600;
             margin: 0;
         }
+        
+        /* ===== MAIN CONTENT AREA ===== */
         .main-content {
             flex: 1 1 auto;
             padding: 25px;
@@ -58,6 +68,8 @@
             flex-direction: column;
             height: 1px;
         }
+        
+        /* ===== SEARCH SECTION ===== */
         .search-section {
             background: #f8f9fa;
             padding: 20px;
@@ -65,41 +77,37 @@
             margin-bottom: 25px;
             border: 1px solid #e9ecef;
         }
-       .search-grid {
+        
+        .search-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Always 3 equal columns */
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 15px;
             align-items: center;
             width: 100%;
             max-width: 700px;
             margin-left: auto;
-             margin-right: auto;
-      }
-        .search-input {
-           padding: 12px 15px;
-           border: 2px solid #ddd;
-           border-radius: 6px;
-           font-size: 15px;
-           transition: border-color 0.3s ease;
-           width: 100%;
-           box-sizing: border-box;
-           min-width: 0;
-     }
-
-        @media (max-width: 900px) {
-          .search-grid {
-              grid-template-columns: 1fr;
-             max-width: 100%;
+            margin-right: auto;
         }
         
-   }
-
+        .search-input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        
         .search-input:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
+        
+        /* ===== EXPORT SECTION ===== */
         .export-section {
             display: flex;
             justify-content: flex-end;
@@ -107,6 +115,8 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
+        
+        /* ===== BUTTON STYLES ===== */
         .btn {
             padding: 12px 24px;
             border: none;
@@ -119,48 +129,58 @@
             align-items: center;
             gap: 8px;
         }
+        
         .btn-primary {
             background: #3498db;
             color: white;
         }
+        
         .btn-primary:hover {
             background: #2980b9;
             transform: translateY(-2px);
         }
+        
         .btn-success {
             background: #27ae60;
             color: white;
         }
+        
         .btn-success:hover {
             background: #219a52;
             transform: translateY(-2px);
         }
+        
         .btn-danger {
             background: #e74c3c;
             color: white;
         }
+        
         .btn-danger:hover {
             background: #c0392b;
             transform: translateY(-2px);
         }
-       
+        
+        /* ===== TABLE CONTAINER ===== */
         .table-container {
             background: white;
             border-radius: 8px;
-            overflow-y: auto;      /* Enable vertical scroll */
-            overflow-x: auto;      /* Enable horizontal scroll if needed */
+            overflow-y: auto;
+            overflow-x: auto;
             border: 1px solid #e9ecef;
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
             min-height: 0;
-            max-height: 60vh;      
-      }
+            max-height: 60vh;
+        }
+        
+        /* ===== DATA TABLE ===== */
         .data-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
+        
         .data-table th {
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
@@ -171,22 +191,28 @@
             top: 0;
             z-index: 10;
         }
+        
         .data-table td {
             padding: 12px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: top;
         }
+        
         .data-table tr:hover {
             background-color: #f8f9fa;
         }
+        
         .data-table tr:nth-child(even) {
             background-color: #fafafa;
         }
+        
+        /* ===== LOADING INDICATOR ===== */
         .loading {
             text-align: center;
             padding: 40px;
             color: #666;
         }
+        
         .loading::after {
             content: '';
             display: inline-block;
@@ -198,49 +224,70 @@
             animation: spin 1s linear infinite;
             margin-left: 10px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            .search-grid {
-                grid-template-columns: 1fr;
-            }
-            .export-section {
-                justify-content: center;
-            }
-            .table-container {
-                overflow-x: auto;
-            }
-            .data-table {
-                min-width: 800px;
-            }
-        }
+        
+        /* ===== STATUS MESSAGES ===== */
         .status-message {
             padding: 15px;
             margin: 10px 0;
             border-radius: 6px;
             text-align: center;
         }
+        
         .status-error {
             background-color: #fee;
             color: #c0392b;
             border: 1px solid #f5c6cb;
         }
+        
         .status-success {
             background-color: #eff;
             color: #27ae60;
             border: 1px solid #c3e6cb;
         }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 900px) {
+            .search-grid {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-section {
+                justify-content: center;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                min-width: 800px;
+            }
+        }
     </style>
 </head>
+
 <body>
+    <!-- ===== MAIN CONTAINER ===== -->
     <div class="container">
-        <!-- HEADER SECTION -->
+        
+        <!-- ===== HEADER SECTION ===== -->
         <header class="header">
             <h1>📊 History of Edited Service Records</h1>
             <button id="logoutBtn" class="btn btn-danger">
@@ -248,9 +295,10 @@
             </button>
         </header>
         
-        <!-- MAIN CONTENT -->
+        <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
-            <!-- SEARCH SECTION -->
+            
+            <!-- ===== SEARCH SECTION ===== -->
             <section class="search-section">
                 <div class="search-grid">
                     <input type="text" 
@@ -273,7 +321,7 @@
                 </div>
             </section>
             
-            <!-- EXPORT SECTION -->
+            <!-- ===== EXPORT SECTION ===== -->
             <section class="export-section">
                 <button id="exportPdfBtn" class="btn btn-primary">
                     📄 Export to PDF
@@ -283,7 +331,7 @@
                 </button>
             </section>
             
-            <!-- TABLE CONTAINER -->
+            <!-- ===== TABLE CONTAINER ===== -->
             <div class="table-container">
                 <table id="historyTable" class="data-table">
                     <thead>
@@ -304,7 +352,6 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <!-- Data will be populated here -->
                         <tr>
                             <td colspan="13" class="loading">Loading records...</td>
                         </tr>
@@ -313,8 +360,16 @@
             </div>
         </main>
     </div>
-</html>
+
+    <!-- ===== JAVASCRIPT ===== -->
     <script>
+        // =========================================================================
+        // HISTORY SERVICE RECORDS MANAGEMENT APPLICATION
+        // =========================================================================
+        // This application manages and displays history of edited service records
+        // with search, filter, and export capabilities.
+        // =========================================================================
+        
         // ===== GLOBAL VARIABLES =====
         let historyData = [];
         const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
@@ -325,7 +380,7 @@
         /**
          * Format date to DD-MMM-YYYY format
          * @param {string} dateStr - ISO date string
-         * @returns {string} Formatted date
+         * @returns {string} Formatted date string
          */
         function formatDate(dateStr) {
             if (!dateStr) return '';
@@ -341,7 +396,7 @@
         /**
          * Format date-time to DD-MMM-YYYY HH:MM:SS AM/PM format
          * @param {string} dateStr - ISO date string
-         * @returns {string} Formatted date-time
+         * @returns {string} Formatted date-time string
          */
         function formatDateTime(dateStr) {
             if (!dateStr) return '';
@@ -367,7 +422,7 @@
         /**
          * Process vehicle number to extract type, make-model, and division
          * @param {string} vehicleNumberRaw - Raw vehicle number string
-         * @returns {Object} Processed vehicle data
+         * @returns {Object} Processed vehicle data object
          */
         function processVehicleNumber(vehicleNumberRaw) {
             let vehicleNumber = vehicleNumberRaw || '';
@@ -401,10 +456,12 @@
             return { vehicleNumber, vehicleType, makeModel, division };
         }
         
-        // ===== DATA FETCHING =====
+        // ===== DATA MANAGEMENT FUNCTIONS =====
         
         /**
          * Fetch history records from API
+         * @async
+         * @returns {Promise<void>}
          */
         async function fetchHistoryRecords() {
             try {
@@ -423,7 +480,48 @@
             }
         }
         
-        // ===== TABLE RENDERING =====
+        /**
+         * Filter table data based on search inputs
+         */
+        function filterData() {
+            const vehicleNumberFilter = document.getElementById('searchVehicleNumberInput').value.trim().toLowerCase();
+            const serviceTypeFilter = document.getElementById('searchServiceTypeInput').value.trim().toLowerCase();
+            const monthFilter = document.getElementById('searchMonthInput').value.trim().toLowerCase();
+            
+            const filtered = historyData.filter(record => {
+                // Vehicle number filter
+                const vehicleNumberMatch = !vehicleNumberFilter || 
+                    (record.previousData.vehicleNumber && 
+                     record.previousData.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
+                
+                // Service type filter
+                const serviceTypeMatch = !serviceTypeFilter || 
+                    (record.previousData.serviceType && 
+                     record.previousData.serviceType.toLowerCase().includes(serviceTypeFilter));
+                
+                // Month filter
+                let monthMatch = true;
+                if (monthFilter) {
+                    if (record.previousData.lastServiceDate) {
+                        const dateObj = new Date(record.previousData.lastServiceDate);
+                        if (!isNaN(dateObj)) {
+                            const monthName = dateObj.toLocaleString('default', { month: 'long' }).toLowerCase();
+                            monthMatch = monthName.includes(monthFilter);
+                        } else {
+                            monthMatch = false;
+                        }
+                    } else {
+                        monthMatch = false;
+                    }
+                }
+                
+                return vehicleNumberMatch && serviceTypeMatch && monthMatch;
+            });
+            
+            renderTable(filtered);
+        }
+        
+        // ===== UI RENDERING FUNCTIONS =====
         
         /**
          * Render data to the table
@@ -476,47 +574,46 @@
             }
         }
         
-        // ===== FILTERING =====
+        /**
+         * Show loading state in table
+         */
+        function showLoadingState() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="loading">Loading records...</td>
+                </tr>
+            `;
+        }
         
         /**
-         * Filter table data based on search inputs
+         * Show error message in table
+         * @param {string} message - Error message to display
          */
-        function filterData() {
-            const vehicleNumberFilter = document.getElementById('searchVehicleNumberInput').value.trim().toLowerCase();
-            const serviceTypeFilter = document.getElementById('searchServiceTypeInput').value.trim().toLowerCase();
-            const monthFilter = document.getElementById('searchMonthInput').value.trim().toLowerCase();
-            
-            const filtered = historyData.filter(record => {
-                // Vehicle number filter
-                const vehicleNumberMatch = !vehicleNumberFilter || 
-                    (record.previousData.vehicleNumber && 
-                     record.previousData.vehicleNumber.toLowerCase().includes(vehicleNumberFilter));
-                
-                // Service type filter
-                const serviceTypeMatch = !serviceTypeFilter || 
-                    (record.previousData.serviceType && 
-                     record.previousData.serviceType.toLowerCase().includes(serviceTypeFilter));
-                
-                // Month filter
-                let monthMatch = true;
-                if (monthFilter) {
-                    if (record.previousData.lastServiceDate) {
-                        const dateObj = new Date(record.previousData.lastServiceDate);
-                        if (!isNaN(dateObj)) {
-                            const monthName = dateObj.toLocaleString('default', { month: 'long' }).toLowerCase();
-                            monthMatch = monthName.includes(monthFilter);
-                        } else {
-                            monthMatch = false;
-                        }
-                    } else {
-                        monthMatch = false;
-                    }
-                }
-                
-                return vehicleNumberMatch && serviceTypeMatch && monthMatch;
-            });
-            
-            renderTable(filtered);
+        function showError(message) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="status-message status-error">
+                        ❌ ${message}
+                    </td>
+                </tr>
+            `;
+        }
+        
+        /**
+         * Show success message in table
+         * @param {string} message - Success message to display
+         */
+        function showSuccess(message) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="status-message status-success">
+                        ✅ ${message}
+                    </td>
+                </tr>
+            `;
         }
         
         // ===== EXPORT FUNCTIONS =====
@@ -589,15 +686,25 @@
                         lineWidth: 0.5,
                         lineColor: [0, 0, 0],
                         fontSize: 9,
+                        halign: 'center',
+                        valign: 'middle'
                     },
                     headStyles: {
                         fillColor: [41, 128, 185],
                         textColor: 255,
                         fontStyle: 'bold',
                         halign: 'center',
+                        valign: 'middle'
                     },
                     alternateRowStyles: {
                         fillColor: [245, 245, 245],
+                    },
+                    didParseCell: function (data) {
+                        // Make Vehicle Number (column index 1) bold and blue in the body
+                        if (data.section === 'body' && data.column.index === 1) {
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = [41, 128, 185];
+                        }
                     }
                 });
                 
@@ -661,41 +768,11 @@
             }
         }
         
-        // ===== UI HELPER FUNCTIONS =====
+        // ===== EVENT HANDLING FUNCTIONS =====
         
-        function showLoadingState() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="13" class="loading">Loading records...</td>
-                </tr>
-            `;
-        }
-        
-        function showError(message) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="13" class="status-message status-error">
-                        ❌ ${message}
-                    </td>
-                </tr>
-            `;
-        }
-        
-        function showSuccess(message) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="13" class="status-message status-success">
-                        ✅ ${message}
-                    </td>
-                </tr>
-            `;
-        }
-        
-        // ===== EVENT LISTENERS =====
-        
+        /**
+         * Setup all event listeners
+         */
         function setupEventListeners() {
             // Search inputs
             document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
@@ -733,7 +810,6 @@
         
         // Start the application when DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
-        
     </script>
 </body>
 </html>
