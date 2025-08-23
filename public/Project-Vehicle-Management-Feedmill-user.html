@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -664,34 +665,6 @@
     padding: 0 2vw;
     box-sizing: border-box;
 }
-.status-count-box.active-selected {
-    background: linear-gradient(120deg, #b7ffd8 60%, #e0ffe7 100%);
-    border: 2px solid #a3e9c7;
-    color: #25324b;
-    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
-    transform: scale(1.04);
-}
-.status-count-box.expiring-selected {
-    background: linear-gradient(120deg, #ffe9b7 60%, #fff7e0 100%);
-    border: 2px solid #f7dca3;
-    color: #25324b;
-    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
-    transform: scale(1.04);
-}
-.status-count-box.expired-selected {
-    background: linear-gradient(120deg, #ffd7d7 60%, #ffeaea 100%);
-    border: 2px solid #f7b7b7;
-    color: #25324b;
-    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
-    transform: scale(1.04);
-}
-.status-count-box.all-selected {
-    background: linear-gradient(120deg, #e3e7ed 60%, #f3f6fb 100%);
-    border: 2px solid #c7d0e1;
-    color: #25324b;
-    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
-    transform: scale(1.04);
-}
     </style>
 </head>
 <body>
@@ -1151,119 +1124,15 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
-
-        // Status box click color toggle logic
-document.addEventListener('DOMContentLoaded', function() {
-    const statusBoxes = [
-        { id: 'activeCountBox', selectedClass: 'active-selected' },
-        { id: 'expiringCountBox', selectedClass: 'expiring-selected' },
-        { id: 'expiredCountBox', selectedClass: 'expired-selected' },
-        { id: 'allCountBox', selectedClass: 'all-selected' }
-    ];
-    statusBoxes.forEach(box => {
-        const el = document.getElementById(box.id);
-        if (el) {
-            el.addEventListener('click', function() {
-                // Remove all selected classes from all boxes
-                statusBoxes.forEach(b => {
-                    const e = document.getElementById(b.id);
-                    if (e) e.classList.remove(b.selectedClass);
-                });
-                // Add selected class to clicked box
-                el.classList.add(box.selectedClass);
-            });
-        }
-    });
-});
-
-    // Column Filter Modal: Clean checkbox rendering and dynamic update after data changes
-    function renderColumnFilterCheckboxes() {
-        const table = document.getElementById('combinedTable');
-        const columnFilterForm = document.getElementById('columnFilterForm');
-        const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-        columnFilterForm.innerHTML = ''; // Clear previous
-
-        headerCells.forEach((th, idx) => {
-            const colName = th.textContent.trim();
-            const checked = th.style.display !== 'none';
-            const id = `colFilter_${idx}`;
-            const wrapper = document.createElement('div');
-            wrapper.style.display = 'flex';
-            wrapper.style.alignItems = 'center';
-            wrapper.style.marginBottom = '8px';
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = id;
-            checkbox.name = 'columns';
-            checkbox.value = idx;
-            checkbox.checked = checked;
-            checkbox.style.marginRight = '8px';
-
-            const label = document.createElement('label');
-            label.htmlFor = id;
-            label.textContent = colName;
-            label.style.fontWeight = '500';
-
-            wrapper.appendChild(checkbox);
-            wrapper.appendChild(label);
-            columnFilterForm.appendChild(wrapper);
-        });
-    }
-
-    function applyColumnFilter() {
-        const table = document.getElementById('combinedTable');
-        const columnFilterForm = document.getElementById('columnFilterForm');
-        const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            const idx = parseInt(cb.value, 10);
-            const th = table.querySelectorAll('thead tr:nth-child(2) th')[idx];
-            th.style.display = cb.checked ? '' : 'none';
-            table.querySelectorAll('tbody tr').forEach(tr => {
-                if (tr.cells[idx]) tr.cells[idx].style.display = cb.checked ? '' : 'none';
-            });
-        });
-    }
-
-    // Call this after adding/updating table data to reapply column filter
-    window.updateColumnFilterAfterDataChange = function() {
-        renderColumnFilterCheckboxes();
-        applyColumnFilter();
-    };
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const columnFilterBtn = document.getElementById('columnFilterBtn');
-        const columnFilterModal = document.getElementById('columnFilterModal');
-        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
-        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
-
-        columnFilterBtn.addEventListener('click', function() {
-            renderColumnFilterCheckboxes();
-            columnFilterModal.style.display = 'flex';
-        });
-
-        saveColumnFilterBtn.addEventListener('click', function() {
-            applyColumnFilter();
-            columnFilterModal.style.display = 'none';
-        });
-
-        cancelColumnFilterBtn.addEventListener('click', function() {
-            columnFilterModal.style.display = 'none';
-        });
-    });
-
-    // Example: Call window.updateColumnFilterAfterDataChange() after adding data
-    // If you have a function that adds rows, call this at the end:
-    // window.updateColumnFilterAfterDataChange();
-
-    // ...existing code...
-</script>
-<!-- ...existing code... -->
+    </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
     <script src="export.js"></script>
 </body>
 </html>
