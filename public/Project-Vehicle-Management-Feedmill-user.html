@@ -378,6 +378,8 @@
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [138, 43, 226] }; /* Violet RGB: #8A2BE2 */
+                    } else if (header === 'Status (I)') {
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
@@ -389,6 +391,22 @@
                 }, {}),
                 alternateRowStyles: {
                     fillColor: [245, 245, 245]
+                },
+                willDrawCell: function(data) {
+                    // Apply status colors to Status (I) column
+                    if (data.column.dataKey === 'Status (I)') {
+                        const status = data.cell.raw;
+                        if (status) {
+                            const statusLower = status.toLowerCase();
+                            if (statusLower.includes('active')) {
+                                data.cell.styles.textColor = [46, 204, 113]; // Green for Active
+                            } else if (statusLower.includes('expiring') || statusLower.includes('soon')) {
+                                data.cell.styles.textColor = [241, 196, 15]; // Yellow for Expiring Soon
+                            } else if (statusLower.includes('expired')) {
+                                data.cell.styles.textColor = [231, 76, 60]; // Red for Expired
+                            }
+                        }
+                    }
                 },
                 didDrawPage: function (data) {
                     // Add a horizontal line above footer
