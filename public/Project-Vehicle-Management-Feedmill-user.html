@@ -745,6 +745,13 @@
         </button>
     </div>
     <div class="main-content">
+        <!-- Report Selection Checkboxes -->
+        <div id="reportSelection" style="margin-bottom: 24px; display: flex; gap: 18px; align-items: center;">
+            <label><input type="checkbox" id="insuranceReport"> Insurance Report</label>
+            <label><input type="checkbox" id="maintenanceReport"> Maintenance Report</label>
+            <label><input type="checkbox" id="gpsReport"> GPS Report</label>
+            <button id="saveReportSelection" type="button">Save</button>
+        </div>
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
@@ -809,30 +816,8 @@
             <div style="width:100%;overflow-x:auto;">
                 <div class="scrollable-table-wrapper">
                     <table id="combinedTable" style="width:100%;min-width:600px;">
-                        <thead>
-                            <tr>
-                                <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                                <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-            <!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
-                            </tr>
-                            <tr>
-                                <th>#</th>
-                                <th>Vehicle Number</th>
-                                <th>Policy Type</th>
-                                <th>Policy Number</th>
-                                <th>Renewal Date(Vehicles)</th>
-                                <th>Status (I)</th>
-                                <th>Service Type</th>
-                                <th>Opening KM</th>
-                                <th>Closing KM</th>
-                                <th>Km Driven</th>
-                                <th>Remarks</th>
-                                <th>Last Service Date</th>
-                                <th style="text-align: center;">Status</th>
-                                <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
-                                <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
-                                <!-- <th>Actions</th> -->
-                            </tr>
+                        <thead id="dynamicTableHead">
+                            <!-- Table headers will be set by JS -->
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -1263,6 +1248,77 @@
         // ...existing code...
     });
 
+        // ...existing code...
+
+        // Dynamic table header logic
+        function setTableHeaders(reportType) {
+            const thead = document.getElementById('dynamicTableHead');
+            let headerRow = '';
+            if (reportType === 'insurance') {
+                headerRow = `<tr>
+                    <th>#</th>
+                    <th>Vehicle Number</th>
+                    <th>Policy Type</th>
+                    <th>Policy Number</th>
+                    <th>Renewal Date(Vehicles)</th>
+                    <th>Status (I)</th>
+                </tr>`;
+            } else if (reportType === 'maintenance') {
+                headerRow = `<tr>
+                    <th>Service Type</th>
+                    <th>Opening KM</th>
+                    <th>Closing KM</th>
+                    <th>Km Driven</th>
+                    <th>Remarks</th>
+                    <th>Last Service Date</th>
+                    <th>Status</th>
+                </tr>`;
+            } else if (reportType === 'gps') {
+                headerRow = `<tr>
+                    <th>Vehicle Number GPS</th>
+                    <th>Renewal Date(GPS)</th>
+                </tr>`;
+            } else {
+                // Default: show all columns (can be customized)
+                headerRow = `<tr>
+                    <th>#</th>
+                    <th>Vehicle Number</th>
+                    <th>Policy Type</th>
+                    <th>Policy Number</th>
+                    <th>Renewal Date(Vehicles)</th>
+                    <th>Status (I)</th>
+                    <th>Service Type</th>
+                    <th>Opening KM</th>
+                    <th>Closing KM</th>
+                    <th>Km Driven</th>
+                    <th>Remarks</th>
+                    <th>Last Service Date</th>
+                    <th>Status</th>
+                    <th>GPS</th>
+                    <th>Renewal Date(GPS)</th>
+                </tr>`;
+            }
+            thead.innerHTML = headerRow;
+        }
+
+        // Save button logic
+        document.addEventListener('DOMContentLoaded', function() {
+            setTableHeaders(); // Default
+            document.getElementById('saveReportSelection').addEventListener('click', function() {
+                const insurance = document.getElementById('insuranceReport').checked;
+                const maintenance = document.getElementById('maintenanceReport').checked;
+                const gps = document.getElementById('gpsReport').checked;
+                if (insurance) {
+                    setTableHeaders('insurance');
+                } else if (maintenance) {
+                    setTableHeaders('maintenance');
+                } else if (gps) {
+                    setTableHeaders('gps');
+                } else {
+                    setTableHeaders(); // Default
+                }
+            });
+        });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
