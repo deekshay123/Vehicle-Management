@@ -32,13 +32,16 @@
         color: #8f00ff !important;
         font-weight: bold !important;
     }
-    /* Remove blue color for Status (index 12) table head and data */
-    /* If you want to keep data blue in UI, keep the next line, otherwise remove it too */
-    /* #combinedTable td:nth-child(13) {
-        color: #1e70a7 !important;
+    /* Make Status (I) table data colored (already handled in export) */
+    /* Remove special color for Status (index 12) table head and data blue */
+    #combinedTable th:nth-child(13) {
+        color: white !important; /* Match other headers */
         font-weight: bold !important;
-    } */
-    /* Do NOT color thead th:nth-child(13) */
+    }
+    #combinedTable td:nth-child(13) {
+        color: #1e70a7 !important; /* Keep data blue as before */
+        font-weight: bold !important;
+    }
     </style>
 </head>
 <body>
@@ -384,12 +387,15 @@
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
+                    } else if (header === 'Status') {
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fontStyle: 'bold' }; // Remove blue header color, match others
                     } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
                     return acc;
                 }, {}),
                 headStyles: headers.reduce((acc, header) => {
+                    // Make Status header same as others
                     acc[header] = { 
                         fillColor: [41, 128, 185], 
                         textColor: 255, 
@@ -426,8 +432,12 @@
                         // Add more status checks/colors as needed
                     }
                     // Color Status (index 12) column cells (header and body) blue
-                    // Remove blue coloring for Status (index 12) column cells (header and body)
-                    // Do not set data.cell.styles.textColor for Status column here
+                    if (data.column && data.column.dataKey === 'Status') {
+                        // Only color body cells blue, not header
+                        if (data.section === 'body') {
+                            data.cell.styles.textColor = [30, 112, 167]; // Blue
+                        }
+                    }
                 },
                 didDrawPage: function (data) {
                     // Add a horizontal line above footer
@@ -493,16 +503,6 @@
     <script src="export.js"></script>
 </body>
 </html>
-        // Run the styling function when the page loads
-        document.addEventListener('DOMContentLoaded', styleVehicleNumbers);
-        
-        // Also run it after any table updates (you might need to call this from other scripts)
-        window.styleVehicleNumbers = styleVehicleNumbers;
-    </script>
-    <script src="scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="export.js"></script>
 </body>
