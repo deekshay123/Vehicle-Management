@@ -377,8 +377,6 @@
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [135, 206, 235] };
-                    } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
                     return acc;
