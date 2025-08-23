@@ -29,10 +29,16 @@
     
     /* Make Vehicle Number column violet and bold */
     #combinedTable td:nth-child(2) {
-        color: #8f00ff !important; /* Violet color */
+        color: #8f00ff !important;
         font-weight: bold !important;
     }
-    
+    /* Make Status (I) table data colored (already handled in export) */
+    /* Make Status (index 12) table head and data blue */
+    #combinedTable th:nth-child(13),
+    #combinedTable td:nth-child(13) {
+        color: #1e70a7 !important; /* Blue */
+        font-weight: bold !important;
+    }
     </style>
 </head>
 <body>
@@ -378,13 +384,33 @@
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
+                    } else if (header === 'Status') {
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fontStyle: 'bold', textColor: [30, 112, 167] }; // Blue for Status (index 12)
                     } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
                     return acc;
                 }, {}),
                 headStyles: headers.reduce((acc, header) => {
-                    acc[header] = { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold', halign: 'center', font: 'helvetica', fontSize: 10 };
+                    if (header === 'Status') {
+                        acc[header] = { 
+                            fillColor: [41, 128, 185], 
+                            textColor: [30, 112, 167], // Blue
+                            fontStyle: 'bold', 
+                            halign: 'center', 
+                            font: 'helvetica', 
+                            fontSize: 10 
+                        };
+                    } else {
+                        acc[header] = { 
+                            fillColor: [41, 128, 185], 
+                            textColor: 255, 
+                            fontStyle: 'bold', 
+                            halign: 'center', 
+                            font: 'helvetica', 
+                            fontSize: 10 
+                        };
+                    }
                     return acc;
                 }, {}),
                 alternateRowStyles: {
@@ -412,7 +438,10 @@
                         }
                         // Add more status checks/colors as needed
                     }
-                    // Do NOT color Status (I) header specially, keep default
+                    // Color Status (index 12) column cells (header and body) blue
+                    if (data.column && data.column.dataKey === 'Status') {
+                        data.cell.styles.textColor = [30, 112, 167]; // Blue
+                    }
                 },
                 didDrawPage: function (data) {
                     // Add a horizontal line above footer
