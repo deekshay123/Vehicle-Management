@@ -101,26 +101,35 @@
     }
     #logoutBtn {
         position: fixed;
-        top: 16px;
-        right: 16px;
+        top: 24px;
+        right: 32px;
         background: linear-gradient(90deg, #e96443 0%, #904e95 100%);
         color: #fff;
-        font-size: 1rem;
-        padding: 10px 22px;
-        z-index: 1001;
-        box-shadow: 0 2px 8px rgba(229,115,115,0.10);
-        border: 1.5px solid #fbeee6;
+        font-size: 1.08rem;
+        padding: 12px 28px;
+        z-index: 1101;
+        box-shadow: 0 4px 16px rgba(229,115,115,0.18);
+        border: 2px solid #fbeee6;
         display: flex !important;
         align-items: center;
         opacity: 1;
         visibility: visible;
+        border-radius: 12px;
+        transition: box-shadow 0.2s, background 0.2s, border 0.2s;
+    }
+    #logoutBtn:hover, #logoutBtn:focus {
+        background: linear-gradient(90deg, #904e95 0%, #e96443 100%);
+        box-shadow: 0 8px 24px rgba(229,115,115,0.22);
+        border: 2px solid #e96443;
+        color: #fff;
+        outline: none;
     }
     @media (max-width: 700px) {
         #logoutBtn {
-            top: 8px;
-            right: 8px;
-            font-size: 0.95rem;
-            padding: 6px 10px;
+            top: 10px;
+            right: 10px;
+            font-size: 0.98rem;
+            padding: 8px 16px;
         }
     }
     #toggleFormBtn {
@@ -168,6 +177,8 @@
         max-width: 99vw;
         width: 99vw;
         overflow-x: auto;
+        overflow-y: auto;
+        max-height: 70vh;
         transition: box-shadow 0.3s;
         position: relative;
         z-index: 1;
@@ -627,6 +638,29 @@
         color: #1e70a7 !important; /* Keep data blue as before */
         font-weight: bold !important;
     }
+    /* Sticky table header styles */
+    .table-container {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 70vh;
+    }
+    #combinedTable thead tr {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+    #combinedTable thead tr:first-child th,
+    #combinedTable thead tr:nth-child(2) th {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
+        color: #fff !important;
+        z-index: 3;
+    }
+    /* Optional: Add a subtle shadow below sticky header */
+    #combinedTable thead {
+        box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+    }
     </style>
 </head>
 <body>
@@ -634,7 +668,8 @@
         <h3>VEHICLE MANAGEMENT FOR FEEDMILL DIVISION</h3>
     </header>
     <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
-        <i class="fas fa-sign-out-alt"></i> Logout
+        <i class="fas fa-sign-out-alt"></i>
+        <span style="margin-left:8px;">Logout</span>
     </button>
     <div class="main-content">
         <div style="width:100vw;max-width:none;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;gap:12px;margin-top:18px;padding:0 2vw;">
@@ -685,7 +720,7 @@
                 <p id="allCount" class="status-count-number">0</p>
             </div>
         </div>
-        <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
+        <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;overflow-x:auto;overflow-y:auto;max-height:70vh;">
             <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
@@ -743,6 +778,9 @@
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
             <form id="columnFilterForm">
                 <!-- Checkboxes will be dynamically populated here -->
+                <label><input type="checkbox" id="group1Checkbox"> Policy Columns</label><br>
+                <label><input type="checkbox" id="group2Checkbox"> Maintenance Columns</label><br>
+                <label><input type="checkbox" id="group3Checkbox"> GPS Columns</label>
             </form>
             <div class="column-filter-buttons">
                 <button id="saveColumnFilterBtn" type="button">Save</button>
@@ -1085,6 +1123,92 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
+
+        // Column filter modal logic
+    document.addEventListener('DOMContentLoaded', function () {
+        const columnFilterBtn = document.getElementById('columnFilterBtn');
+        const columnFilterModal = document.getElementById('columnFilterModal');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
+        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
+        const table = document.getElementById('combinedTable');
+
+        // Define column groups
+        const columnGroups = [
+            {
+                id: 'group1',
+                label: 'Policy Columns',
+                columns: ['#', 'Vehicle Number', 'Policy Type', 'Policy Number', 'Renewal Date(Vehicles)', 'Status (I)']
+            },
+            {
+                id: 'group2',
+                label: 'Maintenance Columns',
+                columns: ['Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status']
+            },
+            {
+                id: 'group3',
+                label: 'GPS Columns',
+                columns: ['Vehicle Number', 'GPS', 'Renewal Date(GPS)']
+            }
+        ];
+
+        // Helper: get header index by name
+        function getHeaderIndexes(names) {
+            const headers = Array.from(table.querySelectorAll('thead tr:nth-child(2) th'));
+            return names.map(name => headers.findIndex(th => th.textContent.trim() === name)).filter(idx => idx !== -1);
+        }
+
+        // Populate checkboxes
+        columnFilterForm.innerHTML = `
+            <label><input type="checkbox" id="group1Checkbox"> Policy Columns</label><br>
+            <label><input type="checkbox" id="group2Checkbox"> Maintenance Columns</label><br>
+            <label><input type="checkbox" id="group3Checkbox"> GPS Columns</label>
+        `;
+
+        // Show modal
+        columnFilterBtn.onclick = () => {
+            columnFilterModal.style.display = 'flex';
+        };
+        cancelColumnFilterBtn.onclick = () => {
+            columnFilterModal.style.display = 'none';
+        };
+
+        // Save selection
+        saveColumnFilterBtn.onclick = () => {
+            // Hide all columns first
+            const headers = Array.from(table.querySelectorAll('thead tr:nth-child(2) th'));
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            headers.forEach((th, idx) => th.style.display = 'none');
+            rows.forEach(row => Array.from(row.cells).forEach(cell => cell.style.display = 'none'));
+
+            // Show selected columns
+            columnGroups.forEach((group, i) => {
+                const checked = document.getElementById(`group${i+1}Checkbox`).checked;
+                if (checked) {
+                    const idxs = getHeaderIndexes(group.columns);
+                    idxs.forEach(idx => {
+                        if (headers[idx]) headers[idx].style.display = '';
+                        rows.forEach(row => {
+                            if (row.cells[idx]) row.cells[idx].style.display = '';
+                        });
+                    });
+                }
+            });
+
+            columnFilterModal.style.display = 'none';
+        };
+
+        // Optional: When opening modal, check which columns are visible and set checkboxes accordingly
+        columnFilterBtn.addEventListener('click', () => {
+            columnGroups.forEach((group, i) => {
+                const idxs = getHeaderIndexes(group.columns);
+                const headers = Array.from(table.querySelectorAll('thead tr:nth-child(2) th'));
+                // If all columns in group are visible, check the box
+                const allVisible = idxs.every(idx => headers[idx] && headers[idx].style.display !== 'none');
+                document.getElementById(`group${i+1}Checkbox`).checked = allVisible;
+            });
+        });
+    });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1092,7 +1216,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="export.js"></script>
-
+</body>
+</html>
 
 
 
