@@ -747,10 +747,7 @@
     <div class="main-content">
         <!-- Report Selection Checkboxes -->
         <div id="reportSelection" style="margin-bottom: 24px; display: flex; gap: 18px; align-items: center;">
-            <label><input type="checkbox" id="insuranceReport"> Insurance Report</label>
-            <label><input type="checkbox" id="maintenanceReport"> Maintenance Report</label>
-            <label><input type="checkbox" id="gpsReport"> GPS Report</label>
-            <button id="saveReportSelection" type="button">Save</button>
+            <!-- Moved to modal below -->
         </div>
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
@@ -832,7 +829,11 @@
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
             <form id="columnFilterForm">
-                <!-- Checkboxes will be dynamically populated here -->
+                <div id="reportSelectionModal" style="margin-bottom: 18px; display: flex; gap: 18px; align-items: center; justify-content: center;">
+                    <label><input type="checkbox" id="insuranceReport"> Insurance Report</label>
+                    <label><input type="checkbox" id="maintenanceReport"> Maintenance Report</label>
+                    <label><input type="checkbox" id="gpsReport"> GPS Report</label>
+                </div>
             </form>
             <div class="column-filter-buttons">
                 <button id="saveColumnFilterBtn" type="button">Save</button>
@@ -1250,7 +1251,10 @@
 
         // ...existing code...
 
-        // Dynamic table header logic
+    // --- Dynamic table header and data logic ---
+    // Use this variable to store your real data from the backend/database
+    let allTableData = [];
+
         function setTableHeaders(reportType) {
             const thead = document.getElementById('dynamicTableHead');
             let headerRow = '';
@@ -1265,6 +1269,8 @@
                 </tr>`;
             } else if (reportType === 'maintenance') {
                 headerRow = `<tr>
+                    <th>#</th>
+                    <th>Vehicle Number</th>
                     <th>Service Type</th>
                     <th>Opening KM</th>
                     <th>Closing KM</th>
@@ -1275,7 +1281,9 @@
                 </tr>`;
             } else if (reportType === 'gps') {
                 headerRow = `<tr>
-                    <th>Vehicle Number GPS</th>
+                    <th>#</th>
+                    <th>Vehicle Number</th>
+                    <th>GPS</th>
                     <th>Renewal Date(GPS)</th>
                 </tr>`;
             } else {
@@ -1301,22 +1309,82 @@
             thead.innerHTML = headerRow;
         }
 
-        // Save button logic
+        function setTableBody(reportType) {
+            const tbody = document.querySelector('#combinedTable tbody');
+            let rows = '';
+            if (reportType === 'insurance') {
+                allTableData.filter(d => d.type === 'insurance').forEach(d => {
+                    rows += `<tr>
+                        <td>${d.data.number || ''}</td>
+                        <td>${d.data.vehicleNumber || ''}</td>
+                        <td>${d.data.policyType || ''}</td>
+                        <td>${d.data.policyNumber || ''}</td>
+                        <td>${d.data.renewalDate || ''}</td>
+                        <td>${d.data.statusI || ''}</td>
+                    </tr>`;
+                });
+            } else if (reportType === 'maintenance') {
+                allTableData.filter(d => d.type === 'maintenance').forEach(d => {
+                    rows += `<tr>
+                        <td>${d.data.number || ''}</td>
+                        <td>${d.data.vehicleNumber || ''}</td>
+                        <td>${d.data.serviceType || ''}</td>
+                        <td>${d.data.openingKM || ''}</td>
+                        <td>${d.data.closingKM || ''}</td>
+                        <td>${d.data.kmDriven || ''}</td>
+                        <td>${d.data.remarks || ''}</td>
+                        <td>${d.data.lastServiceDate || ''}</td>
+                        <td>${d.data.status || ''}</td>
+                    </tr>`;
+                });
+            } else if (reportType === 'gps') {
+                allTableData.filter(d => d.type === 'gps').forEach(d => {
+                    rows += `<tr>
+                        <td>${d.data.number || ''}</td>
+                        <td>${d.data.vehicleNumber || ''}</td>
+                        <td>${d.data.gps || ''}</td>
+                        <td>${d.data.renewalDateGPS || ''}</td>
+                    </tr>`;
+                });
+            } else {
+                // Show all data (empty by default)
+            }
+            tbody.innerHTML = rows;
+        }
+
+        // Modal open/close logic and Save button for column filter
         document.addEventListener('DOMContentLoaded', function() {
             setTableHeaders(); // Default
-            document.getElementById('saveReportSelection').addEventListener('click', function() {
+            setTableBody(); // Default
+
+            // Show modal when Select Columns button is clicked
+            document.getElementById('columnFilterBtn').addEventListener('click', function() {
+                document.getElementById('columnFilterModal').style.display = 'flex';
+            });
+            // Hide modal when Cancel is clicked
+            document.getElementById('cancelColumnFilterBtn').addEventListener('click', function() {
+                document.getElementById('columnFilterModal').style.display = 'none';
+            });
+
+            // Save button in modal
+            document.getElementById('saveColumnFilterBtn').addEventListener('click', function() {
                 const insurance = document.getElementById('insuranceReport').checked;
                 const maintenance = document.getElementById('maintenanceReport').checked;
                 const gps = document.getElementById('gpsReport').checked;
                 if (insurance) {
                     setTableHeaders('insurance');
+                    setTableBody('insurance');
                 } else if (maintenance) {
                     setTableHeaders('maintenance');
+                    setTableBody('maintenance');
                 } else if (gps) {
                     setTableHeaders('gps');
+                    setTableBody('gps');
                 } else {
                     setTableHeaders(); // Default
+                    setTableBody(); // Default
                 }
+                document.getElementById('columnFilterModal').style.display = 'none';
             });
         });
     </script>
