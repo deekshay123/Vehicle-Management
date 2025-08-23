@@ -369,46 +369,97 @@
         backdrop-filter: blur(4px);
     }
     .column-filter-content {
-        background: #fff;
-        border: 1.5px solid #c7d0e1;
-        border-radius: 14px;
-        box-shadow: 0 8px 32px rgba(44,83,100,0.13);
-        padding: 32px 36px 24px 36px;
-        min-width: 320px;
-        max-width: 96vw;
-        text-align: center;
-        animation: fadeInScale 0.25s;
-        border: 1.5px solid #e3eaf2;
-        animation: popIn 0.4s cubic-bezier(.77,0,.18,1);
+        box-shadow: 0 8px 32px rgba(44,83,100,0.18);
+        border-radius: 18px;
+        padding: 36px 44px 28px 44px;
+        min-width:340px;
+        background: #f8fafc;
     }
-    @keyframes fadeInScale {
-        from { opacity: 0; transform: scale(0.92);}
-        to { opacity: 1; transform: scale(1);}
+    #columnFilterTitle {
+        color: #1e70a7;
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 24px;
     }
-    .column-filter-content h3 {
-        margin-bottom: 18px;
-        color: #2b5876;
-        font-weight: 700;
-        font-size: 1.15rem;
-        text-shadow: none;
-    }
-    .column-filter-buttons {
-        margin-top: 18px;
+    /* --- Radio Button Toggle Style --- */
+    .preset-radio-label {
         display: flex;
-        gap: 18px;
-        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        margin: 0 4px;
     }
-    .column-filter-buttons button {
+    .preset-radio {
+        display: none;
+    }
+    .preset-radio-btn {
+        padding: 8px 22px;
+        border-radius: 8px;
+        background: #e3eaf2;
+        color: #1e70a7;
+        font-weight: 700;
+        font-size: 1rem;
+        border: 2px solid #e3eaf2;
+        transition: background 0.18s, color 0.18s, border 0.18s;
+        box-shadow: 0 2px 8px rgba(44,83,100,0.06);
+    }
+    .preset-radio:checked + .preset-radio-btn {
         background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+        color: #fff;
+        border: 2px solid #1e70a7;
+        box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    }
+    .preset-radio-btn:hover, .preset-radio-btn:focus {
+        background: #dbeafe;
+        color: #2980b9;
+        border: 2px solid #2980b9;
+    }
+    /* --- Checkbox Style --- */
+    #columnFilterForm label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #25324b;
+        cursor: pointer;
+        transition: background 0.15s;
+        border-radius: 6px;
+        padding: 4px 8px;
+    }
+    #columnFilterForm label:hover {
+        background: #e3eaf2;
+    }
+    #columnFilterForm input[type="checkbox"] {
+        accent-color: #2980b9;
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 2px solid #c7d0e1;
+        transition: accent-color 0.18s;
+        cursor: pointer;
+    }
+    #columnFilterForm input[type="checkbox"]:focus {
+        outline: 2px solid #43cea2;
+    }
+    /* --- Modal Button Style --- */
+    .column-filter-buttons button {
+        padding: 10px 28px;
+        font-size: 1rem;
+        border-radius: 8px;
+        font-weight: 700;
         border: 1.5px solid #c7d0e1;
+        background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
         color: #fff;
         box-shadow: 0 2px 8px rgba(44,83,100,0.08);
-        text-shadow: none;
+        margin: 0 8px;
+        transition: background 0.18s, border 0.18s;
     }
-    .column-filter-buttons button:hover {
+    .column-filter-buttons button:hover, .column-filter-buttons button:focus {
         background: linear-gradient(90deg, #43cea2 0%, #2b5876 100%);
-        border: 1.5px solid #8fa1c7;
-        box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+        border: 1.5px solid #1e70a7;
+        color: #fff;
     }
     /* Notification */
     .notification {
@@ -731,14 +782,29 @@
     </div>
     <!-- ===== Column Selection Modal ===== -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
-        <div class="column-filter-content">
-            <h3 id="columnFilterTitle">Select Columns to Display</h3>
-            <form id="columnFilterForm">
+        <div class="column-filter-content" style="box-shadow: 0 8px 32px rgba(44,83,100,0.18); border-radius: 18px; padding: 36px 44px 28px 44px; min-width:340px;">
+            <h3 id="columnFilterTitle" style="margin-bottom: 24px; color: #1e70a7; font-size: 1.25rem; font-weight: 800; letter-spacing: 1px;">Select Columns to Display</h3>
+            <!-- Professional radio buttons for quick selection -->
+            <div id="columnPresetRadios" style="display:flex;justify-content:center;gap:18px;margin-bottom:24px;">
+                <label class="preset-radio-label">
+                    <input type="radio" name="columnPreset" value="policy" checked class="preset-radio" />
+                    <span class="preset-radio-btn">Policy</span>
+                </label>
+                <label class="preset-radio-label">
+                    <input type="radio" name="columnPreset" value="maintenance" class="preset-radio" />
+                    <span class="preset-radio-btn">Maintenance</span>
+                </label>
+                <label class="preset-radio-label">
+                    <input type="radio" name="columnPreset" value="gps" class="preset-radio" />
+                    <span class="preset-radio-btn">GPS</span>
+                </label>
+            </div>
+            <form id="columnFilterForm" style="margin-bottom: 18px;">
                 <!-- Checkboxes will be dynamically populated here -->
             </form>
-            <div class="column-filter-buttons">
-                <button id="saveColumnFilterBtn" type="button">Save</button>
-                <button id="cancelColumnFilterBtn" type="button">Cancel</button>
+            <div class="column-filter-buttons" style="margin-top: 24px;">
+                <button id="saveColumnFilterBtn" type="button" style="min-width:100px;">Save</button>
+                <button id="cancelColumnFilterBtn" type="button" style="min-width:100px;">Cancel</button>
             </div>
         </div>
     </div>
@@ -1075,17 +1141,50 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
+
+        // Column sets for presets
+        const columnPresets = {
+            policy: [
+                "#", "Vehicle Number", "Policy Type", "Policy Number", "Renewal Date(Vehicles)", "Status (I)"
+            ],
+            maintenance: [
+                "#", "Vehicle Number", "Service Type", "Opening KM", "Closing KM", "Km Driven", "Remarks", "Last Service Date", "Status"
+            ],
+            gps: [
+                "Vehicle Number", "GPS", "Renewal Date(GPS)"
+            ]
+        };
+
+        // Dynamically update checkboxes based on selected preset
+        function updateColumnCheckboxes(presetKey) {
+            const form = document.getElementById('columnFilterForm');
+            form.innerHTML = '';
+            const columns = columnPresets[presetKey];
+            columns.forEach(col => {
+                const id = 'col_' + col.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" id="${id}" name="columns" value="${col}" checked />
+                    <span>${col}</span>
+                `;
+                form.appendChild(label);
+            });
+        }
+
+        // Listen for radio button changes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup column preset radios
+            const radios = document.querySelectorAll('input[name="columnPreset"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateColumnCheckboxes(this.value);
+                });
+            });
+            // Initialize with default (policy)
+            updateColumnCheckboxes('policy');
+        });
     </script>
     <!-- External Scripts -->
-    <script src="scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="export.js"></script>
-</body>
-</html>
-    </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
