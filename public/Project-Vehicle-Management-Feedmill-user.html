@@ -1176,64 +1176,74 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-    // Column Filter Modal: Clean checkbox rendering
+    // Column Filter Modal: Clean checkbox rendering and dynamic update after data changes
+    function renderColumnFilterCheckboxes() {
+        const table = document.getElementById('combinedTable');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
+        columnFilterForm.innerHTML = ''; // Clear previous
+
+        headerCells.forEach((th, idx) => {
+            const colName = th.textContent.trim();
+            const checked = th.style.display !== 'none';
+            const id = `colFilter_${idx}`;
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.marginBottom = '8px';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = id;
+            checkbox.name = 'columns';
+            checkbox.value = idx;
+            checkbox.checked = checked;
+            checkbox.style.marginRight = '8px';
+
+            const label = document.createElement('label');
+            label.htmlFor = id;
+            label.textContent = colName;
+            label.style.fontWeight = '500';
+
+            wrapper.appendChild(checkbox);
+            wrapper.appendChild(label);
+            columnFilterForm.appendChild(wrapper);
+        });
+    }
+
+    function applyColumnFilter() {
+        const table = document.getElementById('combinedTable');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            const idx = parseInt(cb.value, 10);
+            const th = table.querySelectorAll('thead tr:nth-child(2) th')[idx];
+            th.style.display = cb.checked ? '' : 'none';
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                if (tr.cells[idx]) tr.cells[idx].style.display = cb.checked ? '' : 'none';
+            });
+        });
+    }
+
+    // Call this after adding/updating table data to reapply column filter
+    window.updateColumnFilterAfterDataChange = function() {
+        renderColumnFilterCheckboxes();
+        applyColumnFilter();
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         const columnFilterBtn = document.getElementById('columnFilterBtn');
         const columnFilterModal = document.getElementById('columnFilterModal');
-        const columnFilterForm = document.getElementById('columnFilterForm');
         const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
         const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
-        const table = document.getElementById('combinedTable');
 
         columnFilterBtn.addEventListener('click', function() {
-            // Get headers from the second row of thead
-            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-            columnFilterForm.innerHTML = ''; // Clear previous
-
-            // Render checkboxes vertically, clean format
-            headerCells.forEach((th, idx) => {
-                const colName = th.textContent.trim();
-                const checked = th.style.display !== 'none';
-                const id = `colFilter_${idx}`;
-                // Create wrapper div for spacing
-                const wrapper = document.createElement('div');
-                wrapper.style.display = 'flex';
-                wrapper.style.alignItems = 'center';
-                wrapper.style.marginBottom = '8px';
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = id;
-                checkbox.name = 'columns';
-                checkbox.value = idx;
-                checkbox.checked = checked;
-                checkbox.style.marginRight = '8px';
-
-                const label = document.createElement('label');
-                label.htmlFor = id;
-                label.textContent = colName;
-                label.style.fontWeight = '500';
-
-                wrapper.appendChild(checkbox);
-                wrapper.appendChild(label);
-                columnFilterForm.appendChild(wrapper);
-            });
-
+            renderColumnFilterCheckboxes();
             columnFilterModal.style.display = 'flex';
         });
 
         saveColumnFilterBtn.addEventListener('click', function() {
-            const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                const idx = parseInt(cb.value, 10);
-                const th = table.querySelectorAll('thead tr:nth-child(2) th')[idx];
-                // Show/hide header
-                th.style.display = cb.checked ? '' : 'none';
-                // Show/hide all cells in this column
-                table.querySelectorAll('tbody tr').forEach(tr => {
-                    if (tr.cells[idx]) tr.cells[idx].style.display = cb.checked ? '' : 'none';
-                });
-            });
+            applyColumnFilter();
             columnFilterModal.style.display = 'none';
         });
 
@@ -1241,15 +1251,19 @@ document.addEventListener('DOMContentLoaded', function() {
             columnFilterModal.style.display = 'none';
         });
     });
-    </script>
+
+    // Example: Call window.updateColumnFilterAfterDataChange() after adding data
+    // If you have a function that adds rows, call this at the end:
+    // window.updateColumnFilterAfterDataChange();
+
+    // ...existing code...
+</script>
+<!-- ...existing code... -->
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="export.js"></script>
-</body>
-</html>
     <script src="export.js"></script>
 </body>
 </html>
