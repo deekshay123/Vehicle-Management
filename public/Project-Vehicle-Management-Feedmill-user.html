@@ -1041,25 +1041,23 @@
                     lineWidth: 0.5,
                     lineColor: [0, 0, 0],
                     fontSize: 10,
+                    halign: 'center', // <-- Center align all data cells
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
-                    // Remove halign from columnStyles for headers, only set for body cells if needed
+                    acc[header] = { cellWidth: 'auto', fontStyle: 'bold', halign: 'center' }; // <-- Center align each column
                     if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
+                        acc[header].textColor = [143, 0, 255]; // Violet
                     } else if (header === 'Status') {
-                        acc[header] = { cellWidth: 'auto', fontStyle: 'bold' };
-                    } else {
-                        acc[header] = { cellWidth: 'auto', fontStyle: 'bold' };
+                        acc[header].textColor = [30, 112, 167]; // Blue
                     }
                     return acc;
                 }, {}),
                 headStyles: headers.reduce((acc, header) => {
-                    // Explicitly center align all headers
                     acc[header] = { 
                         fillColor: [41, 128, 185], 
                         textColor: 255, 
                         fontStyle: 'bold', 
-                        halign: 'center', 
+                        halign: 'center', // <-- Center align header cells
                         font: 'helvetica', 
                         fontSize: 10 
                     };
@@ -1174,5 +1172,7 @@
 </body>
 </html>
     <script src="export.js"></script>
+</body>
+</html>
 </body>
 </html>
