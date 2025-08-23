@@ -100,9 +100,10 @@
         transform: scale(0.98);
     }
     #logoutBtn {
-        position: fixed;
-        top: 16px;
-        right: 16px;
+        position: static;
+        float: right;
+        margin-top: 0;
+        margin-right: 0;
         background: linear-gradient(90deg, #e96443 0%, #904e95 100%);
         color: #fff;
         font-size: 1rem;
@@ -587,8 +588,6 @@
             font-size: 0.95rem;
         }
         #logoutBtn {
-            top: 12px;
-            right: 12px;
             font-size: 0.95rem;
             padding: 6px 10px;
         }
@@ -655,21 +654,29 @@
 #combinedTable thead tr:last-child th {
     border-bottom: 1.5px solid #c7d0e1;
 }
+.logout-btn-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 2em; /* moved down by 0.2em */
+    margin-bottom: 15px;
+    padding: 0 2vw;
+    box-sizing: border-box;
+}
     </style>
 </head>
 <body>
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR FEEDMILL DIVISION</h3>
     </header>
-    <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
+    <!-- Move logout button here, inside a wrapper -->
+    <div class="logout-btn-wrapper">
+        <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
     <div class="main-content">
-        <div style="width:100vw;max-width:none;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;gap:12px;margin-top:18px;padding:0 2vw;">
-            <!-- <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button> -->
-        </div>
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
@@ -1006,17 +1013,18 @@
                     fontSize: 10,
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
+                    // Remove halign from columnStyles for headers, only set for body cells if needed
                     if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
+                        acc[header] = { cellWidth: 'auto', fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
                     } else if (header === 'Status') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fontStyle: 'bold' }; // Remove blue header color, match others
+                        acc[header] = { cellWidth: 'auto', fontStyle: 'bold' };
                     } else {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
+                        acc[header] = { cellWidth: 'auto', fontStyle: 'bold' };
                     }
                     return acc;
                 }, {}),
                 headStyles: headers.reduce((acc, header) => {
-                    // Make Status header same as others
+                    // Explicitly center align all headers
                     acc[header] = { 
                         fillColor: [41, 128, 185], 
                         textColor: 255, 
@@ -1121,6 +1129,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
     <script src="export.js"></script>
 </body>
 </html>
