@@ -1432,7 +1432,7 @@
             });
         }
 
-        // Add highlight logic for quick-select buttons
+        // Highlight logic for quick-select buttons (remains unchanged)
         const quickBtns = [insuranceReportBtn, maintenanceReportBtn, gpsReportBtn];
 
         quickBtns.forEach(btn => {
@@ -1445,7 +1445,56 @@
             }
         });
     });
-    </script>
+
+    // Ensure quick-select highlight logic works after table data is loaded/reloaded
+    function reapplyQuickSelectHighlight() {
+        const quickBtns = [
+            document.getElementById('insuranceReportBtn'),
+            document.getElementById('maintenanceReportBtn'),
+            document.getElementById('gpsReportBtn')
+        ];
+        quickBtns.forEach(btn => {
+            if (btn && !btn.classList.contains('report-quick-btn')) {
+                btn.classList.add('report-quick-btn');
+            }
+            // Remove duplicate event listeners by replacing with a new one
+            if (btn) {
+                btn.onclick = function() {
+                    quickBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                };
+            }
+        });
+    }
+
+    // Call reapplyQuickSelectHighlight after data is loaded/reloaded
+    window.loadTableData = function() {
+        // ...your data loading logic...
+        // After table data is loaded:
+        reapplyQuickSelectHighlight();
+        // ...existing code...
+    };
+
+    // Also call after reloadTableData
+    async function reloadTableData() {
+        showLoadingOverlay();
+        try {
+            // ...existing code for loading data...
+            if (typeof window.loadTableData === 'function') {
+                await window.loadTableData();
+            }
+            // Reapply quick-select highlight after reload
+            reapplyQuickSelectHighlight();
+            // ...existing code...
+        } catch (err) {
+            alert('Failed to reload data.');
+        } finally {
+            hideLoadingOverlay();
+        }
+    }
+
+    // ...existing code...
+</script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
