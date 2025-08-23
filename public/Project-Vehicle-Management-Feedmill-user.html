@@ -4,9 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Vehicle and Maintenance Tables</title>
+    <!-- External Stylesheets -->
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="custom_styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <!-- Inline Styles -->
     <style>
     body {
         min-height: 100vh;
@@ -101,35 +103,26 @@
     }
     #logoutBtn {
         position: fixed;
-        top: 24px;
-        right: 32px;
+        top: 16px;
+        right: 16px;
         background: linear-gradient(90deg, #e96443 0%, #904e95 100%);
         color: #fff;
-        font-size: 1.08rem;
-        padding: 12px 28px;
-        z-index: 1101;
-        box-shadow: 0 4px 16px rgba(229,115,115,0.18);
-        border: 2px solid #fbeee6;
+        font-size: 1rem;
+        padding: 10px 22px;
+        z-index: 1001;
+        box-shadow: 0 2px 8px rgba(229,115,115,0.10);
+        border: 1.5px solid #fbeee6;
         display: flex !important;
         align-items: center;
         opacity: 1;
         visibility: visible;
-        border-radius: 12px;
-        transition: box-shadow 0.2s, background 0.2s, border 0.2s;
-    }
-    #logoutBtn:hover, #logoutBtn:focus {
-        background: linear-gradient(90deg, #904e95 0%, #e96443 100%);
-        box-shadow: 0 8px 24px rgba(229,115,115,0.22);
-        border: 2px solid #e96443;
-        color: #fff;
-        outline: none;
     }
     @media (max-width: 700px) {
         #logoutBtn {
-            top: 10px;
-            right: 10px;
-            font-size: 0.98rem;
-            padding: 8px 16px;
+            top: 8px;
+            right: 8px;
+            font-size: 0.95rem;
+            padding: 6px 10px;
         }
     }
     #toggleFormBtn {
@@ -177,8 +170,6 @@
         max-width: 99vw;
         width: 99vw;
         overflow-x: auto;
-        overflow-y: auto;
-        max-height: 70vh;
         transition: box-shadow 0.3s;
         position: relative;
         z-index: 1;
@@ -638,77 +629,35 @@
         color: #1e70a7 !important; /* Keep data blue as before */
         font-weight: bold !important;
     }
-    /* Sticky table header styles */
-    .table-container {
-        overflow-x: auto;
-        overflow-y: auto;
-        max-height: 70vh;
-    }
-    #combinedTable thead tr {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-    }
-    #combinedTable thead tr:first-child th,
-    #combinedTable thead tr:nth-child(2) th {
-        position: sticky;
-        top: 0;
-        background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
-        color: #fff !important;
-        z-index: 3;
-    }
-    /* Optional: Add a subtle shadow below sticky header */
-    #combinedTable thead {
-        box-shadow: 0 2px 8px rgba(44,83,100,0.10);
-    }
-    /* Highlighted/selected status box */
-    .status-count-box.selected {
-        box-shadow: 0 8px 32px rgba(44,83,100,0.22);
-        border: 2px solid #2980b9;
-        background: linear-gradient(120deg, #e3eaf2 60%, #c7d0e1 100%);
-        transform: scale(1.05);
-    }
     </style>
 </head>
 <body>
+    <!-- ===== Header ===== -->
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR FEEDMILL DIVISION</h3>
     </header>
+    <!-- ===== Logout Button ===== -->
     <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
-        <i class="fas fa-sign-out-alt"></i>
-        <span style="margin-left:8px;">Logout</span>
+        <i class="fas fa-sign-out-alt"></i> Logout
     </button>
     <div class="main-content">
-        <div style="width:100vw;max-width:none;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;gap:12px;margin-top:18px;padding:0 2vw;">
-            <!-- <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button> -->
+        <!-- ===== Top Controls ===== -->
+        <div class="top-controls" style="width:100vw;max-width:none;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;gap:12px;margin-top:18px;padding:0 2vw;">
+            <!-- Reserved for future controls -->
         </div>
+        <!-- ===== Toggle Form Button ===== -->
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
+        <!-- ===== Entry Form (hidden by default) ===== -->
         <form
             id="combinedForm"
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
             onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
         >
-            <!-- <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
-            <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
-            <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
-            <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
-            <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
-            <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
-            <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
-            <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
-            <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
-            <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-             <div class="form-group">
-                <label for="renewalDate2">GPS Renewal</label>
-                <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
-            </div> -->
-            <!-- <button type="submit">Add Entry</button> -->
+            <!-- Form fields go here -->
         </form>
-        <!-- Status count boxes -->
+        <!-- ===== Status Count Boxes ===== -->
         <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
             <div id="activeCountBox" class="status-count-box active-box">
                 <h3>Active</h3>
@@ -727,7 +676,9 @@
                 <p id="allCount" class="status-count-number">0</p>
             </div>
         </div>
-        <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;overflow-x:auto;overflow-y:auto;max-height:70vh;">
+        <!-- ===== Table Container ===== -->
+        <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
+            <!-- ===== Table Controls ===== -->
             <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
@@ -745,13 +696,13 @@
                     </button>
                 </div>
             </div>
+            <!-- ===== Table ===== -->
             <div style="width:100%;overflow-x:auto;">
                 <table id="combinedTable" style="width:100%;min-width:600px;">
                     <thead>
                         <tr>
                             <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
                             <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-        <!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
                         </tr>
                         <tr>
                             <th>#</th>
@@ -769,25 +720,21 @@
                             <th style="text-align: center;">Status</th>
                             <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
                             <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
-                            <!-- <th>Actions</th> -->
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-            <!-- Pagination controls -->
+            <!-- ===== Pagination Controls ===== -->
             <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center; width:100%;"></div>
         </div>
     </div>
-    <!-- Column selection modal -->
+    <!-- ===== Column Selection Modal ===== -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
             <form id="columnFilterForm">
                 <!-- Checkboxes will be dynamically populated here -->
-                <label><input type="checkbox" id="group1Checkbox"> Policy Columns</label><br>
-                <label><input type="checkbox" id="group2Checkbox"> Maintenance Columns</label><br>
-                <label><input type="checkbox" id="group3Checkbox"> GPS Columns</label>
             </form>
             <div class="column-filter-buttons">
                 <button id="saveColumnFilterBtn" type="button">Save</button>
@@ -795,11 +742,9 @@
             </div>
         </div>
     </div>
-
-    <!-- Notification container -->
+    <!-- ===== Notification Container ===== -->
     <div id="notification" class="notification" role="alert" aria-live="assertive" aria-atomic="true" style="display:none;"></div>
-
-    <!-- Confirmation dialog container -->
+    <!-- ===== Confirmation Dialog ===== -->
     <div id="confirmDialog" class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogDesc" style="display:none;">
         <div class="confirm-dialog-content">
             <h3 id="confirmDialogTitle">Confirm Deletion</h3>
@@ -816,125 +761,153 @@
             </form>
         </div>
     </div>
-
+    <!-- ===== Scripts ===== -->
     <script>
-     // * Export table data to PDF using jsPDF and autoTable with plugin availability check
-    function exportTableToPDF() {
-        try {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'pt', 'a4');
+        // Export table data to PDF using jsPDF and autoTable
+        function exportTableToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'pt', 'a4');
 
-            if (typeof doc.autoTable !== 'function') {
-                alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
-                return;
-            }
-
-            const table = document.getElementById('combinedTable');
-            // Get visible header cells from the second row of thead
-            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-            const visibleColumns = [];
-            let headers = [];
-            // Get visible headers from table
-            for (let i = 0; i < headerCells.length; i++) {
-                if (headerCells[i].style.display !== 'none') {
-                    visibleColumns.push(i);
-                    headers.push(headerCells[i].textContent.trim());
+                if (typeof doc.autoTable !== 'function') {
+                    alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
+                    return;
                 }
-            }
-            // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
-            const insertAfter = (arr, afterKey, newKey) => {
-                const idx = arr.indexOf(afterKey);
-                if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
-            };
-            insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
-            insertAfter(headers, 'Vehicle Type', 'Make-Model');
-            // Do NOT add Division yet
 
-            // Collect all row data first
-            const rows = table.querySelectorAll('tbody tr');
-            let allRows = [];
-            let divisionExists = false;
-            rows.forEach((row, index) => {
-                if (row.style.display === 'none') return;
-                const cells = row.cells;
-                const rowData = {};
-                // Parse Vehicle Number for Division, Make-Model, Vehicle Type
-                let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
-                let vehicleNumber = '';
-                let makeModelArr = [];
-                let division = '';
-                let vehicleType = '';
-                const parts = vehicleNumberFull.split('[');
-                vehicleNumber = parts[0].trim();
-                for (let i = 1; i < parts.length; i++) {
-                    const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
-                        division = `[${part}]`;
-                        divisionExists = true;
-                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
-                        vehicleType = `[${part.toUpperCase()}]`;
-                    } else {
-                        makeModelArr.push(`[${part}]`);
+                const table = document.getElementById('combinedTable');
+                // Get visible header cells from the second row of thead
+                const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
+                const visibleColumns = [];
+                let headers = [];
+                // Get visible headers from table
+                for (let i = 0; i < headerCells.length; i++) {
+                    if (headerCells[i].style.display !== 'none') {
+                        visibleColumns.push(i);
+                        headers.push(headerCells[i].textContent.trim());
                     }
                 }
-                headers.forEach((header, hIdx) => {
-                    switch(header) {
-                        case '#': rowData[header] = (index + 1).toString(); break;
-                        case 'Vehicle Number': 
-                            // Apply the same styling as in the HTML table
-                            rowData[header] = vehicleNumber; 
-                            break;
-                        case 'Vehicle Type': rowData[header] = vehicleType; break;
-                        case 'Division': rowData[header] = division; break;
-                        case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
-                        default:
-                            let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
-                            rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
+                // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
+                const insertAfter = (arr, afterKey, newKey) => {
+                    const idx = arr.indexOf(afterKey);
+                    if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
+                };
+                insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
+                insertAfter(headers, 'Vehicle Type', 'Make-Model');
+                // Do NOT add Division yet
+
+                // Collect all row data first
+                const rows = table.querySelectorAll('tbody tr');
+                let allRows = [];
+                let divisionExists = false;
+                rows.forEach((row, index) => {
+                    if (row.style.display === 'none') return;
+                    const cells = row.cells;
+                    const rowData = {};
+                    // Parse Vehicle Number for Division, Make-Model, Vehicle Type
+                    let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
+                    let vehicleNumber = '';
+                    let makeModelArr = [];
+                    let division = '';
+                    let vehicleType = '';
+                    const parts = vehicleNumberFull.split('[');
+                    vehicleNumber = parts[0].trim();
+                    for (let i = 1; i < parts.length; i++) {
+                        const part = parts[i].replace(']', '').trim();
+                        if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
+                            division = `[${part}]`;
+                            divisionExists = true;
+                        } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                            vehicleType = `[${part.toUpperCase()}]`;
+                        } else {
+                            makeModelArr.push(`[${part}]`);
+                        }
                     }
+                    headers.forEach((header, hIdx) => {
+                        switch(header) {
+                            case '#': rowData[header] = (index + 1).toString(); break;
+                            case 'Vehicle Number': 
+                                // Apply the same styling as in the HTML table
+                                rowData[header] = vehicleNumber; 
+                                break;
+                            case 'Vehicle Type': rowData[header] = vehicleType; break;
+                            case 'Division': rowData[header] = division; break;
+                            case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
+                            default:
+                                let colIdx = Array.from(headerCells).findIndex(th => th.textContent.trim() === header);
+                                rowData[header] = cells[colIdx] ? cells[colIdx].textContent.trim() : '';
+                        }
+                    });
+                    // Add helper fields for grouping/sorting
+                    rowData._vehicleType = vehicleType;
+                    rowData._division = division;
+                    // Parse year and month from Renewal Date(Vehicle)
+                    let renewalDate = rowData['Renewal Date(Vehicles)'] || rowData['Renewal Date (Vehicles)'] || '';
+                    let year = 0, month = '';
+                    if (renewalDate) {
+                        const parts = renewalDate.split('-');
+                        if (parts.length === 3) {
+                            month = parts[1];
+                            year = parseInt(parts[2], 10);
+                        }
+                    }
+                    rowData._renewalYear = year;
+                    rowData._renewalMonth = month;
+                    allRows.push(rowData);
                 });
-                // Add helper fields for grouping/sorting
-                rowData._vehicleType = vehicleType;
-                rowData._division = division;
-                // Parse year and month from Renewal Date(Vehicle)
-                let renewalDate = rowData['Renewal Date(Vehicles)'] || rowData['Renewal Date (Vehicles)'] || '';
-                let year = 0, month = '';
-                if (renewalDate) {
-                    const parts = renewalDate.split('-');
-                    if (parts.length === 3) {
-                        month = parts[1];
-                        year = parseInt(parts[2], 10);
-                    }
+
+                // Only add Division column if at least one division exists
+                if (divisionExists) {
+                    insertAfter(headers, 'Make-Model', 'Division');
+                } else {
+                    headers = headers.filter(h => h !== 'Division');
+                    allRows.forEach(row => { delete row['Division']; });
                 }
-                rowData._renewalYear = year;
-                rowData._renewalMonth = month;
-                allRows.push(rowData);
-            });
 
-            // Only add Division column if at least one division exists
-            if (divisionExists) {
-                insertAfter(headers, 'Make-Model', 'Division');
-            } else {
-                headers = headers.filter(h => h !== 'Division');
-                allRows.forEach(row => { delete row['Division']; });
-            }
-
-            // Group and sort data, filter out duplicates
-            const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
-            const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            let data = [];
-            let uniqueSet = new Set();
-            typeOrder.forEach(type => {
-                let typeRows = allRows.filter(r => r._vehicleType === type);
-                divisionOrder.forEach(division => {
-                    let divisionRows = typeRows.filter(r => r._division === division);
-                    // Sort by year, then month, then day
-                    divisionRows.sort((a, b) => {
+                // Group and sort data, filter out duplicates
+                const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
+                const divisionOrder = ['[PRO]', '[R.O]', '[H.O]'];
+                const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                let data = [];
+                let uniqueSet = new Set();
+                typeOrder.forEach(type => {
+                    let typeRows = allRows.filter(r => r._vehicleType === type);
+                    divisionOrder.forEach(division => {
+                        let divisionRows = typeRows.filter(r => r._division === division);
+                        // Sort by year, then month, then day
+                        divisionRows.sort((a, b) => {
+                            if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
+                            let aIdx = monthOrder.indexOf(a._renewalMonth);
+                            let bIdx = monthOrder.indexOf(b._renewalMonth);
+                            if (aIdx !== bIdx) return aIdx - bIdx;
+                            // Parse day
+                            let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
+                            let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
+                            let aParts = aDate.split('-');
+                            let bParts = bDate.split('-');
+                            let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
+                            let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
+                            return aDay - bDay;
+                        });
+                        divisionRows.forEach(r => {
+                            // Create a unique key for each row
+                            let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
+                            if (!uniqueSet.has(uniqueKey)) {
+                                uniqueSet.add(uniqueKey);
+                                delete r._vehicleType;
+                                delete r._division;
+                                delete r._renewalYear;
+                                delete r._renewalMonth;
+                                data.push(r);
+                            }
+                        });
+                    });
+                    // Other divisions
+                    let otherDivisionRows = typeRows.filter(r => !divisionOrder.includes(r._division));
+                    otherDivisionRows.sort((a, b) => {
                         if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
                         let aIdx = monthOrder.indexOf(a._renewalMonth);
                         let bIdx = monthOrder.indexOf(b._renewalMonth);
                         if (aIdx !== bIdx) return aIdx - bIdx;
-                        // Parse day
                         let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
                         let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
                         let aParts = aDate.split('-');
@@ -943,8 +916,7 @@
                         let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
                         return aDay - bDay;
                     });
-                    divisionRows.forEach(r => {
-                        // Create a unique key for each row
+                    otherDivisionRows.forEach(r => {
                         let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
                         if (!uniqueSet.has(uniqueKey)) {
                             uniqueSet.add(uniqueKey);
@@ -956,153 +928,126 @@
                         }
                     });
                 });
-                // Other divisions
-                let otherDivisionRows = typeRows.filter(r => !divisionOrder.includes(r._division));
-                otherDivisionRows.sort((a, b) => {
-                    if (a._renewalYear !== b._renewalYear) return a._renewalYear - b._renewalYear;
-                    let aIdx = monthOrder.indexOf(a._renewalMonth);
-                    let bIdx = monthOrder.indexOf(b._renewalMonth);
-                    if (aIdx !== bIdx) return aIdx - bIdx;
-                    let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
-                    let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
-                    let aParts = aDate.split('-');
-                    let bParts = bDate.split('-');
-                    let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
-                    let bDay = bParts.length === 3 ? parseInt(bParts[0], 10) : 0;
-                    return aDay - bDay;
-                });
-                otherDivisionRows.forEach(r => {
-                    let uniqueKey = `${r['Vehicle Number']}_${r['Renewal Date(Vehicles)'] || r['Renewal Date (Vehicles)']}_${r['Division']}_${r['Make-Model']}`;
-                    if (!uniqueSet.has(uniqueKey)) {
-                        uniqueSet.add(uniqueKey);
-                        delete r._vehicleType;
-                        delete r._division;
-                        delete r._renewalYear;
-                        delete r._renewalMonth;
-                        data.push(r);
-                    }
-                });
-            });
 
-            // Helper function to format date as dd-mm-yyyy
-            function formatDateDDMMYYYY(date) {
-                const d = date.getDate().toString().padStart(2, '0');
-                const m = (date.getMonth() + 1).toString().padStart(2, '0');
-                const y = date.getFullYear();
-                return `${d}-${m}-${y}`;
-            }
-
-            // Add heading text above the table with professional styling
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(15);
-            doc.text('BHARATH AGROVET INDUSTRIES-[FEEDMILL]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
-
-            // Add current date below heading
-            const currentDateStr = formatDateDDMMYYYY(new Date());
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(12);
-            doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
-
-            // Generate PDF with autoTable, startY adjusted to leave space for heading and date
-            // Ensure '#' column is serial after filtering and sorting
-            data.forEach((row, idx) => {
-                if (row['#'] !== undefined) {
-                    row['#'] = (idx + 1).toString();
+                // Helper function to format date as dd-mm-yyyy
+                function formatDateDDMMYYYY(date) {
+                    const d = date.getDate().toString().padStart(2, '0');
+                    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const y = date.getFullYear();
+                    return `${d}-${m}-${y}`;
                 }
-            });
-            doc.autoTable({
-                columns: headers.map(header => ({ header: header, dataKey: header })),
-                body: data,
-                startY: 60,
-                styles: {
-                    cellPadding: 4,
-                    lineWidth: 0.5,
-                    lineColor: [0, 0, 0],
-                    fontSize: 10,
-                },
-                columnStyles: headers.reduce((acc, header, index) => {
-                    if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
-                    } else if (header === 'Status') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fontStyle: 'bold' }; // Remove blue header color, match others
-                    } else {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
+
+                // Add heading text above the table with professional styling
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(15);
+                doc.text('BHARATH AGROVET INDUSTRIES-[FEEDMILL]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+
+                // Add current date below heading
+                const currentDateStr = formatDateDDMMYYYY(new Date());
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
+
+                // Generate PDF with autoTable, startY adjusted to leave space for heading and date
+                // Ensure '#' column is serial after filtering and sorting
+                data.forEach((row, idx) => {
+                    if (row['#'] !== undefined) {
+                        row['#'] = (idx + 1).toString();
                     }
-                    return acc;
-                }, {}),
-                headStyles: headers.reduce((acc, header) => {
-                    // Make Status header same as others
-                    acc[header] = { 
-                        fillColor: [41, 128, 185], 
-                        textColor: 255, 
-                        fontStyle: 'bold', 
-                        halign: 'center', 
-                        font: 'helvetica', 
-                        fontSize: 10 
-                    };
-                    return acc;
-                }, {}),
-                alternateRowStyles: {
-                    fillColor: [245, 245, 245]
-                },
-                didParseCell: function (data) {
-                    // Color Status (I) column cells based on value (like UI)
-                    if (data.section === 'body' && data.column && data.column.dataKey === 'Status (I)') {
-                        const val = (data.cell.raw || '').toLowerCase();
-                        // "Active"
-                        if (val.includes('active')) {
-                            data.cell.styles.textColor = [39, 174, 96]; // Green
-                        // "Expiring Soon" or "Expiring"
-                        } else if (val.includes('expiring')) {
-                            data.cell.styles.textColor = [255, 136, 0]; // Orange
-                        // "Expired"
-                        } else if (val.includes('expired')) {
-                            data.cell.styles.textColor = [231, 76, 60]; // Red
-                        // "Inactive"
-                        } else if (val.includes('inactive')) {
-                            data.cell.styles.textColor = [127, 140, 141]; // Gray
-                        // "days left" (e.g., "11 days left")
-                        } else if (val.match(/\d+\s*days?\s*left/)) {
-                            data.cell.styles.textColor = [255, 136, 0]; // Orange (same as "Expiring Soon")
+                });
+                doc.autoTable({
+                    columns: headers.map(header => ({ header: header, dataKey: header })),
+                    body: data,
+                    startY: 60,
+                    styles: {
+                        cellPadding: 4,
+                        lineWidth: 0.5,
+                        lineColor: [0, 0, 0],
+                        fontSize: 10,
+                    },
+                    columnStyles: headers.reduce((acc, header, index) => {
+                        if (header === 'Vehicle Number') {
+                            acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
+                        } else if (header === 'Status') {
+                            acc[header] = { cellWidth: 'auto', halign: 'center', fontStyle: 'bold' }; // Remove blue header color, match others
+                        } else {
+                            acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                         }
-                        // Add more status checks/colors as needed
-                    }
-                    // Color Status (index 12) column cells (header and body) blue
-                    if (data.column && data.column.dataKey === 'Status') {
-                        // Only color body cells blue, not header
-                        if (data.section === 'body') {
-                            data.cell.styles.textColor = [30, 112, 167]; // Blue
+                        return acc;
+                    }, {}),
+                    headStyles: headers.reduce((acc, header) => {
+                        // Make Status header same as others
+                        acc[header] = { 
+                            fillColor: [41, 128, 185], 
+                            textColor: 255, 
+                            fontStyle: 'bold', 
+                            halign: 'center', 
+                            font: 'helvetica', 
+                            fontSize: 10 
+                        };
+                        return acc;
+                    }, {}),
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    },
+                    didParseCell: function (data) {
+                        // Color Status (I) column cells based on value (like UI)
+                        if (data.section === 'body' && data.column && data.column.dataKey === 'Status (I)') {
+                            const val = (data.cell.raw || '').toLowerCase();
+                            // "Active"
+                            if (val.includes('active')) {
+                                data.cell.styles.textColor = [39, 174, 96]; // Green
+                            // "Expiring Soon" or "Expiring"
+                            } else if (val.includes('expiring')) {
+                                data.cell.styles.textColor = [255, 136, 0]; // Orange
+                            // "Expired"
+                            } else if (val.includes('expired')) {
+                                data.cell.styles.textColor = [231, 76, 60]; // Red
+                            // "Inactive"
+                            } else if (val.includes('inactive')) {
+                                data.cell.styles.textColor = [127, 140, 141]; // Gray
+                            // "days left" (e.g., "11 days left")
+                            } else if (val.match(/\d+\s*days?\s*left/)) {
+                                data.cell.styles.textColor = [255, 136, 0]; // Orange (same as "Expiring Soon")
+                            }
+                            // Add more status checks/colors as needed
                         }
+                        // Color Status (index 12) column cells (header and body) blue
+                        if (data.column && data.column.dataKey === 'Status') {
+                            // Only color body cells blue, not header
+                            if (data.section === 'body') {
+                                data.cell.styles.textColor = [30, 112, 167]; // Blue
+                            }
+                        }
+                    },
+                    didDrawPage: function (data) {
+                        // Add a horizontal line above footer
+                        const pageWidth = doc.internal.pageSize.getWidth();
+                        const pageHeight = doc.internal.pageSize.getHeight();
+                        doc.setDrawColor(0);
+                        doc.setLineWidth(0.5);
+                        doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+
+                        // Add footer text at the bottom center with italic style
+                        doc.setFont('helvetica', 'italic');
+                        doc.setFontSize(10);
+                        doc.setTextColor(150, 150, 150);
+                        doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+                        // Add page number at bottom right corner in small font
+                        doc.setFontSize(8);
+                        doc.setTextColor(150, 150, 150);
+                        doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
                     }
-                },
-                didDrawPage: function (data) {
-                    // Add a horizontal line above footer
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    const pageHeight = doc.internal.pageSize.getHeight();
-                    doc.setDrawColor(0);
-                    doc.setLineWidth(0.5);
-                    doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
+                });
 
-                    // Add footer text at the bottom center with italic style
-                    doc.setFont('helvetica', 'italic');
-                    doc.setFontSize(10);
-                    doc.setTextColor(150, 150, 150);
-                    doc.text('all rights reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
-
-                    // Add page number at bottom right corner in small font
-                    doc.setFontSize(8);
-                    doc.setTextColor(150, 150, 150);
-                    doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
-                }
-            });
-
-        doc.save('feedmill_vehicle-report.pdf');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Failed to generate PDF. Please check console for details.');
+            doc.save('feedmill_vehicle-report.pdf');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please check console for details.');
+        }
     }
-}
-       // Set division in sessionStorage for this tab
+        // Set division in sessionStorage for this tab
         sessionStorage.setItem('division', 'feedmill');
         
         // Function to style only the vehicle number part (without brackets)
@@ -1130,92 +1075,16 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
-
-        // Column filter modal logic
-    document.addEventListener('DOMContentLoaded', function () {
-        const columnFilterBtn = document.getElementById('columnFilterBtn');
-        const columnFilterModal = document.getElementById('columnFilterModal');
-        const columnFilterForm = document.getElementById('columnFilterForm');
-        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
-        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
-        const table = document.getElementById('combinedTable');
-
-        // Define column groups
-        const columnGroups = [
-            {
-                id: 'group1',
-                label: 'Policy Columns',
-                columns: ['#', 'Vehicle Number', 'Policy Type', 'Policy Number', 'Renewal Date(Vehicles)', 'Status (I)']
-            },
-            {
-                id: 'group2',
-                label: 'Maintenance Columns',
-                columns: ['Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status']
-            },
-            {
-                id: 'group3',
-                label: 'GPS Columns',
-                columns: ['Vehicle Number', 'GPS', 'Renewal Date(GPS)']
-            }
-        ];
-
-        // Helper: get header index by name
-        function getHeaderIndexes(names) {
-            const headers = Array.from(table.querySelectorAll('thead tr:nth-child(2) th'));
-            return names.map(name => headers.findIndex(th => th.textContent.trim() === name)).filter(idx => idx !== -1);
-        }
-
-        // Populate checkboxes
-        columnFilterForm.innerHTML = `
-            <label><input type="checkbox" id="group1Checkbox"> Policy Columns</label><br>
-            <label><input type="checkbox" id="group2Checkbox"> Maintenance Columns</label><br>
-            <label><input type="checkbox" id="group3Checkbox"> GPS Columns</label>
-        `;
-
-        // Show modal
-        columnFilterBtn.onclick = () => {
-            columnFilterModal.style.display = 'flex';
-        };
-        cancelColumnFilterBtn.onclick = () => {
-            columnFilterModal.style.display = 'none';
-        };
-
-        // Save selection
-        saveColumnFilterBtn.onclick = () => {
-            // Hide all columns first
-            const headers = Array.from(table.querySelectorAll('thead tr:nth-child(2) th'));
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-            headers.forEach((th, idx) => th.style.display = 'none');
-            rows.forEach(row => Array.from(row.cells).forEach(cell => cell.style.display = 'none'));
-
-            // Show selected columns
-            columnGroups.forEach((group, i) => {
-                const checked = document.getElementById(`group${i+1}Checkbox`).checked;
-                if (checked) {
-                    const idxs = getHeaderIndexes(group.columns);
-                    idxs.forEach(idx => {
-                        if (headers[idx]) headers[idx].style.display = '';
-                        rows.forEach(row => {
-                            if (row.cells[idx]) row.cells[idx].style.display = '';
-                        });
-                    });
-                }
-            });
-
-            columnFilterModal.style.display = 'none';
-        };
-
-        // Optional: When opening modal, check which columns are visible and set checkboxes accordingly
-        columnFilterBtn.addEventListener('click', () => {
-            columnGroups.forEach((group, i) => {
-                const idxs = getHeaderIndexes(group.columns);
-                const headers = Array.from(table.querySelectorAll('thead tr:nth-child(2) th'));
-                // If all columns in group are visible, check the box
-                const allVisible = idxs.every(idx => headers[idx] && headers[idx].style.display !== 'none');
-                document.getElementById(`group${i+1}Checkbox`).checked = allVisible;
-            });
-        });
-    });
+    </script>
+    <!-- External Scripts -->
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1225,19 +1094,5 @@
     <script src="export.js"></script>
 </body>
 </html>
-    // Also run it after any table updates (you might need to call this from other scripts)
-        window.styleVehicleNumbers = styleVehicleNumbers;
-    </script>
-    <script src="scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="export.js"></script>
-</body>
-</html>
-
-
-
 
 
