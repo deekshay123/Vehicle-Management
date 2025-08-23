@@ -826,27 +826,20 @@
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content" style="box-shadow: 0 8px 32px rgba(44,83,100,0.18); border-radius: 18px; padding: 36px 44px 28px 44px; min-width:340px; max-width:520px; margin:auto;">
             <h3 id="columnFilterTitle" style="margin-bottom: 24px; color: #1e70a7; font-size: 1.25rem; font-weight: 800; letter-spacing: 1px;">Select Columns to Display</h3>
-            <!-- Professional radio buttons for quick selection -->
-            <div id="columnPresetRadios" style="display:flex;justify-content:center;gap:18px;margin-bottom:24px;">
-                <label class="preset-radio-label">
-                    <input type="radio" name="columnPreset" value="policy" checked class="preset-radio" />
-                    <span class="preset-radio-btn">Policy</span>
+            <form id="columnFilterForm" style="display:flex;flex-direction:column;align-items:center;gap:18px;margin-bottom:18px;">
+                <label style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" id="policyCheckbox" name="columnGroup" value="policy" checked />
+                    <span style="font-weight:600;">Policy</span>
                 </label>
-                <label class="preset-radio-label">
-                    <input type="radio" name="columnPreset" value="maintenance" class="preset-radio" />
-                    <span class="preset-radio-btn">Maintenance</span>
+                <label style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" id="maintenanceCheckbox" name="columnGroup" value="maintenance" />
+                    <span style="font-weight:600;">Maintenance</span>
                 </label>
-                <label class="preset-radio-label">
-                    <input type="radio" name="columnPreset" value="gps" class="preset-radio" />
-                    <span class="preset-radio-btn">GPS</span>
+                <label style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" id="gpsCheckbox" name="columnGroup" value="gps" />
+                    <span style="font-weight:600;">GPS</span>
                 </label>
-            </div>
-            <!-- Neatly aligned grid for checkboxes -->
-            <div class="column-checkbox-grid">
-                <form id="columnFilterForm">
-                    <!-- Checkboxes will be dynamically populated here -->
-                </form>
-            </div>
+            </form>
             <div class="column-filter-buttons" style="margin-top: 24px; display:flex; justify-content:center;">
                 <button id="saveColumnFilterBtn" type="button" style="min-width:100px;">Save</button>
                 <button id="cancelColumnFilterBtn" type="button" style="min-width:100px;">Cancel</button>
@@ -1200,32 +1193,29 @@
             ]
         };
 
-        // Dynamically update checkboxes based on selected preset
-        function updateColumnCheckboxes(presetKey) {
-            const form = document.getElementById('columnFilterForm');
-            form.innerHTML = '';
-            const columns = columnPresets[presetKey];
-            columns.forEach(col => {
-                const id = 'col_' + col.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-                const label = document.createElement('label');
-                label.innerHTML = `
-                    <input type="checkbox" id="${id}" name="columns" value="${col}" checked />
-                    <span>${col}</span>
-                `;
-                form.appendChild(label);
-            });
-        }
-
         // Apply selected columns to table
         function applySelectedColumns() {
-            const checked = Array.from(document.querySelectorAll('#columnFilterForm input[type="checkbox"]:checked')).map(cb => cb.value);
+            // Only show columns for checked groups
+            const checkedGroups = [];
+            if (document.getElementById('policyCheckbox').checked) checkedGroups.push('policy');
+            if (document.getElementById('maintenanceCheckbox').checked) checkedGroups.push('maintenance');
+            if (document.getElementById('gpsCheckbox').checked) checkedGroups.push('gps');
+
+            // Merge all selected columns, remove duplicates
+            let checkedColumns = [];
+            checkedGroups.forEach(group => {
+                columnPresets[group].forEach(col => {
+                    if (!checkedColumns.includes(col)) checkedColumns.push(col);
+                });
+            });
+
             const table = document.getElementById('combinedTable');
             if (!table) return;
 
             // Get all header cells from the second row
             const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
             headerCells.forEach(th => {
-                if (checked.includes(th.textContent.trim())) {
+                if (checkedColumns.includes(th.textContent.trim())) {
                     th.style.display = '';
                 } else {
                     th.style.display = 'none';
@@ -1236,7 +1226,7 @@
             Array.from(table.tBodies[0].rows).forEach(row => {
                 Array.from(row.cells).forEach((td, idx) => {
                     const colName = headerCells[idx] ? headerCells[idx].textContent.trim() : '';
-                    if (checked.includes(colName)) {
+                    if (checkedColumns.includes(colName)) {
                         td.style.display = '';
                     } else {
                         td.style.display = 'none';
@@ -1245,16 +1235,26 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Setup column preset radios
-            const radios = document.querySelectorAll('input[name="columnPreset"]');
-            radios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    updateColumnCheckboxes(this.value);
-                });
-            });
-            // Initialize with default (policy)
-            updateColumnCheckboxes('policy');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Save button applies selected columns
+        document.getElementById('saveColumnFilterBtn').onclick = function() {
+            applySelectedColumns();
+            document.getElementById('columnFilterModal').style.display = 'none';
+        };
+        document.getElementById('cancelColumnFilterBtn').onclick = function() {
+            document.getElementById('columnFilterModal').style.display = 'none';
+        };
+    });
+    </script>
+    <!-- External Scripts -->
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
             document.getElementById('saveColumnFilterBtn').onclick = function() {
                 applySelectedColumns();
                 document.getElementById('columnFilterModal').style.display = 'none';
