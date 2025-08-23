@@ -628,32 +628,32 @@
         font-weight: bold !important;
     }
 
-    /* Make only table body scrollable, header fixed */
-.table-body-scroll {
-    display: block;
-    max-height: 420px; /* Adjust as needed */
+    /* Make table body scrollable with fixed height */
+.scrollable-table-wrapper {
+    max-height: 400px; /* Adjust height as needed */
     overflow-y: auto;
-    overflow-x: auto;
     width: 100%;
+    border-radius: 0 0 14px 14px;
+    box-shadow: none;
+    border-top: none;
 }
+
+/* Ensure thead stays visible */
 #combinedTable thead {
-    display: block;
-    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
 }
+
+/* Prevent tbody from overlapping header */
 #combinedTable tbody {
-    display: block;
-    width: 100%;
+    z-index: 1;
 }
-#combinedTable th, #combinedTable td {
-    min-width: 120px; /* Ensures columns align, adjust as needed */
-    box-sizing: border-box;
-}
-#combinedTable {
-    border-collapse: separate;
-    width: 100%;
-    min-width: 900px;
-    max-width: 100vw;
-    table-layout: fixed;
+
+/* Optional: Remove double border between thead and tbody */
+#combinedTable thead tr:last-child th {
+    border-bottom: 1.5px solid #c7d0e1;
 }
     </style>
 </head>
@@ -732,36 +732,36 @@
                 </div>
             </div>
             <div style="width:100%;overflow-x:auto;">
-                <table id="combinedTable" style="width:100%;min-width:600px;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                            <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-        <!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
-                        </tr>
-                        <tr>
-                            <th>#</th>
-                            <th>Vehicle Number</th>
-                            <th>Policy Type</th>
-                            <th>Policy Number</th>
-                            <th>Renewal Date(Vehicles)</th>
-                            <th>Status (I)</th>
-                            <th>Service Type</th>
-                            <th>Opening KM</th>
-                            <th>Closing KM</th>
-                            <th>Km Driven</th>
-                            <th>Remarks</th>
-                            <th>Last Service Date</th>
-                            <th style="text-align: center;">Status</th>
-                            <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
-                            <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
-                            <!-- <th>Actions</th> -->
-                        </tr>
-                    </thead>
-                    <div class="table-body-scroll">
+                <div class="scrollable-table-wrapper">
+                    <table id="combinedTable" style="width:100%;min-width:600px;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
+                                <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+            <!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Vehicle Number</th>
+                                <th>Policy Type</th>
+                                <th>Policy Number</th>
+                                <th>Renewal Date(Vehicles)</th>
+                                <th>Status (I)</th>
+                                <th>Service Type</th>
+                                <th>Opening KM</th>
+                                <th>Closing KM</th>
+                                <th>Km Driven</th>
+                                <th>Remarks</th>
+                                <th>Last Service Date</th>
+                                <th style="text-align: center;">Status</th>
+                                <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
+                                <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
+                                <!-- <th>Actions</th> -->
+                            </tr>
+                        </thead>
                         <tbody></tbody>
-                    </div>
-                </table>
+                    </table>
+                </div>
             </div>
             <!-- Pagination controls -->
             <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center; width:100%;"></div>
@@ -1124,5 +1124,4 @@
     <script src="export.js"></script>
 </body>
 </html>
-
 
