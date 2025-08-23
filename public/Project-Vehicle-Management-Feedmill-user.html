@@ -528,6 +528,44 @@
         border: 1.5px solid #8fa1c7;
         box-shadow: 0 4px 16px rgba(44,83,100,0.13);
     }
+    /* Loading overlay styles */
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(44,83,100,0.18);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: all;
+        transition: opacity 0.2s;
+    }
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+    }
+    .loading-spinner .spinner {
+        border: 6px solid #e3eaf2;
+        border-top: 6px solid #2b5876;
+        border-radius: 50%;
+        width: 54px;
+        height: 54px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+    }
+    .loading-spinner .loading-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2b5876;
+        letter-spacing: 1px;
+        text-shadow: none;
+        font-family: inherit;
+    }
     /* Responsive */
     @media (max-width: 1100px) {
         .app-header, .status-counts-container, .table-container {
@@ -659,7 +697,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 2em; /* moved down by 0.2em */
+    margin-top: 5em; /* moved down by 0.2em */
     margin-bottom: 15px;
     padding: 0 2vw;
     box-sizing: border-box;
@@ -836,6 +874,14 @@
                     <button type="button" id="confirmNoBtn" class="confirm-btn no-btn">Cancel</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading data, please wait...</div>
         </div>
     </div>
 
@@ -1162,6 +1208,61 @@
             });
         });
     });
+
+    // Show/hide loading overlay
+    function showLoadingOverlay() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+    function hideLoadingOverlay() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    // Fetch and reload table data only (simulate fetch here, replace with your actual fetch logic)
+    async function reloadTableData() {
+        showLoadingOverlay();
+        try {
+            // Simulate fetch with timeout, replace with actual fetch:
+            // let response = await fetch('your-api-endpoint');
+            // let data = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 1200)); // Simulate network delay
+
+            // TODO: Replace below with your actual table update logic
+            // Example: updateTable(data);
+            if (typeof window.loadTableData === 'function') {
+                await window.loadTableData(); // Call your actual table data loader
+            } else {
+                // Fallback: clear table
+                const tbody = document.querySelector('#combinedTable tbody');
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    // Optionally add a row indicating "No data"
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.colSpan = document.querySelectorAll('#combinedTable thead tr:nth-child(2) th').length;
+                    td.textContent = 'No data loaded. Implement loadTableData() for real data.';
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                }
+            }
+            // Re-style vehicle numbers after reload
+            if (window.styleVehicleNumbers) window.styleVehicleNumbers();
+        } catch (err) {
+            alert('Failed to reload data.');
+        } finally {
+            hideLoadingOverlay();
+        }
+    }
+
+    // Attach reloadTableData to reload button
+    document.addEventListener('DOMContentLoaded', function() {
+        // ...existing code...
+        document.getElementById('reloadBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            reloadTableData();
+        });
+        // ...existing code...
+    });
+
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1169,10 +1270,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="export.js"></script>
-</body>
-</html>
-    <script src="export.js"></script>
-</body>
-</html>
 </body>
 </html>
