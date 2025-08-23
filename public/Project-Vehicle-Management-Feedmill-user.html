@@ -27,9 +27,9 @@
         font-weight: bold !important;
     }
     
-    /* Make Vehicle Number column skyblue */
+    /* Make Vehicle Number column violet and bold */
     #combinedTable td:nth-child(2) {
-        color: #00b7ff !important; /* Skyblue color */
+        color: #8f00ff !important; /* Violet color */
         font-weight: bold !important;
     }
     
@@ -377,7 +377,7 @@
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [135, 206, 235] };
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [143, 0, 255] }; // Violet
                     } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
@@ -432,7 +432,10 @@
                 if (vehicleNumber && parts.length > 1) {
                     // Create HTML with the vehicle number styled and brackets in normal text
                     const bracketContent = fullText.substring(vehicleNumber.length);
-                    cell.innerHTML = `<span style="color: #87CEEB; font-weight: bold;">${vehicleNumber}</span>${bracketContent}`;
+                    cell.innerHTML = `<span style="color: #8f00ff; font-weight: bold;">${vehicleNumber}</span>${bracketContent}`;
+                } else if (vehicleNumber) {
+                    // If no brackets, still apply violet bold
+                    cell.innerHTML = `<span style="color: #8f00ff; font-weight: bold;">${vehicleNumber}</span>`;
                 }
             });
         }
@@ -452,5 +455,5 @@
 </body>
 </html>
 
-    
-    
+
+
