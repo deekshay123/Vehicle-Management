@@ -1416,6 +1416,21 @@
         // Always refresh table after loading data
         refreshTableByReportType();
     };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // ...existing code...
+        var columnBtn = document.getElementById('columnFilterBtn');
+        var modal = document.getElementById('columnFilterModal');
+        if (columnBtn) {
+            columnBtn.addEventListener('click', function() {
+                modal.style.display = 'flex';
+                console.log('Column filter modal opened');
+            });
+        } else {
+            console.log('columnFilterBtn not found in DOM');
+        }
+        // ...existing code...
+    });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
