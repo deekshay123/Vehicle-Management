@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -665,6 +664,36 @@
     padding: 0 2vw;
     box-sizing: border-box;
 }
+.status-count-box.selected {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        box-shadow: 0 4px 24px rgba(44,83,100,0.18);
+        border: 2px solid #43cea2;
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.active-box {
+        background: linear-gradient(120deg, #eafaf1 60%, #d4f7e7 100%);
+        border: 2px solid #2ecc71;
+        box-shadow: 0 4px 24px rgba(46,204,113,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.expiring-box {
+        background: linear-gradient(120deg, #fffbe6 60%, #ffe9c7 100%);
+        border: 2px solid #f39c12;
+        box-shadow: 0 4px 24px rgba(243,156,18,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.expired-box {
+        background: linear-gradient(120deg, #ffeaea 60%, #ffd6d6 100%);
+        border: 2px solid #e74c3c;
+        box-shadow: 0 4px 24px rgba(231,76,60,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.all-box {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        border: 2px solid #4e4376;
+        box-shadow: 0 4px 24px rgba(44,83,100,0.18);
+        transform: scale(1.05);
+    }
     </style>
 </head>
 <body>
@@ -1124,6 +1153,17 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
+
+    // Highlight status box on click
+    document.addEventListener('DOMContentLoaded', function() {
+        const boxes = document.querySelectorAll('.status-count-box');
+        boxes.forEach(box => {
+            box.addEventListener('click', function() {
+                boxes.forEach(b => b.classList.remove('selected'));
+                box.classList.add('selected');
+            });
+        });
+    });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
