@@ -1175,6 +1175,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+    // Column Filter Modal: Clean checkbox rendering
+    document.addEventListener('DOMContentLoaded', function() {
+        const columnFilterBtn = document.getElementById('columnFilterBtn');
+        const columnFilterModal = document.getElementById('columnFilterModal');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
+        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
+        const table = document.getElementById('combinedTable');
+
+        columnFilterBtn.addEventListener('click', function() {
+            // Get headers from the second row of thead
+            const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
+            columnFilterForm.innerHTML = ''; // Clear previous
+
+            // Render checkboxes vertically, clean format
+            headerCells.forEach((th, idx) => {
+                const colName = th.textContent.trim();
+                const checked = th.style.display !== 'none';
+                const id = `colFilter_${idx}`;
+                // Create wrapper div for spacing
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.marginBottom = '8px';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = id;
+                checkbox.name = 'columns';
+                checkbox.value = idx;
+                checkbox.checked = checked;
+                checkbox.style.marginRight = '8px';
+
+                const label = document.createElement('label');
+                label.htmlFor = id;
+                label.textContent = colName;
+                label.style.fontWeight = '500';
+
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+                columnFilterForm.appendChild(wrapper);
+            });
+
+            columnFilterModal.style.display = 'flex';
+        });
+
+        saveColumnFilterBtn.addEventListener('click', function() {
+            const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.value, 10);
+                const th = table.querySelectorAll('thead tr:nth-child(2) th')[idx];
+                // Show/hide header
+                th.style.display = cb.checked ? '' : 'none';
+                // Show/hide all cells in this column
+                table.querySelectorAll('tbody tr').forEach(tr => {
+                    if (tr.cells[idx]) tr.cells[idx].style.display = cb.checked ? '' : 'none';
+                });
+            });
+            columnFilterModal.style.display = 'none';
+        });
+
+        cancelColumnFilterBtn.addEventListener('click', function() {
+            columnFilterModal.style.display = 'none';
+        });
+    });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
