@@ -664,6 +664,34 @@
     padding: 0 2vw;
     box-sizing: border-box;
 }
+.status-count-box.active-selected {
+    background: linear-gradient(120deg, #b7ffd8 60%, #e0ffe7 100%);
+    border: 2px solid #a3e9c7;
+    color: #25324b;
+    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
+    transform: scale(1.04);
+}
+.status-count-box.expiring-selected {
+    background: linear-gradient(120deg, #ffe9b7 60%, #fff7e0 100%);
+    border: 2px solid #f7dca3;
+    color: #25324b;
+    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
+    transform: scale(1.04);
+}
+.status-count-box.expired-selected {
+    background: linear-gradient(120deg, #ffd7d7 60%, #ffeaea 100%);
+    border: 2px solid #f7b7b7;
+    color: #25324b;
+    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
+    transform: scale(1.04);
+}
+.status-count-box.all-selected {
+    background: linear-gradient(120deg, #e3e7ed 60%, #f3f6fb 100%);
+    border: 2px solid #c7d0e1;
+    color: #25324b;
+    box-shadow: 0 6px 24px rgba(44,83,100,0.10);
+    transform: scale(1.04);
+}
     </style>
 </head>
 <body>
@@ -1123,6 +1151,30 @@
         
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
+
+        // Status box click color toggle logic
+document.addEventListener('DOMContentLoaded', function() {
+    const statusBoxes = [
+        { id: 'activeCountBox', selectedClass: 'active-selected' },
+        { id: 'expiringCountBox', selectedClass: 'expiring-selected' },
+        { id: 'expiredCountBox', selectedClass: 'expired-selected' },
+        { id: 'allCountBox', selectedClass: 'all-selected' }
+    ];
+    statusBoxes.forEach(box => {
+        const el = document.getElementById(box.id);
+        if (el) {
+            el.addEventListener('click', function() {
+                // Remove all selected classes from all boxes
+                statusBoxes.forEach(b => {
+                    const e = document.getElementById(b.id);
+                    if (e) e.classList.remove(b.selectedClass);
+                });
+                // Add selected class to clicked box
+                el.classList.add(box.selectedClass);
+            });
+        }
+    });
+});
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1135,4 +1187,3 @@
     <script src="export.js"></script>
 </body>
 </html>
-
