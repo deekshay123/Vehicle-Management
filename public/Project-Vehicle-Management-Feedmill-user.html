@@ -390,6 +390,23 @@
                 alternateRowStyles: {
                     fillColor: [245, 245, 245]
                 },
+                didParseCell: function (data) {
+                    // Color Status (I) column cells based on value
+                    if (data.section === 'body' && data.column && data.column.dataKey === 'Status (I)') {
+                        const val = (data.cell.raw || '').toLowerCase();
+                        if (val.includes('active')) {
+                            data.cell.styles.textColor = [39, 174, 96]; // Green
+                        } else if (val.includes('expiring')) {
+                            data.cell.styles.textColor = [255, 136, 0]; // Orange
+                        } else if (val.includes('expired')) {
+                            data.cell.styles.textColor = [231, 76, 60]; // Red
+                        }
+                    }
+                    // Color Status (I) header
+                    if (data.section === 'head' && data.column && data.column.dataKey === 'Status (I)') {
+                        data.cell.styles.textColor = [255, 136, 0]; // Orange
+                    }
+                },
                 didDrawPage: function (data) {
                     // Add a horizontal line above footer
                     const pageWidth = doc.internal.pageSize.getWidth();
