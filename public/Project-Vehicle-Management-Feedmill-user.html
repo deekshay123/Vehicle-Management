@@ -527,25 +527,6 @@
         border: 1.5px solid #8fa1c7;
         box-shadow: 0 4px 16px rgba(44,83,100,0.13);
     }
-    /* Sticky table header rows */
-    #combinedTable thead tr th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
-        color: #fff;
-    }
-
-    /* Ensure the table container scrolls, not the whole page */
-    .table-container > div[style*="overflow-x:auto"] {
-        max-height: 520px; /* Adjust as needed */
-        overflow: auto;
-    }
-
-    /* Prevent sticky header shadow overlap */
-    #combinedTable thead tr {
-        box-shadow: 0 2px 8px rgba(44,83,100,0.08);
-    }
     /* Responsive */
     @media (max-width: 1100px) {
         .app-header, .status-counts-container, .table-container {
@@ -646,6 +627,34 @@
         color: #1e70a7 !important; /* Keep data blue as before */
         font-weight: bold !important;
     }
+
+    /* Make only table body scrollable, header fixed */
+.table-body-scroll {
+    display: block;
+    max-height: 420px; /* Adjust as needed */
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+}
+#combinedTable thead {
+    display: block;
+    width: 100%;
+}
+#combinedTable tbody {
+    display: block;
+    width: 100%;
+}
+#combinedTable th, #combinedTable td {
+    min-width: 120px; /* Ensures columns align, adjust as needed */
+    box-sizing: border-box;
+}
+#combinedTable {
+    border-collapse: separate;
+    width: 100%;
+    min-width: 900px;
+    max-width: 100vw;
+    table-layout: fixed;
+}
     </style>
 </head>
 <body>
@@ -705,7 +714,24 @@
             </div>
         </div>
         <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
-            <div style="width:100%;overflow-x:auto;max-height:520px;overflow:auto;">
+            <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
+                <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchVehicleNumberInput2" placeholder="Additional VehicleNumber Filter..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchGpsRenewalDateInput" placeholder="Search by GPS Renewal Date..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <div style="display:flex;gap:10px;align-items:center;flex:1 1 220px;min-width:120px;">
+                    <button id="exportPdfBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to PDF</button>
+                    <button id="exportExcelBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to Excel</button>
+                    <button id="reloadBtn" title="Reload" aria-label="Reload" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center; width:100%;">
+                        &#x21bb;
+                    </button>
+                    <button id="columnFilterBtn" title="Select Columns" aria-label="Select Columns" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center; width:100%;">
+                        &#9654;
+                    </button>
+                </div>
+            </div>
+            <div style="width:100%;overflow-x:auto;">
                 <table id="combinedTable" style="width:100%;min-width:600px;">
                     <thead>
                         <tr>
@@ -732,7 +758,9 @@
                             <!-- <th>Actions</th> -->
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <div class="table-body-scroll">
+                        <tbody></tbody>
+                    </div>
                 </table>
             </div>
             <!-- Pagination controls -->
@@ -1096,6 +1124,5 @@
     <script src="export.js"></script>
 </body>
 </html>
-
 
 
