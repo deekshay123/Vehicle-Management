@@ -732,6 +732,15 @@
         box-shadow: 0 4px 24px rgba(44,83,100,0.18);
         transform: scale(1.05);
     }
+    /* Highlight quick-select button when clicked */
+.report-quick-btn.selected {
+    background: linear-gradient(90deg,#7b00c8 0%,#0089b6 100%) !important;
+    color: #fff !important;
+    border: 2px solid #2b5876 !important;
+    box-shadow: 0 2px 8px #2b587622;
+    font-weight: 700;
+    transform: scale(1.05);
+}
     </style>
 </head>
 <body>
@@ -745,10 +754,6 @@
         </button>
     </div>
     <div class="main-content">
-        <!-- Report Selection Checkboxes -->
-        <div id="reportSelection" style="margin-bottom: 24px; display: flex; gap: 18px; align-items: center;">
-            <!-- Moved to modal below -->
-        </div>
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
@@ -813,8 +818,30 @@
             <div style="width:100%;overflow-x:auto;">
                 <div class="scrollable-table-wrapper">
                     <table id="combinedTable" style="width:100%;min-width:600px;">
-                        <thead id="dynamicTableHead">
-                            <!-- Table headers will be set by JS -->
+                        <thead>
+                            <tr>
+                                <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
+                                <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+            <!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Vehicle Number</th>
+                                <th>Policy Type</th>
+                                <th>Policy Number</th>
+                                <th>Renewal Date(Vehicles)</th>
+                                <th>Status (I)</th>
+                                <th>Service Type</th>
+                                <th>Opening KM</th>
+                                <th>Closing KM</th>
+                                <th>Km Driven</th>
+                                <th>Remarks</th>
+                                <th>Last Service Date</th>
+                                <th style="text-align: center;">Status</th>
+                                <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
+                                <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
+                                <!-- <th>Actions</th> -->
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -828,12 +855,14 @@
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
+            <!-- Report quick-select buttons -->
+            <div id="reportQuickSelect" style="display:flex;gap:12px;justify-content:center;margin-bottom:18px;">
+                <button type="button" id="insuranceReportBtn" style="background:linear-gradient(90deg,#2b5876 0%,#43cea2 100%);color:#fff;border-radius:8px;padding:6px 18px;font-weight:600;border:1.5px solid #c7d0e1;">Insurance Report</button>
+                <button type="button" id="maintenanceReportBtn" style="background:linear-gradient(90deg,#2b5876 0%,#43cea2 100%);color:#fff;border-radius:8px;padding:6px 18px;font-weight:600;border:1.5px solid #c7d0e1;">Maintenance Report</button>
+                <button type="button" id="gpsReportBtn" style="background:linear-gradient(90deg,#1e70a7 0%,#43cea2 100%);color:#fff;border-radius:8px;padding:6px 18px;font-weight:600;border:1.5px solid #c7d0e1;">GPS Report</button>
+            </div>
             <form id="columnFilterForm">
-                <div id="reportSelectionModal" style="margin-bottom: 18px; display: flex; gap: 18px; align-items: center; justify-content: center;">
-                    <label><input type="checkbox" id="insuranceReport"> Insurance Report</label>
-                    <label><input type="checkbox" id="maintenanceReport"> Maintenance Report</label>
-                    <label><input type="checkbox" id="gpsReport"> GPS Report</label>
-                </div>
+                <!-- Checkboxes will be dynamically populated here -->
             </form>
             <div class="column-filter-buttons">
                 <button id="saveColumnFilterBtn" type="button">Save</button>
@@ -1249,187 +1278,172 @@
         // ...existing code...
     });
 
-        // ...existing code...
-
-    // --- Dynamic table header and data logic ---
-    // Use this variable to store your real data from the backend/database
-    let allTableData = [];
-    let currentReportType = null; // Track current report type
-
-    function setTableHeaders(reportType) {
-        const thead = document.getElementById('dynamicTableHead');
-        let headerRow = '';
-        if (reportType === 'insurance') {
-            headerRow = `<tr>
-                <th>#</th>
-                <th>Vehicle Number</th>
-                <th>Policy Type</th>
-                <th>Policy Number</th>
-                <th>Renewal Date(Vehicles)</th>
-                <th>Status (I)</th>
-            </tr>`;
-        } else if (reportType === 'maintenance') {
-            headerRow = `<tr>
-                <th>#</th>
-                <th>Vehicle Number</th>
-                <th>Service Type</th>
-                <th>Opening KM</th>
-                <th>Closing KM</th>
-                <th>Km Driven</th>
-                <th>Remarks</th>
-                <th>Last Service Date</th>
-                <th>Status</th>
-            </tr>`;
-        } else if (reportType === 'gps') {
-            headerRow = `<tr>
-                <th>#</th>
-                <th>Vehicle Number</th>
-                <th>GPS</th>
-                <th>Renewal Date(GPS)</th>
-            </tr>`;
-        } else {
-            // Default: show all columns (can be customized)
-            headerRow = `<tr>
-                <th>#</th>
-                <th>Vehicle Number</th>
-                <th>Policy Type</th>
-                <th>Policy Number</th>
-                <th>Renewal Date(Vehicles)</th>
-                <th>Status (I)</th>
-                <th>Service Type</th>
-                <th>Opening KM</th>
-                <th>Closing KM</th>
-                <th>Km Driven</th>
-                <th>Remarks</th>
-                <th>Last Service Date</th>
-                <th>Status</th>
-                <th>GPS</th>
-                <th>Renewal Date(GPS)</th>
-            </tr>`;
-        }
-        thead.innerHTML = headerRow;
-    }
-
-    function setTableBody(reportType) {
-        const tbody = document.querySelector('#combinedTable tbody');
-        let rows = '';
-        if (reportType === 'insurance') {
-            allTableData.filter(d => d.type === 'insurance').forEach(d => {
-                rows += `<tr>
-                    <td>${d.data.number || ''}</td>
-                    <td>${d.data.vehicleNumber || ''}</td>
-                    <td>${d.data.policyType || ''}</td>
-                    <td>${d.data.policyNumber || ''}</td>
-                    <td>${d.data.renewalDate || ''}</td>
-                    <td>${d.data.statusI || ''}</td>
-                </tr>`;
-            });
-        } else if (reportType === 'maintenance') {
-            allTableData.filter(d => d.type === 'maintenance').forEach(d => {
-                rows += `<tr>
-                    <td>${d.data.number || ''}</td>
-                    <td>${d.data.vehicleNumber || ''}</td>
-                    <td>${d.data.serviceType || ''}</td>
-                    <td>${d.data.openingKM || ''}</td>
-                    <td>${d.data.closingKM || ''}</td>
-                    <td>${d.data.kmDriven || ''}</td>
-                    <td>${d.data.remarks || ''}</td>
-                    <td>${d.data.lastServiceDate || ''}</td>
-                    <td>${d.data.status || ''}</td>
-                </tr>`;
-            });
-        } else if (reportType === 'gps') {
-            allTableData.filter(d => d.type === 'gps').forEach(d => {
-                rows += `<tr>
-                    <td>${d.data.number || ''}</td>
-                    <td>${d.data.vehicleNumber || ''}</td>
-                    <td>${d.data.gps || ''}</td>
-                    <td>${d.data.renewalDateGPS || ''}</td>
-                </tr>`;
-            });
-        } else {
-            // Default: show all data (empty by default)
-            allTableData.forEach(d => {
-                rows += `<tr>
-                    <td>${d.data.number || ''}</td>
-                    <td>${d.data.vehicleNumber || ''}</td>
-                    <td>${d.data.policyType || ''}</td>
-                    <td>${d.data.policyNumber || ''}</td>
-                    <td>${d.data.renewalDate || ''}</td>
-                    <td>${d.data.statusI || ''}</td>
-                    <td>${d.data.serviceType || ''}</td>
-                    <td>${d.data.openingKM || ''}</td>
-                    <td>${d.data.closingKM || ''}</td>
-                    <td>${d.data.kmDriven || ''}</td>
-                    <td>${d.data.remarks || ''}</td>
-                    <td>${d.data.lastServiceDate || ''}</td>
-                    <td>${d.data.status || ''}</td>
-                    <td>${d.data.gps || ''}</td>
-                    <td>${d.data.renewalDateGPS || ''}</td>
-                </tr>`;
-            });
-        }
-        tbody.innerHTML = rows;
-    }
-
-    // Helper to refresh table by current report type
-    function refreshTableByReportType() {
-        setTableHeaders(currentReportType);
-        setTableBody(currentReportType);
-        if (window.styleVehicleNumbers) window.styleVehicleNumbers();
-    }
-
-    // Modal open/close logic and Save button for column filter
+    // Column Filter Modal logic
     document.addEventListener('DOMContentLoaded', function() {
-        setTableHeaders(); // Default
-        setTableBody(); // Default
+        const columnFilterBtn = document.getElementById('columnFilterBtn');
+        const columnFilterModal = document.getElementById('columnFilterModal');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
+        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
+        const table = document.getElementById('combinedTable');
 
-        document.getElementById('columnFilterBtn').addEventListener('click', function() {
-            document.getElementById('columnFilterModal').style.display = 'flex';
-        });
-        document.getElementById('cancelColumnFilterBtn').addEventListener('click', function() {
-            document.getElementById('columnFilterModal').style.display = 'none';
+        // Helper to get all columns (header cells)
+        function getAllColumns() {
+            const ths = table.querySelectorAll('thead tr:nth-child(2) th');
+            let cols = [];
+            ths.forEach((th, idx) => {
+                cols.push({ idx, name: th.textContent.trim(), visible: th.style.display !== 'none' });
+            });
+            return cols;
+        }
+
+        // Show modal and populate checkboxes
+        columnFilterBtn.addEventListener('click', function() {
+            columnFilterModal.style.display = 'flex';
+            const allCols = getAllColumns();
+            columnFilterForm.innerHTML = '';
+            // Display selected columns at top
+            const selectedDiv = document.createElement('div');
+            selectedDiv.style.marginBottom = '18px';
+            selectedDiv.style.padding = '10px 0';
+            selectedDiv.style.borderBottom = '1px solid #e3eaf2';
+            selectedDiv.style.display = 'flex';
+            selectedDiv.style.flexWrap = 'wrap';
+            selectedDiv.style.gap = '10px';
+            selectedDiv.style.justifyContent = 'center';
+            selectedDiv.innerHTML = `<strong style="width:100%;text-align:center;display:block;color:#2b5876;font-size:1.05em;">Selected Columns:</strong>`;
+            columnFilterForm.appendChild(selectedDiv);
+
+            // Add checkboxes for all columns
+            allCols.forEach(col => {
+                const label = document.createElement('label');
+                label.style.display = 'flex';
+                label.style.alignItems = 'center';
+                label.style.margin = '6px 0';
+                label.style.gap = '8px';
+                label.style.fontWeight = '500';
+                label.style.fontSize = '0.98em';
+                label.style.color = '#25324b';
+                label.classList.add('column-checkbox-label');
+                if (col.visible) label.classList.add('selected');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = col.idx;
+                checkbox.checked = col.visible;
+                checkbox.style.accentColor = '#2b5876';
+
+                // Add highlight on click
+                checkbox.addEventListener('change', function() {
+                    if (checkbox.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(col.name));
+                columnFilterForm.appendChild(label);
+            });
         });
 
-        document.getElementById('saveColumnFilterBtn').addEventListener('click', function() {
-            const insurance = document.getElementById('insuranceReport').checked;
-            const maintenance = document.getElementById('maintenanceReport').checked;
-            const gps = document.getElementById('gpsReport').checked;
-            if (insurance) {
-                currentReportType = 'insurance';
-            } else if (maintenance) {
-                currentReportType = 'maintenance';
-            } else if (gps) {
-                currentReportType = 'gps';
-            } else {
-                currentReportType = null;
-            }
-            refreshTableByReportType();
-            document.getElementById('columnFilterModal').style.display = 'none';
+        // Save selected columns, update table so only checked columns are displayed
+        saveColumnFilterBtn.addEventListener('click', function() {
+            const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
+            const ths = table.querySelectorAll('thead tr:nth-child(2) th');
+            const firstRowThs = table.querySelectorAll('thead tr:first-child th');
+            const rows = table.querySelectorAll('tbody tr');
+            let visibleIndices = [];
+            checkboxes.forEach((cb, idx) => {
+                const show = cb.checked;
+                ths[idx].style.display = show ? '' : 'none';
+                ths[idx].style.background = show ? '' : 'transparent'; // Remove background if hidden
+                if (firstRowThs[idx]) {
+                    firstRowThs[idx].style.display = show ? '' : 'none';
+                    firstRowThs[idx].style.background = show ? '' : 'transparent';
+                }
+                if (show) visibleIndices.push(idx);
+            });
+            // For each row, only display td for visible columns
+            rows.forEach(row => {
+                for (let i = 0; i < row.cells.length; i++) {
+                    row.cells[i].style.display = visibleIndices.includes(i) ? '' : 'none';
+                }
+            });
+            columnFilterModal.style.display = 'none';
+        });
+
+        // Cancel button
+        cancelColumnFilterBtn.addEventListener('click', function() {
+            columnFilterModal.style.display = 'none';
         });
     });
 
-    // Example: After loading data from database, call this:
-    window.loadTableData = async function() {
-        // ...fetch and set allTableData...
-        // allTableData = await fetchDataFromDatabase();
-        // Always refresh table after loading data
-        refreshTableByReportType();
-    };
-
+    // Column Filter Modal logic
     document.addEventListener('DOMContentLoaded', function() {
-        // ...existing code...
-        var columnBtn = document.getElementById('columnFilterBtn');
-        var modal = document.getElementById('columnFilterModal');
-        if (columnBtn) {
-            columnBtn.addEventListener('click', function() {
-                modal.style.display = 'flex';
-                console.log('Column filter modal opened');
+        const columnFilterBtn = document.getElementById('columnFilterBtn');
+        const columnFilterModal = document.getElementById('columnFilterModal');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
+        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
+        const table = document.getElementById('combinedTable');
+
+        // Define columns for each report
+        const insuranceCols = [
+            '#', 'Vehicle Number', 'Policy Type', 'Policy Number', 'Renewal Date(Vehicles)', 'Status (I)'
+        ];
+        const maintenanceCols = [
+            '#', 'Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status'
+        ];
+        const gpsCols = [
+            '#', 'Vehicle Number', 'GPS', 'Renewal Date(GPS)'
+        ];
+
+        // Helper to check columns by name
+        function checkColumnsByNames(names) {
+            const labels = document.querySelectorAll('#columnFilterForm label');
+            labels.forEach(label => {
+                const cb = label.querySelector('input[type="checkbox"]');
+                if (cb) {
+                    cb.checked = names.includes(label.textContent.trim());
+                }
             });
-        } else {
-            console.log('columnFilterBtn not found in DOM');
         }
-        // ...existing code...
+
+        // Quick-select handlers
+        const insuranceReportBtn = document.getElementById('insuranceReportBtn');
+        const maintenanceReportBtn = document.getElementById('maintenanceReportBtn');
+        const gpsReportBtn = document.getElementById('gpsReportBtn');
+
+        if (insuranceReportBtn) {
+            insuranceReportBtn.addEventListener('click', function() {
+                checkColumnsByNames(insuranceCols);
+            });
+        }
+        if (maintenanceReportBtn) {
+            maintenanceReportBtn.addEventListener('click', function() {
+                checkColumnsByNames(maintenanceCols);
+            });
+        }
+        if (gpsReportBtn) {
+            gpsReportBtn.addEventListener('click', function() {
+                checkColumnsByNames(gpsCols);
+            });
+        }
+
+        // Add highlight logic for quick-select buttons
+        const quickBtns = [insuranceReportBtn, maintenanceReportBtn, gpsReportBtn];
+
+        quickBtns.forEach(btn => {
+            if (btn) {
+                btn.classList.add('report-quick-btn');
+                btn.addEventListener('click', function() {
+                    quickBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            }
+        });
     });
     </script>
     <script src="scripts.js"></script>
