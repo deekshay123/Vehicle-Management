@@ -186,7 +186,6 @@
         width: 100%;
         flex-wrap: nowrap;
         animation: fadeIn 0.8s cubic-bezier(.77,0,.18,1) 0.2s 1;
-        counter-reset: statusbox;
     }
     @media (max-width: 900px) {
         .status-counts-container {
@@ -212,23 +211,13 @@
         min-width: 140px;
         text-align: center;
         transition: box-shadow 0.2s, transform 0.15s, border 0.18s;
-        position: relative;
         z-index: 1;
         min-width: 140px;
         margin: 0 8px;
         animation: popIn 0.7s cubic-bezier(.77,0,.18,1);
     }
     .status-count-box::before {
-        counter-increment: statusbox;
-        content: counter(statusbox) ". ";
-        position: absolute;
-        left: 12px;
-        top: 12px;
-        font-size: 1.1em;
-        font-weight: bold;
-        color: #43cea2;
-        opacity: 0.7;
-        pointer-events: none;
+        display: none !important;
     }
     @media (max-width: 700px) {
         .status-count-box::before {
@@ -748,16 +737,27 @@
             <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center; width:100%;"></div>
         </div>
     </div>
-    <!-- Column selection modal -->
+     <!-- Column selection modal -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
             <form id="columnFilterForm">
-                <!-- Checkboxes will be dynamically populated here -->
+                <div>
+                    <input type="checkbox" id="option1" onchange="toggleColumn('option1')">
+                    <label for="option1">Insurance Details</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="option2" onchange="toggleColumn('option2')">
+                    <label for="option2">Service Records</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="option3" onchange="toggleColumn('option3')">
+                    <label for="option3">GPS Information</label>
+                </div>
             </form>
             <div class="column-filter-buttons">
-                <button id="saveColumnFilterBtn" type="button">Save</button>
-                <button id="cancelColumnFilterBtn" type="button">Cancel</button>
+                <button id="saveColumnFilterBtn" type="button" onclick="saveColumnSelection()">Save</button>
+                <button id="cancelColumnFilterBtn" type="button" onclick="closeColumnFilterModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -784,6 +784,22 @@
     </div>
 
     <script>
+         function toggleColumn(option) {
+            // Logic to show/hide columns based on checkbox selection
+        }
+
+        function saveColumnSelection() {
+            // Logic to save the selected columns and update the table
+            closeColumnFilterModal();
+        }
+
+        function closeColumnFilterModal() {
+            document.getElementById('columnFilterModal').style.display = 'none';
+        }
+
+        document.getElementById('columnFilterBtn').onclick = function() {
+            document.getElementById('columnFilterModal').style.display = 'flex';
+        };
      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
         try {
@@ -1094,6 +1110,17 @@
         // Run the styling function when the page loads
         document.addEventListener('DOMContentLoaded', styleVehicleNumbers);
         
+        // Also run it after any table updates (you might need to call this from other scripts)
+        window.styleVehicleNumbers = styleVehicleNumbers;
+    </script>
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
         // Also run it after any table updates (you might need to call this from other scripts)
         window.styleVehicleNumbers = styleVehicleNumbers;
     </script>
