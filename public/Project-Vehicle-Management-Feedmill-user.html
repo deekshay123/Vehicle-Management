@@ -27,9 +27,9 @@
         font-weight: bold !important;
     }
     
-    /* Make Vehicle Number column violet */
+    /* Make Vehicle Number column skyblue */
     #combinedTable td:nth-child(2) {
-        color: #8A2BE2 !important; /* Violet color */
+        color: #00b7ff !important; /* Skyblue color */
         font-weight: bold !important;
     }
     
@@ -377,7 +377,7 @@
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
                     if (header === 'Vehicle Number') {
-                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [138, 43, 226] };
+                        acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold', textColor: [135, 206, 235] };
                     } else {
                         acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null, fontStyle: 'bold' };
                     }
@@ -432,7 +432,7 @@
                 if (vehicleNumber && parts.length > 1) {
                     // Create HTML with the vehicle number styled and brackets in normal text
                     const bracketContent = fullText.substring(vehicleNumber.length);
-                    cell.innerHTML = `<span style="color: #8A2BE2; font-weight: bold;">${vehicleNumber}</span>${bracketContent}`;
+                    cell.innerHTML = `<span style="color: #87CEEB; font-weight: bold;">${vehicleNumber}</span>${bracketContent}`;
                 }
             });
         }
