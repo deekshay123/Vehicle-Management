@@ -1348,7 +1348,26 @@
                 </tr>`;
             });
         } else {
-            // Show all data (empty by default)
+            // Default: show all data (empty by default)
+            allTableData.forEach(d => {
+                rows += `<tr>
+                    <td>${d.data.number || ''}</td>
+                    <td>${d.data.vehicleNumber || ''}</td>
+                    <td>${d.data.policyType || ''}</td>
+                    <td>${d.data.policyNumber || ''}</td>
+                    <td>${d.data.renewalDate || ''}</td>
+                    <td>${d.data.statusI || ''}</td>
+                    <td>${d.data.serviceType || ''}</td>
+                    <td>${d.data.openingKM || ''}</td>
+                    <td>${d.data.closingKM || ''}</td>
+                    <td>${d.data.kmDriven || ''}</td>
+                    <td>${d.data.remarks || ''}</td>
+                    <td>${d.data.lastServiceDate || ''}</td>
+                    <td>${d.data.status || ''}</td>
+                    <td>${d.data.gps || ''}</td>
+                    <td>${d.data.renewalDateGPS || ''}</td>
+                </tr>`;
+            });
         }
         tbody.innerHTML = rows;
     }
@@ -1394,7 +1413,7 @@
     window.loadTableData = async function() {
         // ...fetch and set allTableData...
         // allTableData = await fetchDataFromDatabase();
-        // After loading, refresh table by current report type
+        // Always refresh table after loading data
         refreshTableByReportType();
     };
     </script>
