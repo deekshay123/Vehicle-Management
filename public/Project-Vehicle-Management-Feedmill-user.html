@@ -661,6 +661,13 @@
     #combinedTable thead {
         box-shadow: 0 2px 8px rgba(44,83,100,0.10);
     }
+    /* Highlighted/selected status box */
+    .status-count-box.selected {
+        box-shadow: 0 8px 32px rgba(44,83,100,0.22);
+        border: 2px solid #2980b9;
+        background: linear-gradient(120deg, #e3eaf2 60%, #c7d0e1 100%);
+        transform: scale(1.05);
+    }
     </style>
 </head>
 <body>
@@ -1218,6 +1225,19 @@
     <script src="export.js"></script>
 </body>
 </html>
+    // Also run it after any table updates (you might need to call this from other scripts)
+        window.styleVehicleNumbers = styleVehicleNumbers;
+    </script>
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
+
+
 
 
 
