@@ -373,7 +373,12 @@
         border-radius: 18px;
         padding: 36px 44px 28px 44px;
         min-width:340px;
+        max-width:520px;
+        margin:auto;
         background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     #columnFilterTitle {
         color: #1e70a7;
@@ -808,7 +813,7 @@
     </div>
     <!-- ===== Column Selection Modal ===== -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
-        <div class="column-filter-content" style="box-shadow: 0 8px 32px rgba(44,83,100,0.18); border-radius: 18px; padding: 36px 44px 28px 44px; min-width:340px;">
+        <div class="column-filter-content" style="box-shadow: 0 8px 32px rgba(44,83,100,0.18); border-radius: 18px; padding: 36px 44px 28px 44px; min-width:340px; max-width:520px; margin:auto;">
             <h3 id="columnFilterTitle" style="margin-bottom: 24px; color: #1e70a7; font-size: 1.25rem; font-weight: 800; letter-spacing: 1px;">Select Columns to Display</h3>
             <!-- Professional radio buttons for quick selection -->
             <div id="columnPresetRadios" style="display:flex;justify-content:center;gap:18px;margin-bottom:24px;">
@@ -825,11 +830,13 @@
                     <span class="preset-radio-btn">GPS</span>
                 </label>
             </div>
-            <!-- Horizontally 5x5 grid for checkboxes -->
-            <form id="columnFilterForm" style="margin-bottom: 18px;">
-                <!-- Checkboxes will be dynamically populated here -->
-            </form>
-            <div class="column-filter-buttons" style="margin-top: 24px;">
+            <!-- Neatly aligned grid for checkboxes -->
+            <div class="column-checkbox-grid">
+                <form id="columnFilterForm">
+                    <!-- Checkboxes will be dynamically populated here -->
+                </form>
+            </div>
+            <div class="column-filter-buttons" style="margin-top: 24px; display:flex; justify-content:center;">
                 <button id="saveColumnFilterBtn" type="button" style="min-width:100px;">Save</button>
                 <button id="cancelColumnFilterBtn" type="button" style="min-width:100px;">Cancel</button>
             </div>
@@ -1206,7 +1213,6 @@
 
             // Get all header cells from the second row
             const headerCells = table.querySelectorAll('thead tr:nth-child(2) th');
-            // Hide/show header columns
             headerCells.forEach(th => {
                 if (checked.includes(th.textContent.trim())) {
                     th.style.display = '';
@@ -1228,7 +1234,6 @@
             });
         }
 
-        // Listen for radio button changes
         document.addEventListener('DOMContentLoaded', function() {
             // Setup column preset radios
             const radios = document.querySelectorAll('input[name="columnPreset"]');
@@ -1239,13 +1244,10 @@
             });
             // Initialize with default (policy)
             updateColumnCheckboxes('policy');
-
-            // Save button applies selected columns
             document.getElementById('saveColumnFilterBtn').onclick = function() {
                 applySelectedColumns();
                 document.getElementById('columnFilterModal').style.display = 'none';
             };
-            // Cancel button just closes modal
             document.getElementById('cancelColumnFilterBtn').onclick = function() {
                 document.getElementById('columnFilterModal').style.display = 'none';
             };
