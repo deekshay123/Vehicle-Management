@@ -1595,15 +1595,15 @@ window.onload = async function () {
         width: 28px;
         height: 28px;
     }
-    .globe-green-3d {
-        /* SVG handles color */
-    }
-    .globe-yellow-3d {
-        /* SVG handles color */
-    }
-    .globe-red-3d {
-        /* SVG handles color */
-    }
+    // .globe-green-3d {
+    //     /* SVG handles color */
+    // }
+    // .globe-yellow-3d {
+    //     /* SVG handles color */
+    // }
+    // .globe-red-3d {
+    //     /* SVG handles color */
+    // }
     .globe-blink {
         animation: globeBlinkRapid 0.2s linear infinite;
     }
