@@ -1605,7 +1605,7 @@ window.onload = async function () {
         /* SVG handles color */
     }
     .globe-blink {
-        animation: globeBlinkRapid 0.45s linear infinite;
+        animation: globeBlinkRapid 0.2s linear infinite;
     }
     @keyframes globeBlinkRapid {
         0%, 55% { opacity: 1; }
