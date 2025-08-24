@@ -1253,15 +1253,18 @@
             // Simulate fetch with timeout, replace with actual fetch:
             // let response = await fetch('your-api-endpoint');
             // let data = await response.json();
-            await new Promise(resolve => setTimeout(resolve, 1200)); // Simulated delay
+            await new Promise(resolve => setTimeout(resolve, 1200)); // Simulate network delay
 
+            // TODO: Replace below with your actual table update logic
+            // Example: updateTable(data);
             if (typeof window.loadTableData === 'function') {
-                await window.loadTableData();
+                await window.loadTableData(); // Call your actual table data loader
             } else {
-                // Fallback: clear table and notify no data loaded.
+                // Fallback: clear table
                 const tbody = document.querySelector('#combinedTable tbody');
                 if (tbody) {
                     tbody.innerHTML = '';
+                    // Optionally add a row indicating "No data"
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
                     td.colSpan = document.querySelectorAll('#combinedTable thead tr:nth-child(2) th').length;
@@ -1270,7 +1273,7 @@
                     tbody.appendChild(tr);
                 }
             }
-            // Re-apply styling after server data loads.
+            // Re-style vehicle numbers after reload
             if (window.styleVehicleNumbers) window.styleVehicleNumbers();
         } catch (err) {
             alert('Failed to reload data.');
