@@ -446,18 +446,54 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
             const diffTime = renewalDate2 - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+            // Globe color logic
             let globeClass = '';
             if (diffDays > 30) {
-                globeClass = 'globe-icon globe-green';
+                globeClass = 'globe-icon globe-green-3d';
             } else if (diffDays > 15) {
-                globeClass = 'globe-yellow';
+                globeClass = 'globe-icon globe-yellow-3d';
             } else if (diffDays > 2) {
-                globeClass = 'globe-red blinking';
+                globeClass = 'globe-icon globe-red-3d globe-blink';
             } else {
-                globeClass = 'globe-red';
+                globeClass = 'globe-icon globe-red-3d';
             }
 
-            cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
+            // 3D effect globe HTML (SVG based for better 3D look)
+            cell.innerHTML =
+              `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)">
+                <svg width="28" height="28" viewBox="0 0 28 28" style="vertical-align:middle;">
+                  <defs>
+                    <radialGradient id="globeGradGreen" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#bfffe1"/>
+                      <stop offset="60%" stop-color="#00c853"/>
+                      <stop offset="100%" stop-color="#009624"/>
+                    </radialGradient>
+                    <radialGradient id="globeGradYellow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#fff9c4"/>
+                      <stop offset="70%" stop-color="#ffd600"/>
+                      <stop offset="100%" stop-color="#bfa100"/>
+                    </radialGradient>
+                    <radialGradient id="globeGradRed" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#ffd6d6"/>
+                      <stop offset="60%" stop-color="#e74c3c"/>
+                      <stop offset="100%" stop-color="#900c0c"/>
+                    </radialGradient>
+                  </defs>
+                  <circle cx="14" cy="14" r="12"
+                    fill="${
+                      globeClass.includes('globe-green-3d') ? 'url(#globeGradGreen)' :
+                      globeClass.includes('globe-yellow-3d') ? 'url(#globeGradYellow)' :
+                      'url(#globeGradRed)'
+                    }"
+                    stroke="#888"
+                    stroke-width="2"
+                  />
+                  <ellipse cx="14" cy="16" rx="7" ry="2.2" fill="#fff" opacity="0.11"/>
+                  <ellipse cx="14" cy="10" rx="8" ry="2.7" fill="#fff" opacity="0.09"/>
+                  <ellipse cx="14" cy="10" rx="3.2" ry="1.1" fill="#fff" opacity="0.18"/>
+                </svg>
+              </span>
+              <span class="renewal-days-text" style="margin-left:6px;font-weight:500;">Renewal in ${diffDays} day(s)</span>`;
             cell.style.textAlign = 'center';
             cell.classList.add('gps-column-shadow');
             return;
@@ -1540,3 +1576,42 @@ window.onload = async function () {
     // Apply saved column visibility on page load
     applyColumnVisibility();
 };
+
+// Add CSS for globe styles and blinking effect (inject once)
+(function addGlobe3DStyles() {
+    if (document.getElementById('globe-3d-style')) return;
+    const style = document.createElement('style');
+    style.id = 'globe-3d-style';
+    style.textContent = `
+    .globe-icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 2px;
+        /* 3D shadow and highlight */
+        box-shadow: 0 2px 6px 0 #8888, 0 6px 16px #4442, 0 0px 0px #fff inset;
+        border-radius: 50%;
+        transition: box-shadow 0.2s;
+        position: relative;
+        width: 28px;
+        height: 28px;
+    }
+    .globe-green-3d {
+        /* SVG handles color */
+    }
+    .globe-yellow-3d {
+        /* SVG handles color */
+    }
+    .globe-red-3d {
+        /* SVG handles color */
+    }
+    .globe-blink {
+        animation: globeBlinkRapid 0.45s linear infinite;
+    }
+    @keyframes globeBlinkRapid {
+        0%, 55% { opacity: 1; }
+        60%, 75% { opacity: 0.4; filter: blur(1px); }
+        80%, 100% { opacity: 1; }
+    }
+    `;
+    document.head.appendChild(style);
+})();
