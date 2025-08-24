@@ -446,54 +446,28 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
             const diffTime = renewalDate2 - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            // Globe color logic
-            let globeClass = '';
-            if (diffDays > 30) {
-                globeClass = 'globe-icon globe-green-3d';
-            } else if (diffDays > 15) {
-                globeClass = 'globe-icon globe-yellow-3d';
-            } else if (diffDays > 2) {
-                globeClass = 'globe-icon globe-red-3d globe-blink';
-            } else {
-                globeClass = 'globe-icon globe-red-3d';
-            }
+                            // Circle color logic
+                            let circleClass = '';
+                            if (diffDays > 30) {
+                                    circleClass = 'circle-icon circle-green';
+                            } else if (diffDays > 15) {
+                                    circleClass = 'circle-icon circle-yellow';
+                            } else {
+                                    circleClass = 'circle-icon circle-red circle-blink';
+                            }
 
-            // 3D effect globe HTML (SVG based for better 3D look)
-            cell.innerHTML =
-              `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)">
-                <svg width="28" height="28" viewBox="0 0 28 28" style="vertical-align:middle;">
-                  <defs>
-                    <radialGradient id="globeGradGreen" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stop-color="#bfffe1"/>
-                      <stop offset="60%" stop-color="#00c853"/>
-                      <stop offset="100%" stop-color="#009624"/>
-                    </radialGradient>
-                    <radialGradient id="globeGradYellow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stop-color="#fff9c4"/>
-                      <stop offset="70%" stop-color="#ffd600"/>
-                      <stop offset="100%" stop-color="#bfa100"/>
-                    </radialGradient>
-                    <radialGradient id="globeGradRed" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stop-color="#ffd6d6"/>
-                      <stop offset="60%" stop-color="#e74c3c"/>
-                      <stop offset="100%" stop-color="#900c0c"/>
-                    </radialGradient>
-                  </defs>
-                  <circle cx="14" cy="14" r="12"
-                    fill="${
-                      globeClass.includes('globe-green-3d') ? 'url(#globeGradGreen)' :
-                      globeClass.includes('globe-yellow-3d') ? 'url(#globeGradYellow)' :
-                      'url(#globeGradRed)'
-                    }"
-                    stroke="#888"
-                    stroke-width="2"
-                  />
-                  <ellipse cx="14" cy="16" rx="7" ry="2.2" fill="#fff" opacity="0.11"/>
-                  <ellipse cx="14" cy="10" rx="8" ry="2.7" fill="#fff" opacity="0.09"/>
-                  <ellipse cx="14" cy="10" rx="3.2" ry="1.1" fill="#fff" opacity="0.18"/>
-                </svg>
-              </span>
-              <span class="renewal-days-text" style="margin-left:6px;font-weight:500;">Renewal in ${diffDays} day(s)</span>`;
+                            // Simple flat circle HTML (SVG based)
+                            cell.innerHTML =
+                                `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
+                                        <circle cx="10" cy="10" r="8" fill="${
+                                            circleClass.includes('circle-green') ? '#28a745' : // normal green
+                                            circleClass.includes('circle-yellow') ? '#ffc107' : // normal yellow
+                                            '#dc3545' // normal red
+                                        }" stroke="#888" stroke-width="2" />
+                                    </svg>
+                                </span>
+                                <span class="renewal-days-text" style="margin-left:6px;font-weight:500;">Renewal in ${diffDays} day(s)</span>`;
             cell.style.textAlign = 'center';
             cell.classList.add('gps-column-shadow');
             return;
