@@ -1,4 +1,3 @@
-
 // Toggle form visibility and arrow direction
 const toggleBtn = document.getElementById('toggleFormBtn');
 const form = document.getElementById('combinedForm');
@@ -209,6 +208,18 @@ let currentPage = 1;
 const itemsPerPage = 150;
 let isAllFilterActive = false; // Track if "All" filter is active
 
+// Helper: get visible column indices from localStorage
+function getVisibleColumnIndices() {
+    const savedVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {};
+    const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th'));
+    let visibleIndices = [];
+    headers.forEach((th, idx) => {
+        const visible = savedVisibility.hasOwnProperty(idx) ? savedVisibility[idx] : true;
+        if (visible) visibleIndices.push(idx);
+    });
+    return visibleIndices;
+}
+
 // Render the table rows from data array for the current page or all if all filter active
 function renderTable(data) {
     const tableBody = document.getElementById('combinedTable').getElementsByTagName('tbody')[0];
@@ -223,8 +234,11 @@ function renderTable(data) {
         endIndex = Math.min(startIndex + itemsPerPage, data.length);
     }
 
+    // Get visible columns
+    const visibleIndices = getVisibleColumnIndices();
+
     for (let i = startIndex; i < endIndex; i++) {
-        insertRow(tableBody, data[i], i + 1);
+        insertRow(tableBody, data[i], i + 1, visibleIndices);
     }
 
     // Add professional design class if more than 20 rows
@@ -243,6 +257,12 @@ function renderTable(data) {
         const paginationContainer = document.getElementById('paginationControls');
         paginationContainer.innerHTML = '';
     }
+
+    // Reapply stored column visibility and reinitialize column resizing after table render
+    if (typeof applyColumnVisibility === 'function') {
+        applyColumnVisibility();
+    }
+    initColumnResizing('combinedTable');
 }
 
 // Render pagination controls
@@ -360,7 +380,7 @@ function updateStatusCounts(data) {
 }
 
 
-function insertRow(tableBody, entry, rowIndex) {
+function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
     const newRow = tableBody.insertRow();
     newRow.setAttribute('data-id', entry._id);
 
@@ -430,11 +450,11 @@ function insertRow(tableBody, entry, rowIndex) {
             if (diffDays > 30) {
                 globeClass = 'globe-icon globe-green';
             } else if (diffDays > 15) {
-                globeClass = 'globe-icon globe-yellow';
+                globeClass = 'globe-yellow';
             } else if (diffDays > 2) {
-                globeClass = 'globe-icon globe-red blinking';
+                globeClass = 'globe-red blinking';
             } else {
-                globeClass = 'globe-icon globe-red';
+                globeClass = 'globe-red';
             }
 
             cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
@@ -563,6 +583,13 @@ if (!field.readonly) {
             }
         });
     }
+
+    // After creating row/cells
+    if (visibleIndices) {
+        Array.from(newRow.cells).forEach((cell, idx) => {
+            cell.style.display = visibleIndices.includes(idx) ? '' : 'none';
+        });
+    }
 }
 
 // Enter edit mode for a row
@@ -598,13 +625,13 @@ function enterEditMode(row, originalValues) {
                 const dateValue = originalValues[key];
                 if (dateValue) {
                     const d = new Date(dateValue);
-                    if (!isNaN(d)) {
+                    if (isNaN(d)) {
+                        input.value = '';
+                    } else {
                         const yyyy = d.getFullYear();
                         const mm = String(d.getMonth() + 1).padStart(2, '0');
                         const dd = String(d.getDate()).padStart(2, '0');
                         input.value = `${yyyy}-${mm}-${dd}`;
-                    } else {
-                        input.value = '';
                     }
                 } else {
                     input.value = '';
@@ -1084,7 +1111,34 @@ function combinedFilter() {
     const statusText = searchStatusInput.value.trim().toLowerCase();
     const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
     const vehicleNumberText2 = searchVehicleNumberInput2.value.trim().toLowerCase();
-    filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText, vehicleNumberText2);
+
+    // Get visible column indices and names
+    const visibleIndices = getVisibleColumnIndices();
+    const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
+    const visibleHeaders = visibleIndices.map(idx => headers[idx]);
+
+    const data = window.currentData || [];
+    const filteredData = data.filter(entry => {
+        // Only match in visible columns
+        let match = true;
+        // For each search input, check if its corresponding column is visible
+        if (monthText && visibleHeaders.includes('Renewal Date(Vehicles)')) {
+            const vehicleMonth = getMonthName(entry.vehicleRenewalDate);
+            match = match && vehicleMonth.includes(monthText);
+        }
+        if (statusText && visibleHeaders.includes('Policy Type')) {
+            const policyType = entry.policyType ? entry.policyType.toLowerCase() : '';
+            match = match && policyType.includes(statusText);
+        }
+        if (vehicleNumberText && visibleHeaders.includes('Vehicle Number')) {
+            match = match && entry.vehicleNumber.toLowerCase().includes(vehicleNumberText);
+        }
+        if (vehicleNumberText2 && visibleHeaders.includes('Vehicle Number')) {
+            match = match && entry.vehicleNumber.toLowerCase().includes(vehicleNumberText2);
+        }
+        return match;
+    });
+    renderTable(filteredData);
 }
 
 searchMonthInput.addEventListener('input', combinedFilter);
@@ -1333,29 +1387,52 @@ window.onload = async function () {
     if (searchGpsRenewalDateInput && combinedTable) {
         searchGpsRenewalDateInput.addEventListener('input', () => {
             const filterValue = searchGpsRenewalDateInput.value.toLowerCase().trim();
-            const rows = combinedTable.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                // Renewal Date to the right of GPS is in the 15th column (index 14) based on the table header
-                const renewalDateCell = row.cells[14];
-                if (renewalDateCell) {
-                    const cellText = renewalDateCell.textContent.toLowerCase();
-                    // Try to parse the date and extract month name
-                    const dateObj = new Date(cellText);
-                    const months = [
-                        'january', 'february', 'march', 'april', 'may', 'june',
-                        'july', 'august', 'september', 'october', 'november', 'december'
-                    ];
-                    let monthName = '';
-                    if (!isNaN(dateObj)) {
-                        monthName = months[dateObj.getMonth()];
-                    }
-                    if (monthName.includes(filterValue) || cellText.includes(filterValue)) {
-                        row.style.display = '';
+            const visibleIndices = getVisibleColumnIndices();
+            const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
+            const gpsColIdx = headers.findIndex(h => h.toLowerCase().includes('renewal date(gps)'));
+            // Only filter if GPS column is visible
+            if (!visibleIndices.includes(gpsColIdx)) {
+                renderTable([]); // Hide all rows if GPS column not visible
+                return;
+            }
+            const data = window.currentData || [];
+            const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+            const filteredData = data.filter(entry => {
+                let cellText = '';
+                if (entry.renewalDate2) {
+                    cellText = entry.renewalDate2.toLowerCase();
+                }
+                let matched = false;
+                if (filterValue === '') {
+                    matched = true;
+                } else {
+                    let monthPart = '';
+                    let dateParts = cellText.split('-');
+                    if (dateParts.length === 3) {
+                        monthPart = dateParts[1].toLowerCase();
+                        if (/^\d+$/.test(monthPart)) {
+                          let monthIdx = parseInt(monthPart, 10) - 1;
+                          if (monthIdx >= 0 && monthIdx < 12) {
+                            monthPart = monthOrder[monthIdx];
+                          }
+                        }
                     } else {
-                        row.style.display = 'none';
+                        for (let m of monthOrder) {
+                            if (cellText.includes(m)) {
+                                monthPart = m;
+                                break;
+                            }
+                        }
+                    }
+                    if (monthPart.startsWith(filterValue)) {
+                        matched = true;
+                    } else if (cellText.includes(filterValue)) {
+                        matched = true;
                     }
                 }
+                return matched;
             });
+            renderTable(filteredData);
         });
     }
 
