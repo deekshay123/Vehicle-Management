@@ -1605,13 +1605,13 @@ window.onload = async function () {
     //     /* SVG handles color */
     // }
     .globe-blink {
-        animation: globeBlinkRapid 0.2s linear infinite;
+        animation: globeBlinkRapid 0.3s linear infinite;
     }
-    @keyframes globeBlinkRapid {
-        0%, 55% { opacity: 1; }
-        60%, 75% { opacity: 0.4; filter: blur(1px); }
-        80%, 100% { opacity: 1; }
-    }
+    // @keyframes globeBlinkRapid {
+    //     0%, 55% { opacity: 1; }
+    //     60%, 75% { opacity: 0.4; filter: blur(1px); }
+    //     80%, 100% { opacity: 1; }
+    // }
     `;
     document.head.appendChild(style);
 })();
