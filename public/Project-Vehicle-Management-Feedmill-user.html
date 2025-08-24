@@ -1338,6 +1338,8 @@
                 label.style.fontWeight = '500';
                 label.style.fontSize = '0.98em';
                 label.style.color = '#25324b';
+                // Ensure the text fits in a single line
+                label.style.whiteSpace = 'nowrap';
                 label.classList.add('column-checkbox-label');
                 if (col.visible) label.classList.add('selected');
 
