@@ -1579,39 +1579,35 @@ window.onload = async function () {
 
 // Add CSS for globe styles and blinking effect (inject once)
 (function addGlobe3DStyles() {
-    if (document.getElementById('globe-3d-style')) return;
+    if (document.getElementById('circle-style')) return;
     const style = document.createElement('style');
-    style.id = 'globe-3d-style';
+    style.id = 'circle-style';
     style.textContent = `
-    .globe-icon {
+    .circle-icon {
         display: inline-block;
         vertical-align: middle;
         margin-right: 2px;
-        /* 3D shadow and highlight */
-        box-shadow: 0 2px 6px 0 #8888, 0 6px 16px #4442, 0 0px 0px #fff inset;
         border-radius: 50%;
-        transition: box-shadow 0.2s;
-        position: relative;
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
     }
-    // .globe-green-3d {
-    //     /* SVG handles color */
-    // }
-    // .globe-yellow-3d {
-    //     /* SVG handles color */
-    // }
-    // .globe-red-3d {
-    //     /* SVG handles color */
-    // }
-    .globe-blink {
-        animation: globeBlinkRapid 0.3s linear infinite;
+    .circle-green {
+        /* SVG handles color */
     }
-    // @keyframes globeBlinkRapid {
-    //     0%, 55% { opacity: 1; }
-    //     60%, 75% { opacity: 0.4; filter: blur(1px); }
-    //     80%, 100% { opacity: 1; }
-    // }
+    .circle-yellow {
+        /* SVG handles color */
+    }
+    .circle-red {
+        /* SVG handles color */
+    }
+    .circle-blink {
+        animation: circleBlink 0.45s linear infinite;
+    }
+    @keyframes circleBlink {
+        0%, 55% { opacity: 1; }
+        60%, 75% { opacity: 0.4; filter: blur(1px); }
+        80%, 100% { opacity: 1; }
+    }
     `;
     document.head.appendChild(style);
 })();
