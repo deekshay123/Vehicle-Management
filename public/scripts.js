@@ -449,11 +449,13 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                             // Circle color logic
                             let circleClass = '';
                             if (diffDays > 30) {
-                                    circleClass = 'circle-icon circle-green';
+                                circleClass = 'circle-icon circle-green';
                             } else if (diffDays > 15) {
-                                    circleClass = 'circle-icon circle-yellow';
+                                circleClass = 'circle-icon circle-yellow';
+                            } else if (diffDays >= 3 && diffDays <= 15) {
+                                circleClass = 'circle-icon circle-red circle-blink';
                             } else {
-                                    circleClass = 'circle-icon circle-red circle-blink';
+                                circleClass = 'circle-icon circle-red';
                             }
 
                             // Simple flat circle HTML (SVG based)
@@ -461,9 +463,9 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                                 `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
                                     <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
                                         <circle cx="10" cy="10" r="8" fill="${
-                                            circleClass.includes('circle-green') ? '#28a745' : // normal green
-                                            circleClass.includes('circle-yellow') ? '#ffc107' : // normal yellow
-                                            '#dc3545' // normal red
+                                            circleClass.includes('circle-green') ? '#00ff3cff' : // normal green
+                                            circleClass.includes('circle-yellow') ? '#fffb00ff' : // normal yellow
+                                            '#ff0019ff' // normal red
                                         }" stroke="#888" stroke-width="2" />
                                     </svg>
                                 </span>
