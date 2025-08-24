@@ -379,39 +379,10 @@
         animation: fadeInScale 0.25s;
         border: 1.5px solid #e3eaf2;
         animation: popIn 0.4s cubic-bezier(.77,0,.18,1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
-    #columnFilterForm {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-top: 12px;
-    }
-    #columnFilterForm label {
-        width: calc(50% - 20px);
-        margin: 10px;
-        padding: 8px;
-        border: 1.5px solid #c7d0e1;
-        border-radius: 6px;
-        background: #f8fafc;
-        transition: background 0.2s, border 0.2s;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    #columnFilterForm label.selected {
-        background: #d4edda;
-        border-color: #43cea2;
-    }
-    @media (max-width: 600px) {
-        #columnFilterForm label {
-            width: 100%;
-            margin: 6px 0;
-        }
+    @keyframes fadeInScale {
+        from { opacity: 0; transform: scale(0.92);}
+        to { opacity: 1; transform: scale(1);}
     }
     .column-filter-content h3 {
         margin-bottom: 18px;
@@ -1282,18 +1253,15 @@
             // Simulate fetch with timeout, replace with actual fetch:
             // let response = await fetch('your-api-endpoint');
             // let data = await response.json();
-            await new Promise(resolve => setTimeout(resolve, 1200)); // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1200)); // Simulated delay
 
-            // TODO: Replace below with your actual table update logic
-            // Example: updateTable(data);
             if (typeof window.loadTableData === 'function') {
-                await window.loadTableData(); // Call your actual table data loader
+                await window.loadTableData();
             } else {
-                // Fallback: clear table
+                // Fallback: clear table and notify no data loaded.
                 const tbody = document.querySelector('#combinedTable tbody');
                 if (tbody) {
                     tbody.innerHTML = '';
-                    // Optionally add a row indicating "No data"
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
                     td.colSpan = document.querySelectorAll('#combinedTable thead tr:nth-child(2) th').length;
@@ -1302,7 +1270,7 @@
                     tbody.appendChild(tr);
                 }
             }
-            // Re-style vehicle numbers after reload
+            // Re-apply styling after server data loads.
             if (window.styleVehicleNumbers) window.styleVehicleNumbers();
         } catch (err) {
             alert('Failed to reload data.');
