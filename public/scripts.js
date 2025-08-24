@@ -461,8 +461,8 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                             // Simple flat circle HTML (SVG based)
                             cell.innerHTML =
                                 `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
-                                        <circle cx="10" cy="10" r="8" fill="${
+                                    <svg width="32" height="32" viewBox="0 0 32 32" style="vertical-align:middle;">
+                                        <circle cx="16" cy="16" r="14" fill="${
                                             circleClass.includes('circle-green') ? '#00ff3cff' : // normal green
                                             circleClass.includes('circle-yellow') ? '#fffb00ff' : // normal yellow
                                             '#ff0019ff' // normal red
@@ -1564,8 +1564,8 @@ window.onload = async function () {
         vertical-align: middle;
         margin-right: 2px;
         border-radius: 50%;
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
     }
     .circle-green {
         /* SVG handles color */
