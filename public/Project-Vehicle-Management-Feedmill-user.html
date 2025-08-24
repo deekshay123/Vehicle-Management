@@ -1467,7 +1467,17 @@
         const gpsSearchInput = document.getElementById('searchGpsRenewalDateInput');
         if (gpsSearchInput) {
             gpsSearchInput.addEventListener('input', function() {
-                // ...existing filtering logic...
+                const filterText = gpsSearchInput.value.toLowerCase().trim();
+                const table = document.getElementById('combinedTable');
+                const tbodyRows = table.querySelectorAll('tbody tr');
+                tbodyRows.forEach(row => {
+                    // Renewal Date(GPS) is in the 15th cell (index 14)
+                    const cell = row.cells[14];
+                    if (cell) {
+                        const cellText = cell.textContent.toLowerCase();
+                        row.style.display = cellText.includes(filterText) ? '' : 'none';
+                    }
+                });
                 updateSerialNumbers();
             });
         }
