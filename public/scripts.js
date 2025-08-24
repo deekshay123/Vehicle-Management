@@ -1,3 +1,4 @@
+
 // Toggle form visibility and arrow direction
 const toggleBtn = document.getElementById('toggleFormBtn');
 const form = document.getElementById('combinedForm');
@@ -242,12 +243,6 @@ function renderTable(data) {
         const paginationContainer = document.getElementById('paginationControls');
         paginationContainer.innerHTML = '';
     }
-
-    // Reapply stored column visibility and reinitialize column resizing after table render
-    if (typeof applyColumnVisibility === 'function') {
-        applyColumnVisibility();
-    }
-    initColumnResizing('combinedTable');
 }
 
 // Render pagination controls
@@ -435,11 +430,11 @@ function insertRow(tableBody, entry, rowIndex) {
             if (diffDays > 30) {
                 globeClass = 'globe-icon globe-green';
             } else if (diffDays > 15) {
-                globeClass = 'globe-yellow';
+                globeClass = 'globe-icon globe-yellow';
             } else if (diffDays > 2) {
-                globeClass = 'globe-red blinking';
+                globeClass = 'globe-icon globe-red blinking';
             } else {
-                globeClass = 'globe-red';
+                globeClass = 'globe-icon globe-red';
             }
 
             cell.innerHTML = `<span class="${globeClass}" title="Renewal in ${diffDays} day(s)"></span> <span class="renewal-days-text">Renewal in ${diffDays} day(s)</span>`;
@@ -603,13 +598,13 @@ function enterEditMode(row, originalValues) {
                 const dateValue = originalValues[key];
                 if (dateValue) {
                     const d = new Date(dateValue);
-                    if (isNaN(d)) {
-                        input.value = '';
-                    } else {
+                    if (!isNaN(d)) {
                         const yyyy = d.getFullYear();
                         const mm = String(d.getMonth() + 1).padStart(2, '0');
                         const dd = String(d.getDate()).padStart(2, '0');
                         input.value = `${yyyy}-${mm}-${dd}`;
+                    } else {
+                        input.value = '';
                     }
                 } else {
                     input.value = '';
