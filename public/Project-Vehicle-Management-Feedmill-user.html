@@ -1446,6 +1446,82 @@
             });
         }
     });
+    
+    // Helper function to update the serial number column (#) after filtering
+    function updateSerialNumbers() {
+        const tbody = document.querySelector('#combinedTable tbody');
+        let count = 1;
+        tbody.querySelectorAll('tr').forEach(row => {
+            if (row.style.display !== 'none') {
+                // Update first cell with the current count
+                if (row.cells[0]) {
+                    row.cells[0].textContent = count.toString();
+                }
+                count++;
+            }
+        });
+    }
+
+    // GPS Renewal Date search input filtering logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const gpsSearchInput = document.getElementById('searchGpsRenewalDateInput');
+        if (gpsSearchInput) {
+            gpsSearchInput.addEventListener('input', function() {
+                const filterValue = gpsSearchInput.value.trim().toLowerCase();
+                const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                const tbody = document.querySelector('#combinedTable tbody');
+                const gpsColIdx = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th'))
+                    .findIndex(th => th.textContent.trim().toLowerCase().includes('renewal date(gps)'));
+
+                tbody.querySelectorAll('tr').forEach(row => {
+                    let cellText = '';
+                    if (gpsColIdx !== -1 && row.cells[gpsColIdx]) {
+                        cellText = row.cells[gpsColIdx].textContent.trim().toLowerCase();
+                    }
+                    // Extract month part from date (assume format dd-mon-yyyy or dd-mm-yyyy)
+                    let matched = false;
+                    if (filterValue === '') {
+                        matched = true;
+                    } else {
+                        // Try to match incremental alphabets in month name
+                        // e.g., filterValue = 'j' matches 'jan', 'jul', etc.
+                        // e.g., filterValue = 'ja' matches 'jan'
+                        // e.g., filterValue = 'jul' matches 'jul'
+                        // Extract month from cellText
+                        let monthPart = '';
+                        let dateParts = cellText.split('-');
+                        if (dateParts.length === 3) {
+                            // If middle part is a month name or number
+                            monthPart = dateParts[1].toLowerCase();
+                            // If it's a number, convert to month name
+                            if (/^\d+$/.test(monthPart)) {
+                                let monthIdx = parseInt(monthPart, 10) - 1;
+                                if (monthIdx >= 0 && monthIdx < 12) {
+                                    monthPart = monthOrder[monthIdx];
+                                }
+                            }
+                        } else {
+                            // Try to find month name in cellText
+                            for (let m of monthOrder) {
+                                if (cellText.includes(m)) {
+                                    monthPart = m;
+                                    break;
+                                }
+                            }
+                        }
+                        // Match incremental search
+                        if (monthPart.startsWith(filterValue)) {
+                            matched = true;
+                        } else if (cellText.includes(filterValue)) {
+                            matched = true;
+                        }
+                    }
+                    row.style.display = matched ? '' : 'none';
+                });
+                updateSerialNumbers();
+            });
+        }
+    });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
