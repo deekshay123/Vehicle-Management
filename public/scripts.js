@@ -1564,8 +1564,8 @@ window.onload = async function () {
         vertical-align: middle;
         margin-right: 2px;
         border-radius: 50%;
-        width: 20px;
-        height: 20px;
+        width: 30px;
+        height: 30px;
     }
     .circle-green {
         /* SVG handles color */
@@ -1577,7 +1577,7 @@ window.onload = async function () {
         /* SVG handles color */
     }
     .circle-blink {
-        animation: circleBlink 0.45s linear infinite;
+        animation: circleBlink 0.25s linear infinite;
     }
     @keyframes circleBlink {
         0%, 55% { opacity: 1; }
