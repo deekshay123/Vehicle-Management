@@ -1668,9 +1668,9 @@
             <span class="arrow down">&#9660;</span> Show Form
         </button>
         <form
-            id="combinedForm"
-            style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
-            onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
+            <!-- id="combinedForm" -->
+            <!-- style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
+            onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);" -->
         >
             <!-- <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
             <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
@@ -1907,18 +1907,14 @@
 
             // Only add Division column if at least one division exists
             let divisionNames = [];
+            let divisionHeaderLabel = 'Division';
             if (divisionExists) {
                 // Collect all unique division names from the data
                 divisionNames = Array.from(new Set(allRows.map(r => r['Division']).filter(Boolean)));
-                let divisionHeaderLabel = divisionNames.length > 0 ? divisionNames.join(', ') : 'Division';
-                insertAfter(headers, 'Make-Model', divisionHeaderLabel);
-                // Rename the key in allRows from 'Division' to the new header label
-                allRows.forEach(row => {
-                    if (row['Division'] !== undefined) {
-                        row[divisionHeaderLabel] = row['Division'];
-                        delete row['Division'];
-                    }
-                });
+                divisionHeaderLabel = divisionNames.length > 0 ? divisionNames.join(', ') : 'Division';
+                // Replace 'Division' in headers with the new label, but keep the data key as 'Division'
+                const idx = headers.indexOf('Division');
+                if (idx !== -1) headers[idx] = divisionHeaderLabel;
             } else {
                 headers = headers.filter(h => h !== 'Division');
                 allRows.forEach(row => { delete row['Division']; });
@@ -2016,8 +2012,14 @@
                     row['#'] = (idx + 1).toString();
                 }
             });
+            // Map headers to columns, using the new label for the header but 'Division' as the dataKey
             doc.autoTable({
-                columns: headers.map(header => ({ header: header, dataKey: header })),
+                columns: headers.map(header => {
+                    if (header === divisionHeaderLabel && divisionHeaderLabel !== 'Division') {
+                        return { header: divisionHeaderLabel, dataKey: 'Division' };
+                    }
+                    return { header: header, dataKey: header };
+                }),
                 body: data,
                 startY: 60,
                 styles: {
