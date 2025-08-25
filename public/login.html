@@ -371,6 +371,9 @@
         .then(data => {
             console.log('Login response:', data); // Debug log
 if (data.success) {
+    // Store division in sessionStorage for API calls
+    sessionStorage.setItem('division', data.division);
+    
     if (username === 'user' && password === 'feedmill@123') {
         window.location.href = '/Project-Vehicle-Management-Feedmill-user.html'; // Redirect feedmill user to feedmill user page
     } else if (username === 'admin' && password === 'NU67IJvWI/d') {
