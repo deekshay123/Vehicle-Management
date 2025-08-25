@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1858,14 +1857,16 @@
                 let vehicleType = '';
                 const parts = vehicleNumberFull.split('[');
                 vehicleNumber = parts[0].trim();
+                let foundDivision = false;
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
                     if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
-                    } else if (!division) {
+                    } else if (!foundDivision) {
                         // First non-type bracket is treated as division
                         division = `[${part}]`;
                         divisionExists = true;
+                        foundDivision = true;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
