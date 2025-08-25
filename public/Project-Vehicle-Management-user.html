@@ -1856,18 +1856,21 @@
                 let makeModelArr = [];
                 let division = '';
                 let vehicleType = '';
-                const parts = vehicleNumberFull.split('[');
-                vehicleNumber = parts[0].trim();
-                let foundDivision = false;
-                for (let i = 1; i < parts.length; i++) {
-                    const part = parts[i].replace(']', '').trim();
+                // Improved parsing: extract all bracketed parts
+                const bracketRegex = /\[([^\]]+)\]/g;
+                let match, bracketParts = [];
+                while ((match = bracketRegex.exec(vehicleNumberFull)) !== null) {
+                    bracketParts.push(match[1].trim());
+                }
+                vehicleNumber = vehicleNumberFull.split('[')[0].trim();
+                // Identify division, type, make/model
+                for (let i = 0; i < bracketParts.length; i++) {
+                    const part = bracketParts[i];
                     if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
-                    } else if (!foundDivision) {
-                        // First non-type bracket is treated as division
+                    } else if (!division) {
                         division = `[${part}]`;
                         divisionExists = true;
-                        foundDivision = true;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
@@ -1906,18 +1909,16 @@
             });
 
             // Only add Division column if at least one division exists
-            if (divisionExists) {
-                // Always keep the header as 'Division'
-                const idx = headers.indexOf('Division');
-                if (idx === -1) {
-                    // If not present, insert after Make-Model
-                    const mmIdx = headers.indexOf('Make-Model');
-                    if (mmIdx !== -1) headers.splice(mmIdx + 1, 0, 'Division');
-                }
-            } else {
-                headers = headers.filter(h => h !== 'Division');
-                allRows.forEach(row => { delete row['Division']; });
+            // Always keep the header as 'Division' after 'Make-Model'
+            const idx = headers.indexOf('Division');
+            if (idx === -1) {
+                const mmIdx = headers.indexOf('Make-Model');
+                if (mmIdx !== -1) headers.splice(mmIdx + 1, 0, 'Division');
             }
+            // Ensure every row has a Division key (even if empty)
+            allRows.forEach(row => {
+                if (row['Division'] === undefined) row['Division'] = '';
+            });
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
