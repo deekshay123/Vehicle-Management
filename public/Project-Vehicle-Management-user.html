@@ -1870,7 +1870,7 @@
                     const cleaned = part.replace(/\s|\./g, '').toUpperCase();
                     if (["4WHEEL", "HEAVY", "2WHEEL"].includes(cleaned)) {
                         vehicleType = `[${part.toUpperCase()}]`;
-                    } else if (!foundDivision && knownDivisions.some(d => cleaned === d.replace(/\s|\./g, '').toUpperCase())) {
+                    } else if (!foundDivision && knownDivisions.some(d => cleaned.includes(d.replace(/\s|\./g, '').toUpperCase()))) {
                         division = `[${part}]`;
                         divisionExists = true;
                         foundDivision = true;
