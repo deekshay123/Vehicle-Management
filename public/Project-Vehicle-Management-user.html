@@ -1906,15 +1906,14 @@
             });
 
             // Only add Division column if at least one division exists
-            let divisionNames = [];
-            let divisionHeaderLabel = 'Division';
             if (divisionExists) {
-                // Collect all unique division names from the data
-                divisionNames = Array.from(new Set(allRows.map(r => r['Division']).filter(Boolean)));
-                divisionHeaderLabel = divisionNames.length > 0 ? divisionNames.join(', ') : 'Division';
-                // Replace 'Division' in headers with the new label, but keep the data key as 'Division'
+                // Always keep the header as 'Division'
                 const idx = headers.indexOf('Division');
-                if (idx !== -1) headers[idx] = divisionHeaderLabel;
+                if (idx === -1) {
+                    // If not present, insert after Make-Model
+                    const mmIdx = headers.indexOf('Make-Model');
+                    if (mmIdx !== -1) headers.splice(mmIdx + 1, 0, 'Division');
+                }
             } else {
                 headers = headers.filter(h => h !== 'Division');
                 allRows.forEach(row => { delete row['Division']; });
@@ -2012,11 +2011,11 @@
                     row['#'] = (idx + 1).toString();
                 }
             });
-            // Map headers to columns, using the new label for the header but 'Division' as the dataKey
+            // Map headers to columns, always use 'Division' as both header and dataKey
             doc.autoTable({
                 columns: headers.map(header => {
-                    if (header === divisionHeaderLabel && divisionHeaderLabel !== 'Division') {
-                        return { header: divisionHeaderLabel, dataKey: 'Division' };
+                    if (header === 'Division') {
+                        return { header: 'Division', dataKey: 'Division' };
                     }
                     return { header: header, dataKey: header };
                 }),
