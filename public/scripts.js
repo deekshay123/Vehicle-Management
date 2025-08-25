@@ -1564,8 +1564,8 @@ window.onload = async function () {
         vertical-align: middle;
         margin-right: 2px;
         border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     }
     .circle-green {
         /* SVG handles color */
