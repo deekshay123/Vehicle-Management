@@ -1860,11 +1860,12 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
+                    if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                        vehicleType = `[${part.toUpperCase()}]`;
+                    } else if (!division) {
+                        // First non-type bracket is treated as division
                         division = `[${part}]`;
                         divisionExists = true;
-                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
-                        vehicleType = `[${part.toUpperCase()}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
