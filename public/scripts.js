@@ -458,18 +458,18 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                                 circleClass = 'circle-icon circle-red';
                             }
 
-                            // Simple flat circle HTML (SVG based)
+                            // Professional medium-sized SVG circle icon
                             cell.innerHTML =
                                 `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
-                                    <svg width="32" height="32" viewBox="0 0 32 32" style="vertical-align:middle;">
-                                        <circle cx="16" cy="16" r="14" fill="${
-                                            circleClass.includes('circle-green') ? '#00ff3cff' : // normal green
-                                            circleClass.includes('circle-yellow') ? '#fffb00ff' : // normal yellow
-                                            '#ff0019ff' // normal red
-                                        }" stroke="#888" stroke-width="2" />
+                                    <svg width="40" height="40" viewBox="0 0 40 40" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
+                                        <circle cx="20" cy="20" r="16" fill="${
+                                            circleClass.includes('circle-green') ? '#2e7d32' : // professional green
+                                            circleClass.includes('circle-yellow') ? '#fbc02d' : // professional yellow
+                                            '#c62828' // professional red
+                                        }" stroke="#444" stroke-width="3" />
                                     </svg>
                                 </span>
-                                <span class="renewal-days-text" style="margin-left:6px;font-weight:500;">Renewal in ${diffDays} day(s)</span>`;
+                                <span class="renewal-days-text" style="margin-left:8px;font-weight:500;color:#222;font-size:15px;">Renewal in ${diffDays} day(s)</span>`;
             cell.style.textAlign = 'center';
             cell.classList.add('gps-column-shadow');
             return;
@@ -1564,8 +1564,8 @@ window.onload = async function () {
         vertical-align: middle;
         margin-right: 2px;
         border-radius: 50%;
-        width: 32px;
-        height: 32px;
+    width: 40px;
+    height: 40px;
     }
     .circle-green {
         /* SVG handles color */
