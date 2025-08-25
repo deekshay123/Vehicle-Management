@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1905,8 +1906,19 @@
             });
 
             // Only add Division column if at least one division exists
+            let divisionNames = [];
             if (divisionExists) {
-                insertAfter(headers, 'Make-Model', 'Division');
+                // Collect all unique division names from the data
+                divisionNames = Array.from(new Set(allRows.map(r => r['Division']).filter(Boolean)));
+                let divisionHeaderLabel = divisionNames.length > 0 ? divisionNames.join(', ') : 'Division';
+                insertAfter(headers, 'Make-Model', divisionHeaderLabel);
+                // Rename the key in allRows from 'Division' to the new header label
+                allRows.forEach(row => {
+                    if (row['Division'] !== undefined) {
+                        row[divisionHeaderLabel] = row['Division'];
+                        delete row['Division'];
+                    }
+                });
             } else {
                 headers = headers.filter(h => h !== 'Division');
                 allRows.forEach(row => { delete row['Division']; });
