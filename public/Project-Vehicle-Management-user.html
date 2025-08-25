@@ -1863,18 +1863,18 @@
                     bracketParts.push(match[1].trim());
                 }
                 vehicleNumber = vehicleNumberFull.split('[')[0].trim();
-                // Identify division, type, make/model
-                for (let i = 0; i < bracketParts.length; i++) {
-                    const part = bracketParts[i];
+                // Identify type, division, make/model by content
+                const knownDivisions = ["PRO", "R.O", "S.K", "H.O", "SK", "RO", "HO"];
+                bracketParts.forEach((part, idx) => {
                     if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
-                    } else if (!division) {
+                    } else if (knownDivisions.includes(part.toUpperCase().replace('.', ''))) {
                         division = `[${part}]`;
                         divisionExists = true;
                     } else {
                         makeModelArr.push(`[${part}]`);
                     }
-                }
+                });
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
