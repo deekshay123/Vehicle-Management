@@ -461,12 +461,12 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                             // Professional medium-sized SVG circle icon
                             cell.innerHTML =
                                 `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
-                                    <svg width="40" height="40" viewBox="0 0 40 40" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
-                                        <circle cx="20" cy="20" r="16" fill="${
+                                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
+                                        <circle cx="10" cy="10" r="8" fill="${
                                             circleClass.includes('circle-green') ? '#2e7d32' : // professional green
                                             circleClass.includes('circle-yellow') ? '#fbc02d' : // professional yellow
                                             '#c62828' // professional red
-                                        }" stroke="#444" stroke-width="3" />
+                                        }" stroke="#444" stroke-width="2" />
                                     </svg>
                                 </span>
                                 <span class="renewal-days-text" style="margin-left:8px;font-weight:500;color:#222;font-size:15px;">Renewal in ${diffDays} day(s)</span>`;
@@ -1564,8 +1564,8 @@ window.onload = async function () {
         vertical-align: middle;
         margin-right: 2px;
         border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     }
     .circle-green {
         /* SVG handles color */
