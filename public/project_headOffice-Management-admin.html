@@ -1,136 +1,1775 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vehicle and Maintenance Tables - Head Office Division</title>
+    <title>Vehicle and Maintenance Tables</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="custom_styles.css" />
-    <!-- Font Awesome CDN for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
+    body {
+        min-height: 100vh;
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #222e3a;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        background-attachment: fixed;
+        position: relative;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 100px;
+        box-sizing: border-box;
+        width: 100vw;
+        min-width: 0;
+    }
+    .app-header {
+    background: linear-gradient(90deg, #ff6e7f 0%, #bfe9ff 100%);
+    color: #222e3a;
+        padding: 2rem 0 2rem 0;
+        text-align: center;
+        font-family: inherit;
+        font-weight: 800;
+        font-size: 2.1rem;
+        letter-spacing: 2px;
+    box-shadow: 0 4px 24px 0 rgba(44,83,100,0.10);
+    border-radius: 24px;
+        margin: 36px auto 24px auto;
+        max-width: 900px;
+        border: 1.5px solid #c7d0e1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        margin: 0;
+        border-radius: 0 0 24px 24px;
+        z-index: 100;
+        max-width: none;
+        box-sizing: border-box;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-40px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    .app-header h3 {
+        margin: 0;
+        letter-spacing: 2px;
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #1a2233;
+        text-shadow: none;
+        width: 100%;
+        text-align: center;
+    }
+    /* Button Styles */
+    button {
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 4px;
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    border: 1.5px solid #b0bec5;
+    color: #fff;
+        box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+        cursor: pointer;
+        transition: background 0.18s, box-shadow 0.18s, transform 0.12s, border 0.18s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 1;
+    }
+    button:hover, button:focus {
+    background: linear-gradient(90deg, #26a69a 0%, #1976d2 100%);
+    border: 1.5px solid #1976d2;
+    color: #fff;
+    }
+    button:active {
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    box-shadow: 0 1px 4px rgba(44,83,100,0.12);
+    transform: scale(0.98);
+    }
+    #logoutBtn {
+        position: static;
+        float: right;
+        margin-top: 0;
+        margin-right: 0;
+    background: linear-gradient(90deg, #d32f2f 0%, #1976d2 100%);
+    color: #fff;
+        font-size: 1rem;
+        padding: 10px 22px;
+        z-index: 1001;
+        box-shadow: 0 2px 8px rgba(229,115,115,0.10);
+        border: 1.5px solid #fbeee6;
+        display: flex !important;
+        align-items: center;
+        opacity: 1;
+        visibility: visible;
+    }
+    @media (max-width: 700px) {
+        #logoutBtn {
+            top: 8px;
+            right: 8px;
+            font-size: 0.95rem;
+            padding: 6px 10px;
+        }
+    }
+    #toggleFormBtn {
+        margin: 0 auto 22px auto;
+        display: block;
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    color: #fff;
+        font-size: 1rem;
+        padding: 10px 22px;
+        border: 1.5px solid #c7d0e1;
+        margin: 0 auto 22px auto;
+        animation: fadeInUp 0.7s cubic-bezier(.77,0,.18,1) 0.1s 1;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(40px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    /* Input Styles */
+    input[type="text"], input[type="number"], input[type="date"], textarea {
+    border: 1.5px solid #b0bec5;
+    background: #f5f7fa;
+    color: #222e3a;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 1rem;
+        margin: 2px 0;
+        transition: border 0.18s, box-shadow 0.18s, background 0.18s;
+        box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+        outline: none;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, textarea:focus {
+    border: 1.5px solid #1976d2;
+    box-shadow: 0 2px 8px #1976d233;
+    background: #fff;
+    color: #222e3a;
+    }
+    /* Table Container Card */
+    .table-container {
+    background: #fff;
+    border: 1.5px solid #b0bec5;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(44,83,100,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+        padding: 28px 24px 24px 24px;
+        margin: 0 auto 36px auto;
+        max-width: 99vw;
+        width: 99vw;
+        overflow-x: auto;
+        transition: box-shadow 0.3s;
+        position: relative;
+        z-index: 1;
+        margin: 0 auto 36px auto;
+        animation: fadeInUp 0.8s cubic-bezier(.77,0,.18,1) 0.2s 1;
+    }
+    /* Status Counts Card */
+    .status-counts-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: stretch;
+        gap: 24px;
+        margin: 0 auto 28px auto;
+        max-width: 1000px;
+        width: 100%;
+        flex-wrap: nowrap;
+        animation: fadeIn 0.8s cubic-bezier(.77,0,.18,1) 0.2s 1;
+    }
+    @media (max-width: 900px) {
+        .status-counts-container {
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        .status-count-box {
+            min-width: 120px;
+            flex: 1 1 120px;
+        }
+        .table-container > div[style*="display: flex"] {
+            flex-wrap: wrap;
+            gap: 10px !important;
+        }
+    }
+    .status-count-box {
+    background: linear-gradient(120deg, #e3f2fd 60%, #f5f7fa 100%);
+    border: 1.5px solid #b0bec5;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(44,83,100,0.08);
+        padding: 18px 32px;
+        min-width: 140px;
+        text-align: center;
+        transition: box-shadow 0.2s, transform 0.15s, border 0.18s;
+        z-index: 1;
+        min-width: 140px;
+        margin: 0 8px;
+        animation: popIn 0.7s cubic-bezier(.77,0,.18,1);
+    }
+    .status-count-box::before {
+        display: none !important;
+    }
+    @media (max-width: 700px) {
+        .status-count-box::before {
+            left: 6px;
+            top: 6px;
+            font-size: 1em;
+        }
+    }
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.92);}
+        to { opacity: 1; transform: scale(1);}
+    }
+    .status-count-box:hover {
+        box-shadow: 0 6px 24px rgba(44,83,100,0.16);
+        border: 1.5px solid #b3c6d9;
+        transform: translateY(-2px) scale(1.04);
+    }
+    .status-count-box h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+    color: #1976d2;
+        letter-spacing: 1px;
+        text-shadow: none;
+    }
+    .status-count-number {
+        font-size: 2.1rem;
+        font-weight: 800;
+    color: #1976d2;
+        letter-spacing: 1px;
+        margin: 0;
+        text-shadow: none;
+    }
+    .active-box .status-count-number { color: #2ecc71; }
+    .expiring-box .status-count-number { color: #ffa726; }
+    .expired-box .status-count-number { color: #d32f2f; }
+    .all-box .status-count-number { color: #1976d2; }
+    /* Table Styles */
+    #combinedTable {
+        width: 100%;
+        min-width: 900px;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    #combinedTable thead tr:first-child th {
+        border-top-left-radius: 14px;
+        border-top-right-radius: 14px;
+    }
+    #combinedTable th, #combinedTable td {
+        padding: 10px 12px;
+        text-align: center;
+        border-bottom: 1.5px solid #c7d0e1;
+        background: none;
+        vertical-align: middle;
+    }
+    #combinedTable th {
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    color: #fff !important;
+        font-weight: 700;
+        font-size: 1.01rem;
+        box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+        border-bottom: 2.5px solid #c7d0e1;
+        border-top: 1px solid #c7d0e1;
+        letter-spacing: 0.5px;
+        text-shadow: none;
+    }
+    #combinedTable tr {
+        transition: background 0.18s;
+    }
+    #combinedTable tbody tr {
+        transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+    }
+    #combinedTable tbody tr:hover {
+        background: #e6ecf3;
+        box-shadow: 0 2px 12px #3a7bd522;
+        transform: scale(1.01);
+    }
+    #combinedTable td {
+        color: #1a2233;
+    }
+    #combinedTable td:nth-child(2) {
+        color: #7c3aed !important;
+    }
+    #combinedTable td:nth-child(13) {
+        color: #2980b9 !important;
+    }
+    #combinedTable th:nth-child(13) {
+        color: white !important;
+    }
+    #combinedTable td:nth-child(13) {
+        color: #1e70a7 !important;
+        font-weight: bold !important;
+        text-shadow: none;
+    }
+    #combinedTable th, #combinedTable td {
+        white-space: nowrap;
+    }
+    /* Search Inputs Row */
+    .table-container > div[style*="display: flex"] {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+    }
+    .table-container input[type="text"] {
+        background: #f8fafc;
+        color: #1a2233;
+        border: 1.5px solid #c7d0e1;
+        margin-bottom: 0;
+        box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+        transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+    }
+    .table-container input[type="text"]:focus {
+        box-shadow: 0 0 0 2px #43cea233;
+        background: #fff;
+    }
+    /* Export/Reload/Column Buttons */
+    #exportPdfBtn, #exportExcelBtn, #reloadBtn, #columnFilterBtn {
+        background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+        border: 1.5px solid #c7d0e1;
+        color: #fff;
+    }
+    #exportPdfBtn:hover, #exportExcelBtn:hover, #reloadBtn:hover, #columnFilterBtn:hover {
+        background: linear-gradient(90deg, #43cea2 0%, #2b5876 100%);
+        border: 1.5px solid #8fa1c7;
+    }
+    /* Pagination Controls */
+    .pagination-controls {
+        margin-top: 22px;
+        text-align: center;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #2b5876;
+        letter-spacing: 0.5px;
+        text-shadow: none;
+        animation: fadeInUp 0.8s cubic-bezier(.77,0,.18,1) 0.5s 1;
+    }
+    /* Column Filter Modal */
+    .column-filter-modal {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(44,83,100,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(6px);
+        transition: background 0.2s;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s cubic-bezier(.77,0,.18,1);
+    }
+    .column-filter-modal[aria-hidden="false"], .column-filter-modal.show {
+        opacity: 1;
+        pointer-events: all;
+        animation: modalFadeIn 0.35s cubic-bezier(.77,0,.18,1);
+    }
+    @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .column-filter-content {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(44,83,100,0.18);
+        padding: 36px 44px 28px 44px;
+        min-width: 340px;
+        max-width: 98vw;
+        width: 100%;
+        text-align: center;
+        animation: modalScaleIn 0.45s cubic-bezier(.77,0,.18,1);
+        border: none;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    @keyframes modalScaleIn {
+        0% { opacity: 0; transform: scale(0.92) translateY(30px);}
+        60% { opacity: 1; transform: scale(1.04) translateY(-6px);}
+        100% { opacity: 1; transform: scale(1) translateY(0);}
+    }
+    .column-filter-content h3 {
+        margin-bottom: 18px;
+        color: #2b5876;
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 1px;
+        text-shadow: none;
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 2;
+        width: 100%;
+        padding-bottom: 8px;
+        border-bottom: 1.5px solid #e3eaf2;
+        animation: fadeInDown 0.5s cubic-bezier(.77,0,.18,1);
+    }
+    #reportQuickSelect {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        margin-bottom: 18px;
+        width: 100%;
+    }
+    #reportQuickSelect button {
+        background: linear-gradient(90deg,#2b5876 0%,#43cea2 100%);
+        color: #fff;
+        border-radius: 8px;
+        padding: 7px 22px;
+        font-weight: 600;
+        border: none;
+        font-size: 1em;
+        box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+        transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+        position: relative;
+        z-index: 1;
+    }
+    #reportQuickSelect button:hover, #reportQuickSelect button.report-btn-active {
+        background: linear-gradient(90deg,#43cea2 0%,#2b5876 100%);
+        box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+        transform: scale(1.04);
+    }
+    #columnFilterForm {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 12px 18px;
+        justify-items: start;
+        align-items: center;
+        width: 100%;
+        margin: 0 auto 18px auto;
+        padding: 10px 0 0 0;
+        background: none;
+    }
+    .column-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+        font-size: 1em;
+        color: #25324b;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 7px 12px;
+        box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+        cursor: pointer;
+        transition: background 0.22s cubic-bezier(.77,0,.18,1), box-shadow 0.22s, border 0.22s;
+        animation: fadeInUp 0.4s cubic-bezier(.77,0,.18,1);
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(18px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    .column-checkbox-label.selected {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        border: 2px solid #43cea2;
+        box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+        animation: checkboxSelectAnim 0.35s cubic-bezier(.77,0,.18,1);
+    }
+    @keyframes checkboxSelectAnim {
+        0% { background: #f8fafc; border-color: #e3eaf2; }
+        60% { background: #e3f6ff; border-color: #43cea2; }
+        100% { background: linear-gradient(90deg,#e3f6ff 60%,#f8fafc 100%); border-color: #43cea2;}
+    }
+    .column-checkbox-label:hover {
+        background: linear-gradient(90deg,#f8fafc 60%,#e3f6ff 100%);
+        border: 2px solid #2b5876;
+        animation: checkboxHoverAnim 0.22s cubic-bezier(.77,0,.18,1);
+    }
+    @keyframes checkboxHoverAnim {
+        0% { background: #f8fafc; border-color: #e3eaf2;}
+        100% { background: linear-gradient(90deg,#f8fafc 60%,#e3f6ff 100%); border-color: #2b5876;}
+    }
+    .column-filter-buttons {
+        margin-top: 18px;
+        display: flex;
+        gap: 22px;
+        justify-content: center;
+        width: 100%;
+    }
+    .column-filter-buttons button {
+        background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1em;
+        padding: 10px 28px;
+        transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+        animation: fadeInUp 0.4s cubic-bezier(.77,0,.18,1);
+    }
+    .column-filter-buttons button:hover {
+        background: linear-gradient(90deg, #43cea2 0%, #2b5876 100%);
+        box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+        transform: scale(1.04);
+        animation: btnPopIn 0.3s cubic-bezier(.77,0,.18,1);
+    }
+    .column-filter-buttons button:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 8px rgba(44,83,100,0.18);
+    }
+    @media (max-width: 700px) {
+        .column-filter-content {
+            padding: 18px 8vw 18px 8vw;
+            min-width: 0;
+        }
+        #columnFilterForm {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px 10px;
+        }
+        .column-checkbox-label {
+            font-size: 0.95em;
+            padding: 6px 8px;
+        }
+        .column-filter-buttons button {
+            font-size: 0.95em;
+            padding: 8px 16px;
+        }
+    }
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(44,83,100,0.13);
+        font-size: 1.1rem;
+        font-weight: 600;
+        z-index: 2000;
+        animation: fadeInDown 0.5s cubic-bezier(.77,0,.18,1);
+        border: 1.5px solid #dbeafe;
+        text-shadow: none;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    /* Confirm Dialog */
+    .confirm-dialog {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(44,83,100,0.10);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+        transition: background 0.2s;
+        backdrop-filter: blur(4px);
+        animation: fadeIn 0.3s cubic-bezier(.77,0,.18,1);
+    }
+    .confirm-dialog-content {
+        background: #fff;
+        border: 1.5px solid #c7d0e1;
+        border-radius: 14px;
+        box-shadow: 0 8px 32px rgba(44,83,100,0.13);
+        padding: 32px 36px 24px 36px;
+        min-width: 340px;
+        max-width: 96vw;
+        text-align: center;
+        animation: fadeInScale 0.25s;
+        border: 1.5px solid #e3eaf2;
+        animation: popIn 0.4s cubic-bezier(.77,0,.18,1);
+    }
+    .confirm-dialog-content h3 {
+        margin-bottom: 10px;
+        color: #e96443;
+        font-weight: 700;
+        font-size: 1.15rem;
+        text-shadow: none;
+    }
+    .confirm-dialog-content label {
+        display: block;
+        margin: 12px 0 4px 0;
+        font-weight: 600;
+        color: #2b5876;
+        text-align: left;
+        text-shadow: none;
+    }
+    .confirm-dialog-content textarea,
+    .confirm-dialog-content input[type="text"] {
+        background: #f8fafc;
+        color: #1a2233;
+        border: 1.5px solid #c7d0e1;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 1rem;
+        box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+    }
+    .confirm-dialog-content textarea:focus,
+    .confirm-dialog-content input[type="text"]:focus {
+        border: 1.5px solid #4e4376;
+        box-shadow: 0 2px 8px #4e437633;
+        background: #fff;
+        color: #1a2233;
+    }
+    .confirm-dialog-buttons {
+        margin-top: 16px;
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+    }
+    .confirm-btn {
+        min-width: 80px;
+        padding: 10px 0;
+        font-size: 1rem;
+        border-radius: 10px;
+        border: 1.5px solid #c7d0e1;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(229,115,115,0.08);
+        transition: background 0.2s, border 0.18s;
+        text-shadow: none;
+    }
+    .yes-btn {
+        background: linear-gradient(90deg, #e96443 0%, #f7b267 100%);
+        color: #fff;
+        border: 1.5px solid #fbeee6;
+        text-shadow: none;
+    }
+    .yes-btn:hover {
+        background: linear-gradient(90deg, #f7b267 0%, #e96443 100%);
+        border: 1.5px solid #fbeee6;
+        box-shadow: 0 4px 16px rgba(229,115,115,0.13);
+    }
+    .no-btn {
+        background: linear-gradient(90deg, #b2bec3 0%, #636e72 100%);
+        border: 1.5px solid #c7d0e1;
+        color: #fff;
+        text-shadow: none;
+    }
+    .no-btn:hover {
+        background: linear-gradient(90deg, #636e72 0%, #b2bec3 100%);
+        border: 1.5px solid #8fa1c7;
+        box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    }
+    /* Loading overlay styles */
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(44,83,100,0.18);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: all;
+        transition: opacity 0.2s;
+    }
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+    }
+    .loading-spinner .spinner {
+        border: 6px solid #e3eaf2;
+        border-top: 6px solid #2b5876;
+        border-radius: 50%;
+        width: 54px;
+        height: 54px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+    }
+    .loading-spinner .loading-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2b5876;
+        letter-spacing: 1px;
+        text-shadow: none;
+        font-family: inherit;
+    }
+    /* Responsive */
+    @media (max-width: 1100px) {
+        .app-header, .status-counts-container, .table-container {
+            max-width: 100vw;
+            width: 100vw;
+            padding-left: 1vw;
+            padding-right: 1vw;
+        }
+        .table-container {
+            padding: 14px 1vw 14px 1vw;
+        }
+    }
+    @media (max-width: 900px) {
+        .status-counts-container {
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        .status-count-box {
+            min-width: 120px;
+            flex: 1 1 120px;
+        }
+        .table-container > div[style*="display: flex"] {
+            flex-wrap: wrap;
+            gap: 10px !important;
+        }
+    }
+    @media (max-width: 700px) {
         .app-header {
-           background: linear-gradient(90deg, #6d0077a9, #00397f);
-           color: white;
-           padding: 0.1rem 5px;
-           text-align: center;
-           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-           font-weight: 700;
-           font-size: 20px;
-           letter-spacing: 1.5px;
-           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-           border-radius: 8px;
-           margin-bottom: 30px;
-           position: relative;
-    }  
+            font-size: 1.1rem;
+            padding: 0.7rem 0;
+            border-radius: 0 0 14px 14px;
+        }
+        .main-content {
+            padding: 0;
+        }
+        .status-counts-container {
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-left: 0.5vw;
+            padding-right: 0.5vw;
+        }
+        .status-count-box {
+            padding: 10px 6px;
+            min-width: 90px;
+            font-size: 0.95rem;
+        }
+        .table-container {
+            padding: 8px 0.5vw 8px 0.5vw;
+        }
+        .table-container > div[style*="display: flex"] {
+            flex-direction: column;
+            gap: 8px !important;
+            align-items: stretch;
+        }
+        /* Make search inputs smaller on mobile */
+        .table-container input[type="text"] {
+            font-size: 0.92em;
+            padding: 6px 8px;
+            min-width: 90px !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            margin-bottom: 6px;
+        }
+        /* Adjust search input container for mobile */
+        .table-container > div[style*="display: flex"] {
+            flex-direction: column !important;
+            gap: 8px !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+        /* Adjust column filter modal for mobile */
+        .column-filter-content {
+            padding: 10px 2vw 10px 2vw !important;
+            min-width: 0 !important;
+            max-width: 100vw !important;
+            width: 100vw !important;
+        }
+        #columnFilterForm {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+            gap: 6px 6px !important;
+            padding: 4px 0 0 0 !important;
+        }
+        .column-checkbox-label {
+            font-size: 0.89em !important;
+            padding: 5px 6px !important;
+        }
+        .column-filter-buttons {
+            gap: 10px !important;
+        }
+        .column-filter-buttons button {
+            font-size: 0.92em !important;
+            padding: 7px 12px !important;
+        }
+        #reportQuickSelect {
+            gap: 8px !important;
+        }
+        #reportQuickSelect button {
+            font-size: 0.92em !important;
+            padding: 6px 10px !important;
+        }
+    }
+    @media (max-width: 500px) {
+        .app-header h3 {
+            font-size: 1.1rem;
+        }
+        .status-count-box {
+            min-width: 70px;
+            font-size: 0.85rem;
+            padding: 8px 2px;
+        }
+        #combinedTable {
+            min-width: 400px;
+            font-size: 0.9rem;
+        }
+    }
+    /* Make all table data bold */
+    #combinedTable td {
+        font-weight: bold !important;
+    }
+    
+    /* Make Vehicle Number column violet and bold */
+    #combinedTable td:nth-child(2) {
+        color: #7c3aed !important;
+        font-weight: bold !important;
+    }
+    /* Make Status (I) table data colored (already handled in export) */
+    /* Remove special color for Status (index 12) table head and data blue */
+    #combinedTable th:nth-child(13) {
+        color: white !important; /* Match other headers */
+        font-weight: bold !important;
+    }
+    #combinedTable td:nth-child(13) {
+        color: #1e70a7 !important; /* Keep data blue as before */
+        font-weight: bold !important;
+    }
+
+    /* Make table body scrollable with fixed height */
+.scrollable-table-wrapper {
+    max-height: 400px; /* Adjust height as needed */
+    overflow-y: auto;
+    width: 100%;
+    border-radius: 0 0 14px 14px;
+    box-shadow: none;
+    border-top: none;
+}
+
+/* Ensure thead stays visible */
+#combinedTable thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
+}
+
+/* Prevent tbody from overlapping header */
+#combinedTable tbody {
+    z-index: 1;
+}
+
+/* Optional: Remove double border between thead and tbody */
+#combinedTable thead tr:last-child th {
+    border-bottom: 1.5px solid #c7d0e1;
+}
+.logout-btn-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 5em; /* moved down by 0.2em */
+    margin-bottom: 15px;
+    padding: 0 2vw;
+    box-sizing: border-box;
+}
+.status-count-box.selected {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        box-shadow: 0 4px 24px rgba(44,83,100,0.18);
+        border: 2px solid #43cea2;
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.active-box {
+        background: linear-gradient(120deg, #eafaf1 60%, #d4f7e7 100%);
+        border: 2px solid #2ecc71;
+        box-shadow: 0 4px 24px rgba(46,204,113,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.expiring-box {
+        background: linear-gradient(120deg, #fffbe6 60%, #ffe9c7 100%);
+        border: 2px solid #f39c12;
+        box-shadow: 0 4px 24px rgba(243,156,18,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.expired-box {
+        background: linear-gradient(120deg, #ffeaea 60%, #ffd6d6 100%);
+        border: 2px solid #e74c3c;
+        box-shadow: 0 4px 24px rgba(231,76,60,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.all-box {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        border: 2px solid #4e4376;
+        box-shadow: 0 4px 24px rgba(44,83,100,0.18);
+        transform: scale(1.05);
+    }
+    /* Report button active state */
+    .report-btn-active {
+        background: linear-gradient(90deg, #00ff59 0%, #0099ff 100%) !important;
+        color: #fff !important;
+        border: 2px solid #2980b9 !important;
+        box-shadow: 0 4px 16px rgba(44,83,100,0.18);
+        transform: scale(1.05);
+    }
+
+    /* Column Filter Modal - Professional Design & Animations */
+.column-filter-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(44,83,100,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(.77,0,.18,1);
+}
+.column-filter-modal[aria-hidden="false"], .column-filter-modal.show {
+    opacity: 1;
+    pointer-events: all;
+    animation: modalFadeIn 0.35s cubic-bezier(.77,0,.18,1);
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.column-filter-content {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(44,83,100,0.18);
+    padding: 36px 44px 28px 44px;
+    min-width: 340px;
+    max-width: 98vw;
+    width: 100%;
+    text-align: center;
+    animation: modalScaleIn 0.45s cubic-bezier(.77,0,.18,1);
+    border: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+@keyframes modalScaleIn {
+    0% { opacity: 0; transform: scale(0.92) translateY(30px);}
+    60% { opacity: 1; transform: scale(1.04) translateY(-6px);}
+    100% { opacity: 1; transform: scale(1) translateY(0);}
+}
+.column-filter-content h3 {
+    margin-bottom: 18px;
+    color: #2b5876;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    text-shadow: none;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+    width: 100%;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #e3eaf2;
+    animation: fadeInDown 0.5s cubic-bezier(.77,0,.18,1);
+}
+#reportQuickSelect {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 18px;
+    width: 100%;
+}
+#reportQuickSelect button {
+    background: linear-gradient(90deg,#2b5876 0%,#43cea2 100%);
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 22px;
+    font-weight: 600;
+    border: none;
+    font-size: 1em;
+    box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+    transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+    position: relative;
+    z-index: 1;
+}
+#reportQuickSelect button:hover, #reportQuickSelect button.report-btn-active {
+    background: linear-gradient(90deg,#43cea2 0%,#2b5876 100%);
+    box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    transform: scale(1.04);
+}
+.column-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 1em;
+    color: #25324b;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 7px 12px;
+    box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+    cursor: pointer;
+    transition: background 0.22s cubic-bezier(.77,0,.18,1), box-shadow 0.22s, border 0.22s;
+    animation: fadeInUp 0.4s cubic-bezier(.77,0,.18,1);
+}
+.column-checkbox-label.selected {
+    background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+    border: 2px solid #43cea2;
+    box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+    animation: checkboxSelectAnim 0.35s cubic-bezier(.77,0,.18,1);
+}
+@keyframes checkboxSelectAnim {
+    0% { background: #f8fafc; border-color: #e3eaf2; }
+    60% { background: #e3f6ff; border-color: #43cea2; }
+    100% { background: linear-gradient(90deg,#e3f6ff 60%,#f8fafc 100%); border-color: #43cea2;}
+}
+.column-checkbox-label:hover {
+    background: linear-gradient(90deg,#f8fafc 60%,#e3f6ff 100%);
+    border: 2px solid #2b5876;
+    animation: checkboxHoverAnim 0.22s cubic-bezier(.77,0,.18,1);
+}
+@keyframes checkboxHoverAnim {
+    0% { background: #f8fafc; border-color: #e3eaf2;}
+    100% { background: linear-gradient(90deg,#f8fafc 60%,#e3f6ff 100%); border-color: #2b5876;}
+}
+.column-filter-buttons {
+    margin-top: 18px;
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    width: 100%;
+}
+.column-filter-buttons button {
+    background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+    border: none;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1em;
+    padding: 10px 28px;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    animation: fadeInUp 0.4s cubic-bezier(.77,0,.18,1);
+}
+.column-filter-buttons button:hover {
+    background: linear-gradient(90deg, #43cea2 0%, #2b5876 100%);
+    box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    transform: scale(1.04);
+    animation: btnPopIn 0.3s cubic-bezier(.77,0,.18,1);
+}
+.column-filter-buttons button:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 8px rgba(44,83,100,0.18);
+}
+@media (max-width: 700px) {
+    .column-filter-content {
+        padding: 18px 8vw 18px 8vw;
+        min-width: 0;
+    }
+    #columnFilterForm {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px 10px;
+    }
+    .column-checkbox-label {
+        font-size: 0.95em;
+        padding: 6px 8px;
+    }
+    .column-filter-buttons button {
+        font-size: 0.95em;
+        padding: 8px 16px;
+    }
+}
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(44,83,100,0.13);
+        font-size: 1.1rem;
+        font-weight: 600;
+        z-index: 2000;
+        animation: fadeInDown 0.5s cubic-bezier(.77,0,.18,1);
+        border: 1.5px solid #dbeafe;
+        text-shadow: none;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    /* Confirm Dialog */
+    .confirm-dialog {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(44,83,100,0.10);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+        transition: background 0.2s;
+        backdrop-filter: blur(4px);
+        animation: fadeIn 0.3s cubic-bezier(.77,0,.18,1);
+    }
+    .confirm-dialog-content {
+        background: #fff;
+        border: 1.5px solid #c7d0e1;
+        border-radius: 14px;
+        box-shadow: 0 8px 32px rgba(44,83,100,0.13);
+        padding: 32px 36px 24px 36px;
+        min-width: 340px;
+        max-width: 96vw;
+        text-align: center;
+        animation: fadeInScale 0.25s;
+        border: 1.5px solid #e3eaf2;
+        animation: popIn 0.4s cubic-bezier(.77,0,.18,1);
+    }
+    .confirm-dialog-content h3 {
+        margin-bottom: 10px;
+        color: #e96443;
+        font-weight: 700;
+        font-size: 1.15rem;
+        text-shadow: none;
+    }
+    .confirm-dialog-content label {
+        display: block;
+        margin: 12px 0 4px 0;
+        font-weight: 600;
+        color: #2b5876;
+        text-align: left;
+        text-shadow: none;
+    }
+    .confirm-dialog-content textarea,
+    .confirm-dialog-content input[type="text"] {
+        background: #f8fafc;
+        color: #1a2233;
+        border: 1.5px solid #c7d0e1;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 1rem;
+        box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+    }
+    .confirm-dialog-content textarea:focus,
+    .confirm-dialog-content input[type="text"]:focus {
+        border: 1.5px solid #4e4376;
+        box-shadow: 0 2px 8px #4e437633;
+        background: #fff;
+        color: #1a2233;
+    }
+    .confirm-dialog-buttons {
+        margin-top: 16px;
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+    }
+    .confirm-btn {
+        min-width: 80px;
+        padding: 10px 0;
+        font-size: 1rem;
+        border-radius: 10px;
+        border: 1.5px solid #c7d0e1;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(229,115,115,0.08);
+        transition: background 0.2s, border 0.18s;
+        text-shadow: none;
+    }
+    .yes-btn {
+        background: linear-gradient(90deg, #e96443 0%, #f7b267 100%);
+        color: #fff;
+        border: 1.5px solid #fbeee6;
+        text-shadow: none;
+    }
+    .yes-btn:hover {
+        background: linear-gradient(90deg, #f7b267 0%, #e96443 100%);
+        border: 1.5px solid #fbeee6;
+        box-shadow: 0 4px 16px rgba(229,115,115,0.13);
+    }
+    .no-btn {
+        background: linear-gradient(90deg, #b2bec3 0%, #636e72 100%);
+        border: 1.5px solid #c7d0e1;
+        color: #fff;
+        text-shadow: none;
+    }
+    .no-btn:hover {
+        background: linear-gradient(90deg, #636e72 0%, #b2bec3 100%);
+        border: 1.5px solid #8fa1c7;
+        box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    }
+    /* Loading overlay styles */
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(44,83,100,0.18);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: all;
+        transition: opacity 0.2s;
+    }
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+    }
+    .loading-spinner .spinner {
+        border: 6px solid #e3eaf2;
+        border-top: 6px solid #2b5876;
+        border-radius: 50%;
+        width: 54px;
+        height: 54px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+    }
+    .loading-spinner .loading-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2b5876;
+        letter-spacing: 1px;
+        text-shadow: none;
+        font-family: inherit;
+    }
+    /* Responsive */
+    @media (max-width: 1100px) {
+        .app-header, .status-counts-container, .table-container {
+            max-width: 100vw;
+            width: 100vw;
+            padding-left: 1vw;
+            padding-right: 1vw;
+        }
+        .table-container {
+            padding: 14px 1vw 14px 1vw;
+        }
+    }
+    @media (max-width: 900px) {
+        .status-counts-container {
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        .status-count-box {
+            min-width: 120px;
+            flex: 1 1 120px;
+        }
+        .table-container > div[style*="display: flex"] {
+            flex-wrap: wrap;
+            gap: 10px !important;
+        }
+    }
+    @media (max-width: 700px) {
+        .app-header {
+            font-size: 1.1rem;
+            padding: 0.7rem 0;
+            border-radius: 0 0 14px 14px;
+        }
+        .main-content {
+            padding: 0;
+        }
+        .status-counts-container {
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-left: 0.5vw;
+            padding-right: 0.5vw;
+        }
+        .status-count-box {
+            padding: 10px 6px;
+            min-width: 90px;
+            font-size: 0.95rem;
+        }
+        .table-container {
+            padding: 8px 0.5vw 8px 0.5vw;
+        }
+        .table-container > div[style*="display: flex"] {
+            flex-direction: column;
+            gap: 8px !important;
+            align-items: stretch;
+        }
+        /* Make search inputs smaller on mobile */
+        .table-container input[type="text"] {
+            font-size: 0.92em;
+            padding: 6px 8px;
+            min-width: 90px !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            margin-bottom: 6px;
+        }
+        /* Adjust search input container for mobile */
+        .table-container > div[style*="display: flex"] {
+            flex-direction: column !important;
+            gap: 8px !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+        /* Adjust column filter modal for mobile */
+        .column-filter-content {
+            padding: 10px 2vw 10px 2vw !important;
+            min-width: 0 !important;
+            max-width: 100vw !important;
+            width: 100vw !important;
+        }
+        #columnFilterForm {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+            gap: 6px 6px !important;
+            padding: 4px 0 0 0 !important;
+        }
+        .column-checkbox-label {
+            font-size: 0.89em !important;
+            padding: 5px 6px !important;
+        }
+        .column-filter-buttons {
+            gap: 10px !important;
+        }
+        .column-filter-buttons button {
+            font-size: 0.92em !important;
+            padding: 7px 12px !important;
+        }
+        #reportQuickSelect {
+            gap: 8px !important;
+        }
+        #reportQuickSelect button {
+            font-size: 0.92em !important;
+            padding: 6px 10px !important;
+        }
+    }
+    @media (max-width: 500px) {
+        .app-header h3 {
+            font-size: 1.1rem;
+        }
+        .status-count-box {
+            min-width: 70px;
+            font-size: 0.85rem;
+            padding: 8px 2px;
+        }
+        #combinedTable {
+            min-width: 400px;
+            font-size: 0.9rem;
+        }
+    }
+    /* Make all table data bold */
+    #combinedTable td {
+        font-weight: bold !important;
+    }
+    
+    /* Make Vehicle Number column violet and bold */
+    #combinedTable td:nth-child(2) {
+        color: #7c3aed !important;
+        font-weight: bold !important;
+    }
+    /* Make Status (I) table data colored (already handled in export) */
+    /* Remove special color for Status (index 12) table head and data blue */
+    #combinedTable th:nth-child(13) {
+        color: white !important; /* Match other headers */
+        font-weight: bold !important;
+    }
+    #combinedTable td:nth-child(13) {
+        color: #1e70a7 !important; /* Keep data blue as before */
+        font-weight: bold !important;
+    }
+
+    /* Make table body scrollable with fixed height */
+.scrollable-table-wrapper {
+    max-height: 400px; /* Adjust height as needed */
+    overflow-y: auto;
+    width: 100%;
+    border-radius: 0 0 14px 14px;
+    box-shadow: none;
+    border-top: none;
+}
+
+/* Ensure thead stays visible */
+#combinedTable thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
+}
+
+/* Prevent tbody from overlapping header */
+#combinedTable tbody {
+    z-index: 1;
+}
+
+/* Optional: Remove double border between thead and tbody */
+#combinedTable thead tr:last-child th {
+    border-bottom: 1.5px solid #c7d0e1;
+}
+.logout-btn-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 5em; /* moved down by 0.2em */
+    margin-bottom: 15px;
+    padding: 0 2vw;
+    box-sizing: border-box;
+}
+.status-count-box.selected {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        box-shadow: 0 4px 24px rgba(44,83,100,0.18);
+        border: 2px solid #43cea2;
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.active-box {
+        background: linear-gradient(120deg, #eafaf1 60%, #d4f7e7 100%);
+        border: 2px solid #2ecc71;
+        box-shadow: 0 4px 24px rgba(46,204,113,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.expiring-box {
+        background: linear-gradient(120deg, #fffbe6 60%, #ffe9c7 100%);
+        border: 2px solid #f39c12;
+        box-shadow: 0 4px 24px rgba(243,156,18,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.expired-box {
+        background: linear-gradient(120deg, #ffeaea 60%, #ffd6d6 100%);
+        border: 2px solid #e74c3c;
+        box-shadow: 0 4px 24px rgba(231,76,60,0.18);
+        transform: scale(1.05);
+    }
+    .status-count-box.selected.all-box {
+        background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+        border: 2px solid #4e4376;
+        box-shadow: 0 4px 24px rgba(44,83,100,0.18);
+        transform: scale(1.05);
+    }
+    /* Report button active state */
+    .report-btn-active {
+        background: linear-gradient(90deg, #00ff59 0%, #0099ff 100%) !important;
+        color: #fff !important;
+        border: 2px solid #2980b9 !important;
+        box-shadow: 0 4px 16px rgba(44,83,100,0.18);
+        transform: scale(1.05);
+    }
+
+    /* Column Filter Modal - Professional Design & Animations */
+.column-filter-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(44,83,100,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(.77,0,.18,1);
+}
+.column-filter-modal[aria-hidden="false"], .column-filter-modal.show {
+    opacity: 1;
+    pointer-events: all;
+    animation: modalFadeIn 0.35s cubic-bezier(.77,0,.18,1);
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.column-filter-content {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(44,83,100,0.18);
+    padding: 36px 44px 28px 44px;
+    min-width: 340px;
+    max-width: 98vw;
+    width: 100%;
+    text-align: center;
+    animation: modalScaleIn 0.45s cubic-bezier(.77,0,.18,1);
+    border: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+@keyframes modalScaleIn {
+    0% { opacity: 0; transform: scale(0.92) translateY(30px);}
+    60% { opacity: 1; transform: scale(1.04) translateY(-6px);}
+    100% { opacity: 1; transform: scale(1) translateY(0);}
+}
+.column-filter-content h3 {
+    margin-bottom: 18px;
+    color: #2b5876;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    text-shadow: none;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+    width: 100%;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #e3eaf2;
+    animation: fadeInDown 0.5s cubic-bezier(.77,0,.18,1);
+}
+#reportQuickSelect {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 18px;
+    width: 100%;
+}
+#reportQuickSelect button {
+    background: linear-gradient(90deg,#2b5876 0%,#43cea2 100%);
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 22px;
+    font-weight: 600;
+    border: none;
+    font-size: 1em;
+    box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+    transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+    position: relative;
+    z-index: 1;
+}
+#reportQuickSelect button:hover, #reportQuickSelect button.report-btn-active {
+    background: linear-gradient(90deg,#43cea2 0%,#2b5876 100%);
+    box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    transform: scale(1.04);
+}
+.column-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 1em;
+    color: #25324b;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 7px 12px;
+    box-shadow: 0 1px 4px rgba(44,83,100,0.04);
+    cursor: pointer;
+    transition: background 0.22s cubic-bezier(.77,0,.18,1), box-shadow 0.22s, border 0.22s;
+    animation: fadeInUp 0.4s cubic-bezier(.77,0,.18,1);
+}
+.column-checkbox-label.selected {
+    background: linear-gradient(120deg, #e3f6ff 60%, #f8fafc 100%);
+    border: 2px solid #43cea2;
+    box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+    animation: checkboxSelectAnim 0.35s cubic-bezier(.77,0,.18,1);
+}
+@keyframes checkboxSelectAnim {
+    0% { background: #f8fafc; border-color: #e3eaf2; }
+    60% { background: #e3f6ff; border-color: #43cea2; }
+    100% { background: linear-gradient(90deg,#e3f6ff 60%,#f8fafc 100%); border-color: #43cea2;}
+}
+.column-checkbox-label:hover {
+    background: linear-gradient(90deg,#f8fafc 60%,#e3f6ff 100%);
+    border: 2px solid #2b5876;
+    animation: checkboxHoverAnim 0.22s cubic-bezier(.77,0,.18,1);
+}
+@keyframes checkboxHoverAnim {
+    0% { background: #f8fafc; border-color: #e3eaf2;}
+    100% { background: linear-gradient(90deg,#f8fafc 60%,#e3f6ff 100%); border-color: #2b5876;}
+}
+.column-filter-buttons {
+    margin-top: 18px;
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    width: 100%;
+}
+.column-filter-buttons button {
+    background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+    border: none;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(44,83,100,0.08);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1em;
+    padding: 10px 28px;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    animation: fadeInUp 0.4s cubic-bezier(.77,0,.18,1);
+}
+.column-filter-buttons button:hover {
+    background: linear-gradient(90deg, #43cea2 0%, #2b5876 100%);
+    box-shadow: 0 4px 16px rgba(44,83,100,0.13);
+    transform: scale(1.04);
+    animation: btnPopIn 0.3s cubic-bezier(.77,0,.18,1);
+}
+.column-filter-buttons button:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 8px rgba(44,83,100,0.18);
+}
+@media (max-width: 700px) {
+    /* ...existing code... */
+    .table-container > div[style*="display: flex"] {
+        flex-direction: column;
+        gap: 8px !important;
+        align-items: stretch;
+    }
+    /* Make search inputs smaller on mobile */
+    .table-container input[type="text"] {
+        font-size: 0.92em;
+        padding: 6px 8px;
+        min-width: 90px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-bottom: 6px;
+    }
+    /* Adjust search input container for mobile */
+    .table-container > div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+        width: 100% !important;
+    }
+    /* Adjust column filter modal for mobile */
+    .column-filter-content {
+        padding: 10px 2vw 10px 2vw !important;
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+    }
+    #columnFilterForm {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+        gap: 6px 6px !important;
+        padding: 4px 0 0 0 !important;
+    }
+    .column-checkbox-label {
+        font-size: 0.89em !important;
+        padding: 5px 6px !important;
+    }
+    .column-filter-buttons {
+        gap: 10px !important;
+    }
+    .column-filter-buttons button {
+        font-size: 0.92em !important;
+        padding: 7px 12px !important;
+    }
+    #reportQuickSelect {
+        gap: 8px !important;
+    }
+    #reportQuickSelect button {
+        font-size: 0.92em !important;
+        padding: 6px 10px !important;
+    }
+}
     </style>
 </head>
 <body>
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR INDUSTRIES & PVT LTD-[HEAD OFFICE]</h3>
     </header>
-     <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
-        <i class="fas fa-sign-out-alt"></i> Logout
-     </button>
-    <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm">
-        <span class="arrow down">&#9660;</span> Show Form
-    </button>
-
-<form
-        id="combinedForm"
-        style="display:none; max-height:0; overflow:hidden;"
-        onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
-    >
-        <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
-        <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
-        <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
-        <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
-        <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
-        <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
-        <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
-        <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
-        <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
-        <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-         <div class="form-group">
-            <label for="renewalDate2">GPS Renewal</label>
-            <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
+    <!-- Move logout button here, inside a wrapper -->
+    <div class="logout-btn-wrapper">
+        <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+    <div class="main-content">
+        <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
+            <span class="arrow down">&#9660;</span> Show Form
+        </button>
+        <form
+            id="combinedForm"
+            style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
+            onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
+        >
+            <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
+            <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
+            <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
+            <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
+            <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
+            <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
+            <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
+            <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
+            <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
+            <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
+             <div class="form-group">
+                <label for="renewalDate2">GPS Renewal</label>
+                <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
+            </div>
+            <button type="submit">Add Entry</button>
+        </form>
+        <!-- Status count boxes -->
+        <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
+            <div id="activeCountBox" class="status-count-box active-box">
+                <h3>Active</h3>
+                <p id="activeCount" class="status-count-number">0</p>
+            </div>
+            <div id="expiringCountBox" class="status-count-box expiring-box">
+                <h3>Expiring Soon</h3>
+                <p id="expiringCount" class="status-count-number">0</p>
+            </div>
+            <div id="expiredCountBox" class="status-count-box expired-box">
+                <h3>Expired</h3>
+                <p id="expiredCount" class="status-count-number">0</p>
+            </div>
+            <div id="allCountBox" class="status-count-box all-box">
+                <h3>All</h3>
+                <p id="allCount" class="status-count-number">0</p>
+            </div>
         </div>
-        <button type="submit">Add Entry</button>
-    </form>
-
-    <!-- Status count boxes -->
-    <div id="statusCounts" class="status-counts-container">
-        <div id="activeCountBox" class="status-count-box active-box">
-            <h3>Active</h3>
-            <p id="activeCount" class="status-count-number">0</p>
-        </div>
-        <div id="expiringCountBox" class="status-count-box expiring-box">
-            <h3>Expiring Soon</h3>
-            <p id="expiringCount" class="status-count-number">0</p>
-        </div>
-        <div id="expiredCountBox" class="status-count-box expired-box">
-            <h3>Expired</h3>
-            <p id="expiredCount" class="status-count-number">0</p>
-        </div>
-        <div id="allCountBox" class="status-count-box all-box">
-            <h3>All</h3>
-            <p id="allCount" class="status-count-number">0</p>
+        <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
+            <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
+                <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchVehicleNumberInput2" placeholder="Additional VehicleNumber Filter..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchGpsRenewalDateInput" placeholder="Search by GPS Renewal Date..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <div style="display:flex;gap:10px;align-items:center;flex:1 1 220px;min-width:120px;">
+                    <button id="exportPdfBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to PDF</button>
+                    <button id="exportExcelBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to Excel</button>
+                    <button id="reloadBtn" title="Reload" aria-label="Reload" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center; width:100%;">
+                        &#x21bb;
+                    </button>
+                    <button id="columnFilterBtn" title="Select Columns" aria-label="Select Columns" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center; width:100%;">
+                        &#9654;
+                    </button>
+                </div>
+            </div>
+            <div style="width:100%;overflow-x:auto;">
+                <div class="scrollable-table-wrapper">
+                    <table id="combinedTable" style="width:100%;min-width:600px;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
+                                <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
+            <!--                     <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Vehicle Number</th>
+                                <th>Policy Type</th>
+                                <th>Policy Number</th>
+                                <th>Renewal Date(Vehicles)</th>
+                                <th>Status (I)</th>
+                                <th>Service Type</th>
+                                <th>Opening KM</th>
+                                <th>Closing KM</th>
+                                <th>Km Driven</th>
+                                <th>Remarks</th>
+                                <th>Last Service Date</th>
+                                <th style="text-align: center;">Status</th>
+                                <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
+                                <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Pagination controls -->
+            <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center; width:100%;"></div>
         </div>
     </div>
-
-    <div class="table-container">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
-            <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
-            <input type="text" id="searchStatusInput" placeholder="Search by Policy Type..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
-            <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
-            <input type="text" id="searchVehicleNumberInput2" placeholder="Additional VehicleNumber Filter..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
-            <input type="text" id="searchGpsRenewalDateInput" placeholder="Search by GPS Renewal Date..." style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1.5px solid #ccc;" />
-            <button id="exportPdfBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; border: 1.5px solid #2980b9; background-color: #2980b9; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); transition: background-color 0.3s ease;">Export to PDF</button>
-            <button id="exportExcelBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; border: 1.5px solid #27ae60; background-color: #27ae60; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.4); transition: background-color 0.3s ease;">Export to Excel</button>
-            <button id="reloadBtn" title="Reload" aria-label="Reload" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; border: 1.5px solid #f39c12; background-color: #f39c12; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(243, 156, 18, 0.4); transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
-                &#x21bb;
-            </button>
-            <!-- Added right side arrow button for column filter -->
-            <button id="columnFilterBtn" title="Select Columns" aria-label="Select Columns" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; border: 1.5px solid #34495e; background-color: #34495e; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(52, 73, 94, 0.4); transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
-                &#9654;
-            </button>
-        </div>
-        <table id="combinedTable">
-            <thead>
-                <tr>
-                    <th style="text-align:center; background-color:#2980b9; color:white;">#</th>
-                    <th colspan="17" style="text-align:center; background-color:#2980b9; color:white;">Vehicle Details</th>
-                    <!-- <th colspan="8" style="text-align:center; background-color:#2980b9; color:white;">Maintenance Details</th> -->
-                </tr>
-                <tr>
-                    <th>#</th>
-                    <th>Vehicle Number</th>
-                    <th>Policy Type</th>
-                    <th>Policy Number</th>
-                    <th>Renewal Date(Vehicles)</th>
-                    <th>Status (I)</th>
-                    <th>Service Type</th>
-                    <th>Opening KM</th>
-                    <th>Closing KM</th>
-                    <th>Km Driven</th>
-                    <th>Remarks</th>
-                    <th>Last Service Date</th>
-                    <th style="text-align: center;">Status</th>
-                    <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
-                    <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <!-- Pagination controls -->
-        <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center;"></div>
-    </div>
-
     <!-- Column selection modal -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
+            <div id="reportQuickSelect">
+                <button type="button" id="insuranceReportBtn">Insurance Report</button>
+                <button type="button" id="maintenanceReportBtn">Maintenance Report</button>
+                <button type="button" id="gpsReportBtn">GPS Report</button>
+            </div>
             <form id="columnFilterForm">
                 <!-- Checkboxes will be dynamically populated here -->
             </form>
@@ -162,8 +1801,16 @@
         </div>
     </div>
 
-    <script> 
-        // * Export table data to PDF using jsPDF and autoTable with plugin availability check
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading data, please wait...</div>
+        </div>
+    </div>
+
+    <script>
+     // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
         try {
             const { jsPDF } = window.jspdf;
@@ -193,11 +1840,12 @@
             };
             insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
-            insertAfter(headers, 'Make-Model', 'Division');
+            // Do NOT add Division yet
 
             // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
             let allRows = [];
+            let divisionExists = false;
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
@@ -214,6 +1862,7 @@
                     const part = parts[i].replace(']', '').trim();
                     if (["PRO", "R.O", "H.O" ,"S.K" ,"INT" ,"PVT"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
+                        divisionExists = true;
                     } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
                     } else {
@@ -223,7 +1872,10 @@
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
-                        case 'Vehicle Number': rowData[header] = vehicleNumber; break;
+                        case 'Vehicle Number': 
+                            // Apply the same styling as in the HTML table
+                            rowData[header] = vehicleNumber; 
+                            break;
                         case 'Vehicle Type': rowData[header] = vehicleType; break;
                         case 'Division': rowData[header] = division; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
@@ -249,6 +1901,14 @@
                 rowData._renewalMonth = month;
                 allRows.push(rowData);
             });
+
+            // Only add Division column if at least one division exists
+            if (divisionExists) {
+                insertAfter(headers, 'Make-Model', 'Division');
+            } else {
+                headers = headers.filter(h => h !== 'Division');
+                allRows.forEach(row => { delete row['Division']; });
+            }
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
@@ -351,19 +2011,60 @@
                     lineWidth: 0.5,
                     lineColor: [0, 0, 0],
                     fontSize: 10,
+                    halign: 'center', // <-- Center align all data cells
                 },
                 columnStyles: headers.reduce((acc, header, index) => {
-                    acc[header] = { cellWidth: 'auto', halign: 'center', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
+                    acc[header] = { cellWidth: 'auto', fontStyle: 'bold', halign: 'center' }; // <-- Center align each column
+                    if (header === 'Vehicle Number') {
+                        acc[header].textColor = [143, 0, 255]; // Violet
+                    } else if (header === 'Status') {
+                        acc[header].textColor = [30, 112, 167]; // Blue
+                    }
                     return acc;
                 }, {}),
-                headStyles: {
-                    fillColor: [41, 128, 185],
-                    textColor: 255,
-                    fontStyle: 'bold',
-                    halign: 'center'
-                },
+                headStyles: headers.reduce((acc, header) => {
+                    acc[header] = { 
+                        fillColor: [41, 128, 185], 
+                        textColor: 255, 
+                        fontStyle: 'bold', 
+                        halign: 'center', // <-- Center align header cells
+                        font: 'helvetica', 
+                        fontSize: 10 
+                    };
+                    return acc;
+                }, {}),
                 alternateRowStyles: {
                     fillColor: [245, 245, 245]
+                },
+                didParseCell: function (data) {
+                    // Color Status (I) column cells based on value (like UI)
+                    if (data.section === 'body' && data.column && data.column.dataKey === 'Status (I)') {
+                        const val = (data.cell.raw || '').toLowerCase();
+                        // "Active"
+                        if (val.includes('active')) {
+                            data.cell.styles.textColor = [39, 174, 96]; // Green
+                        // "Expiring Soon" or "Expiring"
+                        } else if (val.includes('expiring')) {
+                            data.cell.styles.textColor = [255, 136, 0]; // Orange
+                        // "Expired"
+                        } else if (val.includes('expired')) {
+                            data.cell.styles.textColor = [231, 76, 60]; // Red
+                        // "Inactive"
+                        } else if (val.includes('inactive')) {
+                            data.cell.styles.textColor = [127, 140, 141]; // Gray
+                        // "days left" (e.g., "11 days left")
+                        } else if (val.match(/\d+\s*days?\s*left/)) {
+                            data.cell.styles.textColor = [255, 136, 0]; // Orange (same as "Expiring Soon")
+                        }
+                        // Add more status checks/colors as needed
+                    }
+                    // Color Status (index 12) column cells (header and body) blue
+                    if (data.column && data.column.dataKey === 'Status') {
+                        // Only color body cells blue, not header
+                        if (data.section === 'body') {
+                            data.cell.styles.textColor = [30, 112, 167]; // Blue
+                        }
+                    }
                 },
                 didDrawPage: function (data) {
                     // Add a horizontal line above footer
@@ -386,7 +2087,6 @@
                 }
             });
 
-
         doc.save('headOffice_vehicle_report.pdf');
     } catch (error) {
         console.error('Error generating PDF:', error);
@@ -394,26 +2094,330 @@
     }
 }
        // Set division in sessionStorage for this tab
-       sessionStorage.setItem('division', 'headoffice');
-</script>
-<script src="scripts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-<script src="export.js"></script>
+        sessionStorage.setItem('division', 'headoffice');
+        
+        // Function to style only the vehicle number part (without brackets)
+        function styleVehicleNumbers() {
+            const vehicleCells = document.querySelectorAll('#combinedTable td:nth-child(2)');
+            
+            vehicleCells.forEach(cell => {
+                const fullText = cell.textContent.trim();
+                const parts = fullText.split('[');
+                const vehicleNumber = parts[0].trim(); // Get the actual vehicle number part
+                
+                if (vehicleNumber && parts.length > 1) {
+                    // Create HTML with the vehicle number styled and brackets in normal text
+                    const bracketContent = fullText.substring(vehicleNumber.length);
+                    cell.innerHTML = `<span style="color: #8f00ff; font-weight: bold;">${vehicleNumber}</span>${bracketContent}`;
+                } else if (vehicleNumber) {
+                    // If no brackets, still apply violet bold
+                    cell.innerHTML = `<span style="color: #8f00ff; font-weight: bold;">${vehicleNumber}</span>`;
+                }
+            });
+        }
+        
+        // Run the styling function when the page loads
+        document.addEventListener('DOMContentLoaded', styleVehicleNumbers);
+        
+        // Also run it after any table updates (you might need to call this from other scripts)
+        window.styleVehicleNumbers = styleVehicleNumbers;
+
+    // Highlight status box on click
+    document.addEventListener('DOMContentLoaded', function() {
+        const boxes = document.querySelectorAll('.status-count-box');
+        boxes.forEach(box => {
+            box.addEventListener('click', function() {
+                boxes.forEach(b => b.classList.remove('selected'));
+                box.classList.add('selected');
+            });
+        });
+    });
+
+    // Highlight report button on click
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportBtns = [
+            document.getElementById('insuranceReportBtn'),
+            document.getElementById('maintenanceReportBtn'),
+            document.getElementById('gpsReportBtn')
+        ];
+        reportBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                reportBtns.forEach(b => b.classList.remove('report-btn-active'));
+                btn.classList.add('report-btn-active');
+            });
+        });
+    });
+
+    // Show/hide loading overlay
+    function showLoadingOverlay() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+    function hideLoadingOverlay() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    // Fetch and reload table data only (simulate fetch here, replace with your actual fetch logic)
+    async function reloadTableData() {
+        showLoadingOverlay();
+        try {
+            // Simulate fetch with timeout, replace with actual fetch:
+            // let response = await fetch('your-api-endpoint');
+            // let data = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 1200)); // Simulate network delay
+
+            // TODO: Replace below with your actual table update logic
+            // Example: updateTable(data);
+            if (typeof window.loadTableData === 'function') {
+                await window.loadTableData(); // Call your actual table data loader
+            } else {
+                // Fallback: clear table
+                const tbody = document.querySelector('#combinedTable tbody');
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    // Optionally add a row indicating "No data"
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.colSpan = document.querySelectorAll('#combinedTable thead tr:nth-child(2) th').length;
+                    td.textContent = 'No data loaded. Implement loadTableData() for real data.';
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                }
+            }
+            // Re-style vehicle numbers after reload
+            if (window.styleVehicleNumbers) window.styleVehicleNumbers();
+        } catch (err) {
+            alert('Failed to reload data.');
+        } finally {
+            hideLoadingOverlay();
+ }
+    }
+
+    // Attach reloadTableData to reload button
+    document.addEventListener('DOMContentLoaded', function() {
+        // ...existing code...
+        document.getElementById('reloadBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            reloadTableData();
+        });
+        // ...existing code...
+    });
+
+    // Column Filter Modal logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const columnFilterBtn = document.getElementById('columnFilterBtn');
+        const columnFilterModal = document.getElementById('columnFilterModal');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
+        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
+        const table = document.getElementById('combinedTable');
+
+        // Helper to get all columns (header cells)
+        function getAllColumns() {
+            const ths = table.querySelectorAll('thead tr:nth-child(2) th');
+            let cols = [];
+            ths.forEach((th, idx) => {
+                cols.push({ idx, name: th.textContent.trim(), visible: th.style.display !== 'none' });
+            });
+            return cols;
+        }
+
+        // Show modal and populate checkboxes
+        columnFilterBtn.addEventListener('click', function() {
+            columnFilterModal.classList.add('show');
+            columnFilterModal.setAttribute('aria-hidden', 'false');
+            const allCols = getAllColumns();
+            columnFilterForm.innerHTML = '';
+            // Display selected columns at top (removed, now handled by selected style)
+            // Add checkboxes for all columns
+            allCols.forEach(col => {
+                const label = document.createElement('label');
+                label.className = 'column-checkbox-label';
+                if (col.visible) label.classList.add('selected');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = col.idx;
+                checkbox.checked = col.visible;
+                checkbox.addEventListener('change', function() {
+                    if (checkbox.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(col.name));
+                columnFilterForm.appendChild(label);
+            });
+        });
+
+        // Save selected columns, update table so only checked columns are displayed
+        saveColumnFilterBtn.addEventListener('click', function() {
+            const checkboxes = columnFilterForm.querySelectorAll('input[type="checkbox"]');
+            const ths = table.querySelectorAll('thead tr:nth-child(2) th');
+            const firstRowThs = table.querySelectorAll('thead tr:first-child th');
+            const rows = table.querySelectorAll('tbody tr');
+            let visibleIndices = [];
+            checkboxes.forEach((cb, idx) => {
+                const show = cb.checked;
+                ths[idx].style.display = show ? '' : 'none';
+                ths[idx].style.background = show ? '' : 'transparent'; // Remove background if hidden
+                if (firstRowThs[idx]) {
+                    firstRowThs[idx].style.display = show ? '' : 'none';
+                    firstRowThs[idx].style.background = show ? '' : 'transparent';
+                }
+                if (show) visibleIndices.push(idx);
+            });
+            // For each row, only display td for visible columns
+            rows.forEach(row => {
+                for (let i = 0; i < row.cells.length; i++) {
+                    row.cells[i].style.display = visibleIndices.includes(i) ? '' : 'none';
+                }
+            });
+            columnFilterModal.classList.remove('show');
+            columnFilterModal.setAttribute('aria-hidden', 'true');
+        });
+
+        // Cancel button
+        cancelColumnFilterBtn.addEventListener('click', function() {
+            columnFilterModal.classList.remove('show');
+            columnFilterModal.setAttribute('aria-hidden', 'true');
+        });
+    });
+
+    // Column Filter Modal logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const columnFilterBtn = document.getElementById('columnFilterBtn');
+        const columnFilterModal = document.getElementById('columnFilterModal');
+        const columnFilterForm = document.getElementById('columnFilterForm');
+        const saveColumnFilterBtn = document.getElementById('saveColumnFilterBtn');
+        const cancelColumnFilterBtn = document.getElementById('cancelColumnFilterBtn');
+        const table = document.getElementById('combinedTable');
+
+        // Define columns for each report
+        const insuranceCols = [
+            '#', 'Vehicle Number', 'Policy Type', 'Policy Number', 'Renewal Date(Vehicles)', 'Status (I)'
+        ];
+        const maintenanceCols = [
+            '#', 'Vehicle Number', 'Service Type', 'Opening KM', 'Closing KM', 'Km Driven', 'Remarks', 'Last Service Date', 'Status'
+        ];
+        const gpsCols = [
+            '#', 'Vehicle Number', 'GPS', 'Renewal Date(GPS)'
+        ];
+
+        // Helper to check columns by name
+        function checkColumnsByNames(names) {
+            const labels = document.querySelectorAll('#columnFilterForm label');
+            labels.forEach(label => {
+                const cb = label.querySelector('input[type="checkbox"]');
+                if (cb) {
+                    cb.checked = names.includes(label.textContent.trim());
+                }
+            });
+        }
+
+        // Quick-select handlers
+        const insuranceReportBtn = document.getElementById('insuranceReportBtn');
+        const maintenanceReportBtn = document.getElementById('maintenanceReportBtn');
+        const gpsReportBtn = document.getElementById('gpsReportBtn');
+
+        if (insuranceReportBtn) {
+            insuranceReportBtn.addEventListener('click', function() {
+                checkColumnsByNames(insuranceCols);
+            });
+        }
+        if (maintenanceReportBtn) {
+            maintenanceReportBtn.addEventListener('click', function() {
+                checkColumnsByNames(maintenanceCols);
+            });
+        }
+        if (gpsReportBtn) {
+            gpsReportBtn.addEventListener('click', function() {
+                checkColumnsByNames(gpsCols);
+            });
+        }
+    });
+    
+    // Helper function to update the serial number column (#) after filtering
+    function updateSerialNumbers() {
+        const tbody = document.querySelector('#combinedTable tbody');
+        let count = 1;
+        tbody.querySelectorAll('tr').forEach(row => {
+            if (row.style.display !== 'none') {
+                // Update first cell with the current count
+                if (row.cells[0]) {
+                    row.cells[0].textContent = count.toString();
+                }
+                count++;
+            }
+        });
+    }
+
+    // GPS Renewal Date search input filtering logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const gpsSearchInput = document.getElementById('searchGpsRenewalDateInput');
+        if (gpsSearchInput) {
+            gpsSearchInput.addEventListener('input', function() {
+                const filterValue = gpsSearchInput.value.trim().toLowerCase();
+                const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                const tbody = document.querySelector('#combinedTable tbody');
+                const gpsColIdx = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th'))
+                    .findIndex(th => th.textContent.trim().toLowerCase().includes('renewal date(gps)'));
+
+                tbody.querySelectorAll('tr').forEach(row => {
+                    let cellText = '';
+                    if (gpsColIdx !== -1 && row.cells[gpsColIdx]) {
+                        cellText = row.cells[gpsColIdx].textContent.trim().toLowerCase();
+                    }
+                    // Extract month part from date (assume format dd-mon-yyyy or dd-mm-yyyy)
+                    let matched = false;
+                    if (filterValue === '') {
+                        matched = true;
+                    } else {
+                        // Try to match incremental alphabets in month name
+                        // e.g., filterValue = 'j' matches 'jan', 'jul', etc.
+                        // e.g., filterValue = 'ja' matches 'jan'
+                        // e.g., filterValue = 'jul' matches 'jul'
+                        // Extract month from cellText
+                        let monthPart = '';
+                        let dateParts = cellText.split('-');
+                        if (dateParts.length === 3) {
+                            // If middle part is a month name or number
+                            monthPart = dateParts[1].toLowerCase();
+                            // If it's a number, convert to month name
+                            if (/^\d+$/.test(monthPart)) {
+                                let monthIdx = parseInt(monthPart, 10) - 1;
+                                if (monthIdx >= 0 && monthIdx < 12) {
+                                    monthPart = monthOrder[monthIdx];
+                                }
+                            }
+                        } else {
+                            // Try to find month name in cellText
+                            for (let m of monthOrder) {
+                                if (cellText.includes(m)) {
+                                    monthPart = m;
+                                    break;
+                                }
+                            }
+                        }
+                        // Match incremental search
+                        if (monthPart.startsWith(filterValue)) {
+                            matched = true;
+                        } else if (cellText.includes(filterValue)) {
+                            matched = true;
+                        }
+                    }
+                    row.style.display = matched ? '' : 'none';
+                });
+                updateSerialNumbers();
+            });
+        }
+    });
+    </script>
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="export.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
