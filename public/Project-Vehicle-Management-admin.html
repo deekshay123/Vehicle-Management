@@ -1840,7 +1840,8 @@
             };
             insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
-            // Do NOT add Division yet
+            insertAfter(headers, 'Make-Model', 'Division');
+
 
             // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
