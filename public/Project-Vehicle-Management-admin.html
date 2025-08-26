@@ -1899,7 +1899,7 @@
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[H.O]', '[S.K]', '[INT]', '[PVT]'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]'];
             const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             let data = [];
             let uniqueSet = new Set();
@@ -1915,7 +1915,7 @@
                         if (aIdx !== bIdx) return aIdx - bIdx;
                         // Parse day
                         let aDate = a['Renewal Date(Vehicles)'] || a['Renewal Date (Vehicles)'] || '';
-                        let bDate = b['Renewal Date(Vehicles)'] || b['Renewal Date (Vehicles)'] || '';
+                        let bDate = b['Renewal Date(Vehicle)s'] || b['Renewal Date (Vehicles)'] || '';
                         let aParts = aDate.split('-');
                         let bParts = bDate.split('-');
                         let aDay = aParts.length === 3 ? parseInt(aParts[0], 10) : 0;
