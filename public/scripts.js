@@ -500,6 +500,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
             } else {
                 displayValue = '';
             }
+            // Always use the latest value from backend for display
             span.textContent = displayValue;
             cell.appendChild(span);
 
@@ -758,9 +759,11 @@ async function saveRow(row, id) {
         const key = keys[inputIndex];
         inputIndex++;
 
-        // Always send correct EMS/EMS Renewal Date value
+        // Ensure EMS Renewal Date is only set in emsRenewalDate, not ems
         if (key === 'emsRenewalDate') {
-            updatedEntry[key] = input.value;
+            updatedEntry['emsRenewalDate'] = input.value;
+        } else if (key === 'ems') {
+            updatedEntry['ems'] = input.value.trim();
         } else if (input.type === 'date') {
             updatedEntry[key] = input.value;
         } else if (input.type === 'number') {
