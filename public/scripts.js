@@ -827,8 +827,9 @@ async function saveRow(row, id) {
     // Call API to update record
     const result = await updateRecord(id, updatedEntry);
     if (result) {
-        // After successful update, reload entire table to reflect all changes including maintenance details
+        // After successful update, reload entire table to reflect all changes including EMS details
         showNotification('Vehicle details updated.');
+        // Force reload from backend to get latest EMS/EMS Renewal Date
         await loadAndRender();
     }
 }
