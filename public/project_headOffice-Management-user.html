@@ -1859,7 +1859,7 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "S.K"].includes(part.toUpperCase())) {
+                    if (['[PRO]', '[R.O]', '[S.K]', '[H.O]', '[INT]'].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else if (["4 WHEEL", "HEAVY", "2 WHEEL"].includes(part.toUpperCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
@@ -1899,7 +1899,7 @@
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]', '[H.O]', '[INT]'];
             const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             let data = [];
             let uniqueSet = new Set();
@@ -2408,4 +2408,5 @@
     <script src="export.js"></script>
 </body>
 </html>
+
 
