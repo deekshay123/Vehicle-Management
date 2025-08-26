@@ -482,7 +482,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
 
         if (field.key === 'renewalDate2' || field.key === 'emsRenewalDate') {
             const span = document.createElement('span');
-            let displayValue = originalValues[field.key];
+            let displayValue = entry[field.key];
             if (displayValue) {
                 displayValue = (function formatDate(dateStr) {
                     if (!dateStr) return '';
@@ -505,8 +505,8 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
 
             const input = document.createElement('input');
             input.type = 'date';
-            if (originalValues[field.key]) {
-                const d = new Date(originalValues[field.key]);
+            if (entry[field.key]) {
+                const d = new Date(entry[field.key]);
                 if (!isNaN(d)) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
