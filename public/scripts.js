@@ -436,7 +436,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'remarks', type: 'text' },
         { key: 'maintenanceRenewalDate', type: 'date' },
         { key: 'maintenanceStatusText', type: 'text', readonly: true },
-        { key: 'gps', type: 'gps' },
+        { key: 'gps', type: 'text' },
         { key: 'renewalDate2', type: 'date' },
         { key: 'ems', type: 'text' },
         { key: 'emsRenewalDate', type: 'date' }
@@ -464,19 +464,32 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                 circleClass = 'circle-icon circle-red';
             }
 
-            // Show EMS/GPS value and renewal days
-            cell.innerHTML =
-                `<span style="font-weight:500;color:#222;font-size:15px;">${entry[field.key] || ''}</span>
-                <span class="${circleClass}" title="Renewal in ${diffDays} day(s)" style="margin-left:8px;">
-                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
-                        <circle cx="10" cy="10" r="8" fill="${
-                            circleClass.includes('circle-green') ? '#2e7d32' :
-                            circleClass.includes('circle-yellow') ? '#fbc02d' :
-                            '#c62828'
-                        }" stroke="#444" stroke-width="2" />
-                    </svg>
-                </span>
-                <span class="renewal-days-text" style="margin-left:8px;font-weight:500;color:#222;font-size:15px;">Renewal in ${diffDays} day(s)</span>`;
+            // Show EMS/GPS value and renewal days (display only, not editable)
+            const span = document.createElement('span');
+            span.style.fontWeight = '500';
+            span.style.color = '#222';
+            span.style.fontSize = '15px';
+            span.textContent = entry[field.key] || '';
+            cell.appendChild(span);
+
+            // No input for EMS or GPS (display only)
+
+            const iconSpan = document.createElement('span');
+            iconSpan.className = circleClass;
+            iconSpan.title = `Renewal in ${diffDays} day(s)`;
+            iconSpan.style.marginLeft = '8px';
+            iconSpan.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));"><circle cx="10" cy="10" r="8" fill="${circleClass.includes('circle-green') ? '#2e7d32' : circleClass.includes('circle-yellow') ? '#fbc02d' : '#c62828'}" stroke="#444" stroke-width="2" /></svg>`;
+            cell.appendChild(iconSpan);
+
+            const renewalText = document.createElement('span');
+            renewalText.className = 'renewal-days-text';
+            renewalText.style.marginLeft = '8px';
+            renewalText.style.fontWeight = '500';
+            renewalText.style.color = '#222';
+            renewalText.style.fontSize = '15px';
+            renewalText.textContent = `Renewal in ${diffDays} day(s)`;
+            cell.appendChild(renewalText);
+
             cell.style.textAlign = 'center';
             cell.classList.add(field.key + '-column-shadow');
             return;
@@ -639,9 +652,15 @@ function enterEditMode(row, originalValues) {
         const span = cell.querySelector('span');
         const input = cell.querySelector('input');
         if (input) {
-            span.style.display = 'none';
-            input.style.display = 'inline-block';
-            // Always allow editing for emsRenewalDate
+            // For GPS/EMS columns, hide all spans and show input for editing
+            if (cell.classList.contains('gps-column-shadow') || cell.classList.contains('ems-column-shadow')) {
+                Array.from(cell.querySelectorAll('span')).forEach(s => s.style.display = 'none');
+                input.style.display = 'inline-block';
+            } else {
+                span.style.display = 'none';
+                input.style.display = 'inline-block';
+            }
+            // Set input value for date/text
             const key = keys[i - 1];
             if (input.type === 'date') {
                 let dateValue = originalValues[key];
