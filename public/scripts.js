@@ -416,7 +416,10 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         kmDriven: entry.kmDriven,
         maintenanceRenewalDate: entry.maintenanceRenewalDate,
         maintenanceStatusText: maintenanceStatus.text,
+        gps: entry.gps,
         renewalDate2: entry.renewalDate2,
+        ems: entry.ems,
+        emsRenewalDate: entry.emsRenewalDate,
         remarks: entry.remarks || ''
     };
 
@@ -434,50 +437,52 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'maintenanceRenewalDate', type: 'date' },
         { key: 'maintenanceStatusText', type: 'text', readonly: true },
         { key: 'gps', type: 'gps' },
-        { key: 'renewalDate2', type: 'date' }
+        { key: 'renewalDate2', type: 'date' },
+        { key: 'ems', type: 'text' },
+        { key: 'emsRenewalDate', type: 'date' }
     ];
 
     fields.forEach((field, index) => {
         const cell = newRow.insertCell();
 
-        if (field.key === 'gps') {
+        if (field.key === 'gps' || field.key === 'ems') {
+            // Show colored circle and renewal days for GPS and EMS
+            let renewalDateKey = field.key === 'gps' ? 'renewalDate2' : 'emsRenewalDate';
             const today = new Date();
-            const renewalDate2 = new Date(entry.renewalDate2);
-            const diffTime = renewalDate2 - today;
+            const renewalDate = new Date(entry[renewalDateKey]);
+            const diffTime = renewalDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                            // Circle color logic
-                            let circleClass = '';
-                            if (diffDays > 30) {
-                                circleClass = 'circle-icon circle-green';
-                            } else if (diffDays > 15) {
-                                circleClass = 'circle-icon circle-yellow';
-                            } else if (diffDays >= 3 && diffDays <= 15) {
-                                circleClass = 'circle-icon circle-red circle-blink';
-                            } else {
-                                circleClass = 'circle-icon circle-red';
-                            }
+            let circleClass = '';
+            if (diffDays > 30) {
+                circleClass = 'circle-icon circle-green';
+            } else if (diffDays > 15) {
+                circleClass = 'circle-icon circle-yellow';
+            } else if (diffDays >= 3 && diffDays <= 15) {
+                circleClass = 'circle-icon circle-red circle-blink';
+            } else {
+                circleClass = 'circle-icon circle-red';
+            }
 
-                            // Professional medium-sized SVG circle icon
-                            cell.innerHTML =
-                                `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
-                                        <circle cx="10" cy="10" r="8" fill="${
-                                            circleClass.includes('circle-green') ? '#2e7d32' : // professional green
-                                            circleClass.includes('circle-yellow') ? '#fbc02d' : // professional yellow
-                                            '#c62828' // professional red
-                                        }" stroke="#444" stroke-width="2" />
-                                    </svg>
-                                </span>
-                                <span class="renewal-days-text" style="margin-left:8px;font-weight:500;color:#222;font-size:15px;">Renewal in ${diffDays} day(s)</span>`;
+            cell.innerHTML =
+                `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
+                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
+                        <circle cx="10" cy="10" r="8" fill="${
+                            circleClass.includes('circle-green') ? '#2e7d32' :
+                            circleClass.includes('circle-yellow') ? '#fbc02d' :
+                            '#c62828'
+                        }" stroke="#444" stroke-width="2" />
+                    </svg>
+                </span>
+                <span class="renewal-days-text" style="margin-left:8px;font-weight:500;color:#222;font-size:15px;">Renewal in ${diffDays} day(s)</span>`;
             cell.style.textAlign = 'center';
-            cell.classList.add('gps-column-shadow');
+            cell.classList.add(field.key + '-column-shadow');
             return;
         }
 
-        if (field.key === 'renewalDate2') {
+        if (field.key === 'renewalDate2' || field.key === 'emsRenewalDate') {
             const span = document.createElement('span');
-            let displayValue = originalValues.renewalDate2;
+            let displayValue = originalValues[field.key];
             if (displayValue) {
                 displayValue = (function formatDate(dateStr) {
                     if (!dateStr) return '';
@@ -500,8 +505,8 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
 
             const input = document.createElement('input');
             input.type = 'date';
-            if (originalValues.renewalDate2) {
-                const d = new Date(originalValues.renewalDate2);
+            if (originalValues[field.key]) {
+                const d = new Date(originalValues[field.key]);
                 if (!isNaN(d)) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -621,7 +626,9 @@ function enterEditMode(row, originalValues) {
         'maintenanceRenewalDate',
         'maintenanceStatusText', // readonly, no input
         'gps', // no input
-        'renewalDate2'
+        'renewalDate2',
+        'ems', // no input
+        'emsRenewalDate'
     ];
     let inputIndex = 0;
     for (let i = 1; i < cells.length - 1; i++) { // skip count and actions cells
@@ -737,7 +744,9 @@ async function saveRow(row, id) {
         'remarks',
         'maintenanceRenewalDate',
         // maintenanceStatusText is readonly, skip
-        'renewalDate2'
+        'renewalDate2',
+        'ems',
+        'emsRenewalDate'
     ];
 
     let inputIndex = 0;
@@ -1039,9 +1048,11 @@ async function addRow(tableId, inputIds) {
     const kmDriven = document.getElementById('kmDriven').value.trim();
     const maintenanceRenewalDate = document.getElementById('maintenanceRenewalDate').value.trim();
     const renewalDate2 = document.getElementById('renewalDate2').value.trim();
+    const ems = document.getElementById('ems').value.trim();
+    const emsRenewalDate = document.getElementById('emsRenewalDate').value.trim();
     const remarks = document.getElementById('remarks').value.trim();
 
-    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2) {
+    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !ems || !emsRenewalDate) {
         showNotification('Please fill in all required fields before adding a record.');
         return;
     }
@@ -1057,6 +1068,8 @@ async function addRow(tableId, inputIds) {
         kmDriven: Number(kmDriven),
         maintenanceRenewalDate,
         renewalDate2,
+        ems,
+        emsRenewalDate,
         remarks
     };
 
