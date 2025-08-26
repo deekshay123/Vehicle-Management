@@ -1851,23 +1851,28 @@
                 const rowData = {};
                 // Parse Vehicle Number for Division, Make-Model, Vehicle Type
                 let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
-                let vehicleNumber = '';
-                let makeModelArr = [];
-                let division = '';
-                let vehicleType = '';
-                const parts = vehicleNumberFull.split('[');
-                vehicleNumber = parts[0].trim();
-                for (let i = 1; i < parts.length; i++) {
-                    const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "H.O"].includes(part.toUpperCase())) {
-                        division = `[${part}]`;
-                        divisionExists = true;
-                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
-                        vehicleType = `[${part.toUpperCase()}]`;
-                    } else {
-                        makeModelArr.push(`[${part}]`);
-                    }
-                }
+                let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
+let vehicleNumber = '';
+const bracketRegex = /\[([^\]]+)\]/g;
+let match, bracketParts = [];
+while ((match = bracketRegex.exec(vehicleNumberFull)) !== null) {
+    bracketParts.push(match[1].trim());
+}
+vehicleNumber = vehicleNumberFull.split('[')[0].trim();
+let vehicleType = '';
+let division = '';
+let makeModelArr = [];
+bracketParts.forEach((part) => {
+    const cleaned = part.replace(/\s|\./g, '').toUpperCase();
+    if (!vehicleType && ["4WHEEL", "HEAVY", "2WHEEL"].includes(cleaned)) {
+        vehicleType = `[${part.toUpperCase()}]`;
+    } else if (!division && ["PRO", "R.O", "H.O", "S.K", "INT", "PVT"].includes(cleaned)) {
+        division = `[${part}]`;
+    } else {
+        makeModelArr.push(`[${part}]`);
+    }
+});
+
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
