@@ -464,8 +464,10 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                 circleClass = 'circle-icon circle-red';
             }
 
+            // Show EMS/GPS value and renewal days
             cell.innerHTML =
-                `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
+                `<span style="font-weight:500;color:#222;font-size:15px;">${entry[field.key] || ''}</span>
+                <span class="${circleClass}" title="Renewal in ${diffDays} day(s)" style="margin-left:8px;">
                     <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
                         <circle cx="10" cy="10" r="8" fill="${
                             circleClass.includes('circle-green') ? '#2e7d32' :
@@ -639,10 +641,10 @@ function enterEditMode(row, originalValues) {
         if (input) {
             span.style.display = 'none';
             input.style.display = 'inline-block';
-            if (input.type === 'date' && originalValues) {
-                // Use keys array to get correct key for this cell
-                const key = keys[i - 1];
-                const dateValue = originalValues[key];
+            // Always allow editing for emsRenewalDate
+            const key = keys[i - 1];
+            if (input.type === 'date') {
+                let dateValue = originalValues[key];
                 if (dateValue) {
                     const d = new Date(dateValue);
                     if (isNaN(d)) {
@@ -656,10 +658,7 @@ function enterEditMode(row, originalValues) {
                 } else {
                     input.value = '';
                 }
-            }
-            else if (input.type !== 'date') {
-                // For non-date inputs, set value from originalValues using keys array
-                const key = keys[i - 1];
+            } else {
                 input.value = originalValues[key] || '';
             }
         }
