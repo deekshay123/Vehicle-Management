@@ -13,8 +13,8 @@
         min-height: 100vh;
         margin: 0;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #232946;
-        background: linear-gradient(135deg, #f9f6ff 0%, #ffe5ec 50%, #c1f7f7 100%);
+        color: #222e3a;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
         background-attachment: fixed;
         position: relative;
         overflow-x: hidden;
@@ -28,16 +28,16 @@
         min-width: 0;
     }
     .app-header {
-    background: linear-gradient(90deg, #ffb4a2 0%, #a2d2ff 100%);
-    color: #232946;
+    background: linear-gradient(90deg, #ff6e7f 0%, #bfe9ff 100%);
+    color: #222e3a;
         padding: 2rem 0 2rem 0;
         text-align: center;
         font-family: inherit;
         font-weight: 800;
         font-size: 2.1rem;
         letter-spacing: 2px;
-        box-shadow: 0 4px 24px 0 rgba(44,83,100,0.08);
-        border-radius: 24px;
+    box-shadow: 0 4px 24px 0 rgba(44,83,100,0.10);
+    border-radius: 24px;
         margin: 36px auto 24px auto;
         max-width: 900px;
         border: 1.5px solid #c7d0e1;
@@ -78,8 +78,8 @@
         font-size: 1rem;
         font-weight: 600;
         margin: 0 4px;
-    background: linear-gradient(90deg, #ff61a6 0%, #6d67e4 100%);
-    border: 1.5px solid #f9f6ff;
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    border: 1.5px solid #b0bec5;
     color: #fff;
         box-shadow: 0 2px 8px rgba(44,83,100,0.08);
         cursor: pointer;
@@ -91,21 +91,21 @@
         z-index: 1;
     }
     button:hover, button:focus {
-    background: linear-gradient(90deg, #6d67e4 0%, #ff61a6 100%);
-    border: 1.5px solid #ffb4a2;
+    background: linear-gradient(90deg, #26a69a 0%, #1976d2 100%);
+    border: 1.5px solid #1976d2;
     color: #fff;
     }
     button:active {
-        background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
-        box-shadow: 0 1px 4px rgba(44,83,100,0.10);
-        transform: scale(0.98);
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    box-shadow: 0 1px 4px rgba(44,83,100,0.12);
+    transform: scale(0.98);
     }
     #logoutBtn {
         position: static;
         float: right;
         margin-top: 0;
         margin-right: 0;
-    background: linear-gradient(90deg, #ffb86b 0%, #ff61a6 100%);
+    background: linear-gradient(90deg, #d32f2f 0%, #1976d2 100%);
     color: #fff;
         font-size: 1rem;
         padding: 10px 22px;
@@ -128,8 +128,8 @@
     #toggleFormBtn {
         margin: 0 auto 22px auto;
         display: block;
-    background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
-    color: #232946;
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    color: #fff;
         font-size: 1rem;
         padding: 10px 22px;
         border: 1.5px solid #c7d0e1;
@@ -142,9 +142,9 @@
     }
     /* Input Styles */
     input[type="text"], input[type="number"], input[type="date"], textarea {
-        border: 1.5px solid #c7d0e1;
-        background: #f8fafc;
-        color: #1a2233;
+    border: 1.5px solid #b0bec5;
+    background: #f5f7fa;
+    color: #222e3a;
         border-radius: 8px;
         padding: 8px 14px;
         font-size: 1rem;
@@ -154,15 +154,15 @@
         outline: none;
     }
     input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, textarea:focus {
-        border: 1.5px solid #4e4376;
-        box-shadow: 0 2px 8px #4e437633;
-        background: #fff;
-        color: #1a2233;
+    border: 1.5px solid #1976d2;
+    box-shadow: 0 2px 8px #1976d233;
+    background: #fff;
+    color: #222e3a;
     }
     /* Table Container Card */
     .table-container {
-        background: rgba(255,255,255,0.99);
-        border: 1.5px solid #c7d0e1;
+    background: #fff;
+    border: 1.5px solid #b0bec5;
         border-radius: 20px;
         box-shadow: 0 4px 24px rgba(44,83,100,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
         padding: 28px 24px 24px 24px;
@@ -205,8 +205,8 @@
         }
     }
     .status-count-box {
-    background: linear-gradient(120deg, #ffe5ec 60%, #c1f7f7 100%);
-    border: 1.5px solid #ffb4a2;
+    background: linear-gradient(120deg, #e3f2fd 60%, #f5f7fa 100%);
+    border: 1.5px solid #b0bec5;
         border-radius: 14px;
         box-shadow: 0 2px 12px rgba(44,83,100,0.08);
         padding: 18px 32px;
@@ -241,22 +241,22 @@
         margin: 0 0 8px 0;
         font-size: 1.1rem;
         font-weight: 700;
-    color: #ff61a6;
+    color: #1976d2;
         letter-spacing: 1px;
         text-shadow: none;
     }
     .status-count-number {
         font-size: 2.1rem;
         font-weight: 800;
-    color: #6d67e4;
+    color: #1976d2;
         letter-spacing: 1px;
         margin: 0;
         text-shadow: none;
     }
     .active-box .status-count-number { color: #2ecc71; }
-    .expiring-box .status-count-number { color: #ffb86b; }
-    .expired-box .status-count-number { color: #ff61a6; }
-    .all-box .status-count-number { color: #43e97b; }
+    .expiring-box .status-count-number { color: #ffa726; }
+    .expired-box .status-count-number { color: #d32f2f; }
+    .all-box .status-count-number { color: #1976d2; }
     /* Table Styles */
     #combinedTable {
         width: 100%;
@@ -276,8 +276,8 @@
         vertical-align: middle;
     }
     #combinedTable th {
-    background: linear-gradient(90deg, #ffb4a2 0%, #6d67e4 100%);
-    color: #232946 !important;
+    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+    color: #fff !important;
         font-weight: 700;
         font-size: 1.01rem;
         box-shadow: 0 2px 8px rgba(44,83,100,0.08);
@@ -293,24 +293,24 @@
         transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
     }
     #combinedTable tbody tr:hover {
-    background: #ffe5ec;
-    box-shadow: 0 2px 12px #ff61a622;
+        background: #e6ecf3;
+        box-shadow: 0 2px 12px #3a7bd522;
         transform: scale(1.01);
     }
     #combinedTable td {
-    color: #232946;
+        color: #1a2233;
     }
     #combinedTable td:nth-child(2) {
-    color: #ff61a6 !important;
+        color: #7c3aed !important;
     }
     #combinedTable td:nth-child(13) {
-    color: #43e97b !important;
+        color: #2980b9 !important;
     }
     #combinedTable th:nth-child(13) {
-    color: #232946 !important;
+        color: white !important;
     }
     #combinedTable td:nth-child(13) {
-    color: #38f9d7 !important;
+        color: #1e70a7 !important;
         font-weight: bold !important;
         text-shadow: none;
     }
@@ -337,13 +337,13 @@
     }
     /* Export/Reload/Column Buttons */
     #exportPdfBtn, #exportExcelBtn, #reloadBtn, #columnFilterBtn {
-    background: linear-gradient(90deg, #ffb4a2 0%, #43e97b 100%);
-    border: 1.5px solid #ffb4a2;
-    color: #232946;
+        background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
+        border: 1.5px solid #c7d0e1;
+        color: #fff;
     }
     #exportPdfBtn:hover, #exportExcelBtn:hover, #reloadBtn:hover, #columnFilterBtn:hover {
-    background: linear-gradient(90deg, #43e97b 0%, #ffb4a2 100%);
-    border: 1.5px solid #6d67e4;
+        background: linear-gradient(90deg, #43cea2 0%, #2b5876 100%);
+        border: 1.5px solid #8fa1c7;
     }
     /* Pagination Controls */
     .pagination-controls {
@@ -1833,7 +1833,7 @@
                     headers.push(headerCells[i].textContent.trim());
                 }
             }
-           // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
+             // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
             const insertAfter = (arr, afterKey, newKey) => {
                 const idx = arr.indexOf(afterKey);
                 if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
@@ -1859,7 +1859,7 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["PRO", "R.O", "S.K"].includes(part.toUpperCase())) {
+                    if (["PRO", "R.O", "S.K", "H.O", "INT", "PVT"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else if (["4 WHEEL", "HEAVY", "2 WHEEL"].includes(part.toUpperCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
@@ -1899,7 +1899,7 @@
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]', '[H.O]', '[INT]', '[PVT]'];
             const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             let data = [];
             let uniqueSet = new Set();
@@ -1974,7 +1974,7 @@
             // Add heading text above the table with professional styling
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(15);
-            doc.text('BHARATH AGROVET INDUSTRIES PVT LTD-[PROCESSING]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
+            doc.text('BHARATH AGROVET INDUSTRIES & PVT LTD-[HEAD-OFFICE]-VEHICLE POLICY REPORT', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
 
             // Add current date below heading
             const currentDateStr = formatDateDDMMYYYY(new Date());
@@ -2408,3 +2408,4 @@
     <script src="export.js"></script>
 </body>
 </html>
+
