@@ -758,7 +758,10 @@ async function saveRow(row, id) {
         const key = keys[inputIndex];
         inputIndex++;
 
-        if (input.type === 'date') {
+        // Always send correct EMS/EMS Renewal Date value
+        if (key === 'emsRenewalDate') {
+            updatedEntry[key] = input.value;
+        } else if (input.type === 'date') {
             updatedEntry[key] = input.value;
         } else if (input.type === 'number') {
             updatedEntry[key] = Number(input.value);
