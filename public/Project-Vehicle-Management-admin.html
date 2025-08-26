@@ -1833,7 +1833,7 @@
                     headers.push(headerCells[i].textContent.trim());
                 }
             }
-            // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
+           // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
             const insertAfter = (arr, afterKey, newKey) => {
                 const idx = arr.indexOf(afterKey);
                 if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
@@ -1842,16 +1842,14 @@
             insertAfter(headers, 'Vehicle Type', 'Make-Model');
             insertAfter(headers, 'Make-Model', 'Division');
 
-
             // Collect all row data first
             const rows = table.querySelectorAll('tbody tr');
             let allRows = [];
-            let divisionExists = false;
             rows.forEach((row, index) => {
                 if (row.style.display === 'none') return;
                 const cells = row.cells;
                 const rowData = {};
-                // Parse Vehicle Number for Division, Make-Model, Vehicle Type
+                // Parse Vehicle Number for Division, Make-Model, Vehicle Type, ensuring correct parsing
                 let vehicleNumberFull = cells[1] ? cells[1].textContent.trim() : '';
                 let vehicleNumber = '';
                 let makeModelArr = [];
@@ -1861,10 +1859,9 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (["[PRO]", "[R.O]", "[H.O]"].includes(part.toUpperCase())) {
+                    if (["PRO", "R.O", "S.K"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
-                        divisionExists = true;
-                    } else if (["4 wheel", "heavy", "2 wheel"].includes(part.toLowerCase())) {
+                    } else if (["4 WHEEL", "HEAVY", "2 WHEEL"].includes(part.toUpperCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
                     } else {
                         makeModelArr.push(`[${part}]`);
@@ -1873,10 +1870,7 @@
                 headers.forEach((header, hIdx) => {
                     switch(header) {
                         case '#': rowData[header] = (index + 1).toString(); break;
-                        case 'Vehicle Number': 
-                            // Apply the same styling as in the HTML table
-                            rowData[header] = vehicleNumber; 
-                            break;
+                        case 'Vehicle Number': rowData[header] = vehicleNumber; break;
                         case 'Vehicle Type': rowData[header] = vehicleType; break;
                         case 'Division': rowData[header] = division; break;
                         case 'Make-Model': rowData[header] = makeModelArr.join(' '); break;
@@ -1902,14 +1896,6 @@
                 rowData._renewalMonth = month;
                 allRows.push(rowData);
             });
-
-            // Only add Division column if at least one division exists
-            if (divisionExists) {
-                insertAfter(headers, 'Make-Model', 'Division');
-            } else {
-                headers = headers.filter(h => h !== 'Division');
-                allRows.forEach(row => { delete row['Division']; });
-            }
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
