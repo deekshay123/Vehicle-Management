@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1672,7 +1671,7 @@
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
             onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
         >
-            <!-- <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
+<!--             <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
             <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
             <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
             <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
@@ -1750,7 +1749,7 @@
                                 <th style="text-align: center;">Status</th>
                                 <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
                                 <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
-                                <!-- <th>Actions</th> -->
+<!--                                 <th>Actions</th> -->
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1833,7 +1832,7 @@
                     headers.push(headerCells[i].textContent.trim());
                 }
             }
-            // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
+             // Always add Vehicle Type, Make-Model, Division to PDF export after Vehicle Number
             const insertAfter = (arr, afterKey, newKey) => {
                 const idx = arr.indexOf(afterKey);
                 if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
@@ -1859,7 +1858,7 @@
                 vehicleNumber = parts[0].trim();
                 for (let i = 1; i < parts.length; i++) {
                     const part = parts[i].replace(']', '').trim();
-                    if (['[PRO]', '[R.O]', '[S.K]', '[H.O]', '[INT]'].includes(part.toUpperCase())) {
+                    if (["PRO", "R.O", "S.K", "H.O", "INT", "PVT"].includes(part.toUpperCase())) {
                         division = `[${part}]`;
                     } else if (["4 WHEEL", "HEAVY", "2 WHEEL"].includes(part.toUpperCase())) {
                         vehicleType = `[${part.toUpperCase()}]`;
@@ -1899,7 +1898,7 @@
 
             // Group and sort data, filter out duplicates
             const typeOrder = ['[2 WHEEL]', '[4 WHEEL]', '[HEAVY]'];
-            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]', '[H.O]', '[INT]'];
+            const divisionOrder = ['[PRO]', '[R.O]', '[S.K]', '[H.O]', '[INT]', '[PVT]'];
             const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             let data = [];
             let uniqueSet = new Set();
@@ -2408,5 +2407,3 @@
     <script src="export.js"></script>
 </body>
 </html>
-
-
