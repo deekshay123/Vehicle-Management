@@ -243,6 +243,9 @@ app.post('/api/records', async (req, res) => {
   try {
     const division = req.headers['x-division'] || req.session.division;
     const newRecord = req.body;
+  // Ensure EMS and emsRenewalDate fields are present for all divisions
+  newRecord.ems = newRecord.ems || '';
+  newRecord.emsRenewalDate = newRecord.emsRenewalDate || '';
     let result;
     if (division === 'feedmill') {
       result = await feedmillCollection.insertOne(newRecord);
@@ -293,8 +296,8 @@ app.put('/api/records/:id', async (req, res) => {
       return res.status(404).json({ error: 'Record not found' });
     }
 
-    // Check if any of the specified fields have changed
-    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate'];
+  // Check if any of the specified fields have changed
+  const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate', 'ems', 'emsRenewalDate'];
     let hasChanges = false;
 
     for (const key of keysToCheck) {
@@ -326,7 +329,9 @@ app.put('/api/records/:id', async (req, res) => {
           closingKM: currentRecord.closingKM,
           kmDriven: currentRecord.kmDriven,
           remarks: currentRecord.remarks,
-          lastServiceDate: currentRecord.maintenanceRenewalDate
+          lastServiceDate: currentRecord.maintenanceRenewalDate,
+          ems: currentRecord.ems,
+          emsRenewalDate: currentRecord.emsRenewalDate
         },
         editedBy: req.session.user || 'Unknown',
         editedAt: new Date()
