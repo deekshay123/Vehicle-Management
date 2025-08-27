@@ -775,43 +775,49 @@ async function saveRow(row, id) {
 
     // First, collect all current values from the row (spans and inputs)
     let inputIndex = 0;
+    let renewalDate2Value = '';
+    let emsRenewalDateValue = '';
+    let inputIndexForLoop = 0;
     for (let i = 1; i < cells.length - 1; i++) {
         const cell = cells[i];
         const input = cell.querySelector('input');
         const span = cell.querySelector('span');
+        const key = keys[inputIndexForLoop];
         // Skip display-only columns (gps, ems)
-        if (keys[inputIndex] === 'gps' || keys[inputIndex] === 'ems') {
-            inputIndex++;
+        if (key === 'gps' || key === 'ems') {
+            inputIndexForLoop++;
             continue;
         }
-        const key = keys[inputIndex];
-        inputIndex++;
         // If input is visible (being edited), use its value; otherwise, use the span's value
+        let value = '';
         if (input && input.style.display === 'inline-block') {
-            if (input.type === 'number') {
-                updatedEntry[key] = Number(input.value);
-            } else {
-                updatedEntry[key] = input.value;
-            }
+            value = input.type === 'number' ? Number(input.value) : input.value;
         } else if (span) {
             // For date fields, convert display format back to yyyy-mm-dd if possible
             if (input && input.type === 'date' && span.textContent) {
-                // Try to parse dd-MMM-yyyy to yyyy-mm-dd
                 const match = span.textContent.match(/(\d{2})-([A-Za-z]{3})-(\d{4})/);
                 if (match) {
                     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                     const day = match[1];
                     const month = String(months.indexOf(match[2]) + 1).padStart(2, '0');
                     const year = match[3];
-                    updatedEntry[key] = `${year}-${month}-${day}`;
+                    value = `${year}-${month}-${day}`;
                 } else {
-                    updatedEntry[key] = span.textContent;
+                    value = span.textContent;
                 }
             } else {
-                updatedEntry[key] = span.textContent;
+                value = span.textContent;
             }
         }
+        // Always set both renewalDate2 and emsRenewalDate to their correct values
+        if (key === 'renewalDate2') renewalDate2Value = value;
+        if (key === 'emsRenewalDate') emsRenewalDateValue = value;
+        updatedEntry[key] = value;
+        inputIndexForLoop++;
     }
+    // Ensure both fields are always set in the update payload
+    updatedEntry['renewalDate2'] = renewalDate2Value;
+    updatedEntry['emsRenewalDate'] = emsRenewalDateValue;
 
     // Basic validation including remarks and kmDriven not empty
     if (!updatedEntry.vehicleNumber || !updatedEntry.policyType || !updatedEntry.policyNumber ||
