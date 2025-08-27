@@ -418,7 +418,6 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         maintenanceStatusText: maintenanceStatus.text,
         gps: entry.gps,
         renewalDate2: entry.renewalDate2,
-        ems: entry.ems,
         emsRenewalDate: entry.emsRenewalDate,
         remarks: entry.remarks || ''
     };
@@ -438,15 +437,14 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'maintenanceStatusText', type: 'text', readonly: true },
         { key: 'gps', type: 'text' },
         { key: 'renewalDate2', type: 'date' },
-        { key: 'ems', type: 'text' },
         { key: 'emsRenewalDate', type: 'date' }
     ];
 
     fields.forEach((field, index) => {
         const cell = newRow.insertCell();
 
-        if (field.key === 'gps' || field.key === 'ems') {
-            // Show colored circle and renewal days for GPS and EMS
+        if (field.key === 'gps' || field.key === 'emsRenewalDate') {
+            // Show colored circle and renewal days for GPS and EMS Renewal Date
             let renewalDateKey = field.key === 'gps' ? 'renewalDate2' : 'emsRenewalDate';
             const today = new Date();
             const renewalDate = new Date(entry[renewalDateKey]);
@@ -464,15 +462,15 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
                 circleClass = 'circle-icon circle-red';
             }
 
-            // Show EMS/GPS value and renewal days (display only, not editable)
+            // Show value and renewal days (display only, not editable)
             const span = document.createElement('span');
             span.style.fontWeight = '500';
             span.style.color = '#222';
             span.style.fontSize = '15px';
-            span.textContent = entry[field.key] || '';
+            span.textContent = entry[field.key === 'gps' ? 'gps' : 'emsRenewalDate'] || '';
             cell.appendChild(span);
 
-            // No input for EMS or GPS (display only)
+            // No input for GPS/EMS Renewal Date (display only)
 
             const iconSpan = document.createElement('span');
             iconSpan.className = circleClass;
@@ -643,7 +641,6 @@ function enterEditMode(row, originalValues) {
         'maintenanceStatusText', // readonly, no input
         'gps', // no input
         'renewalDate2',
-        'ems', // no input
         'emsRenewalDate'
     ];
     let inputIndex = 0;
@@ -652,8 +649,8 @@ function enterEditMode(row, originalValues) {
         const span = cell.querySelector('span');
         const input = cell.querySelector('input');
         if (input) {
-            // For GPS/EMS columns, hide all spans and show input for editing
-            if (cell.classList.contains('gps-column-shadow') || cell.classList.contains('ems-column-shadow')) {
+            // For GPS column, hide all spans and show input for editing
+            if (cell.classList.contains('gps-column-shadow')) {
                 Array.from(cell.querySelectorAll('span')).forEach(s => s.style.display = 'none');
                 input.style.display = 'inline-block';
             } else {
@@ -764,7 +761,6 @@ async function saveRow(row, id) {
         'maintenanceRenewalDate',
         // maintenanceStatusText is readonly, skip
         'renewalDate2',
-        'ems',
         'emsRenewalDate'
     ];
 
@@ -780,8 +776,6 @@ async function saveRow(row, id) {
         // Ensure EMS Renewal Date is only set in emsRenewalDate, not ems
         if (key === 'emsRenewalDate') {
             updatedEntry['emsRenewalDate'] = input.value;
-        } else if (key === 'ems') {
-            updatedEntry['ems'] = input.value.trim();
         } else if (input.type === 'date') {
             updatedEntry[key] = input.value;
         } else if (input.type === 'number') {
@@ -1072,13 +1066,12 @@ async function addRow(tableId, inputIds) {
     const kmDriven = document.getElementById('kmDriven').value.trim();
     const maintenanceRenewalDate = document.getElementById('maintenanceRenewalDate').value.trim();
     const renewalDate2 = document.getElementById('renewalDate2').value.trim();
-    const ems = document.getElementById('ems').value.trim();
     const emsRenewalDate = document.getElementById('emsRenewalDate').value.trim();
     const remarks = document.getElementById('remarks').value.trim();
 
-    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !ems || !emsRenewalDate) {
-        showNotification('Please fill in all required fields before adding a record.');
-        return;
+    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !emsRenewalDate) {
+     showNotification('Please fill in all required fields before adding a record.');
+     return;
     }
 
     const newEntry = {
@@ -1092,7 +1085,6 @@ async function addRow(tableId, inputIds) {
         kmDriven: Number(kmDriven),
         maintenanceRenewalDate,
         renewalDate2,
-        ems,
         emsRenewalDate,
         remarks
     };
@@ -1123,6 +1115,7 @@ function resetForm() {
             'kmDriven',
             'maintenanceRenewalDate',
             'renewalDate2',
+            'emsRenewalDate',
             'remarks'
         ]);
     };
@@ -1137,6 +1130,7 @@ function resetForm() {
         'kmDriven',
         'maintenanceRenewalDate',
         'renewalDate2',
+        'emsRenewalDate',
         'remarks'
     ].forEach(id => {
         document.getElementById(id).value = '';
@@ -1317,6 +1311,7 @@ window.onload = async function () {
             'kmDriven',
             'maintenanceRenewalDate',
             'renewalDate2',
+            'emsRenewalDate',
             'remarks'
         ]);
     };
