@@ -499,35 +499,36 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
             const span = document.createElement('span');
             let displayValue = entry[field.key];
             if (displayValue) {
-                displayValue = (function formatDate(dateStr) {
-                    if (!dateStr) return '';
-                    const months = [
-                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-                    ];
-                    const dateObj = new Date(dateStr);
-                    if (isNaN(dateObj)) return '';
+                // Try to parse as date, fallback to raw value if invalid
+                const months = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ];
+                const dateObj = new Date(displayValue);
+                if (!isNaN(dateObj)) {
                     const day = String(dateObj.getDate()).padStart(2, '0');
                     const month = months[dateObj.getMonth()];
                     const year = dateObj.getFullYear();
-                    return `${day}-${month}-${year}`;
-                })(displayValue);
+                    displayValue = `${day}-${month}-${year}`;
+                } // else leave as is (raw string)
             } else {
                 displayValue = '';
             }
-            // Always use the latest value from backend for display
             span.textContent = displayValue;
             cell.appendChild(span);
 
             const input = document.createElement('input');
             input.type = 'date';
             if (entry[field.key]) {
+                // Try to parse as date, fallback to empty if invalid
                 const d = new Date(entry[field.key]);
                 if (!isNaN(d)) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
                     const dd = String(d.getDate()).padStart(2, '0');
                     input.value = `${yyyy}-${mm}-${dd}`;
+                } else {
+                    input.value = '';
                 }
             }
             input.style.display = 'none';
