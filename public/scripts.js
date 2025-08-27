@@ -499,36 +499,35 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
             const span = document.createElement('span');
             let displayValue = entry[field.key];
             if (displayValue) {
-                // Try to parse as date, fallback to raw value if invalid
-                const months = [
-                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-                ];
-                const dateObj = new Date(displayValue);
-                if (!isNaN(dateObj)) {
+                displayValue = (function formatDate(dateStr) {
+                    if (!dateStr) return '';
+                    const months = [
+                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                    ];
+                    const dateObj = new Date(dateStr);
+                    if (isNaN(dateObj)) return '';
                     const day = String(dateObj.getDate()).padStart(2, '0');
                     const month = months[dateObj.getMonth()];
                     const year = dateObj.getFullYear();
-                    displayValue = `${day}-${month}-${year}`;
-                } // else leave as is (raw string)
+                    return `${day}-${month}-${year}`;
+                })(displayValue);
             } else {
                 displayValue = '';
             }
+            // Always use the latest value from backend for display
             span.textContent = displayValue;
             cell.appendChild(span);
 
             const input = document.createElement('input');
             input.type = 'date';
             if (entry[field.key]) {
-                // Try to parse as date, fallback to empty if invalid
                 const d = new Date(entry[field.key]);
                 if (!isNaN(d)) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
                     const dd = String(d.getDate()).padStart(2, '0');
                     input.value = `${yyyy}-${mm}-${dd}`;
-                } else {
-                    input.value = '';
                 }
             }
             input.style.display = 'none';
@@ -648,21 +647,19 @@ function enterEditMode(row, originalValues) {
         'emsRenewalDate'
     ];
     let inputIndex = 0;
-    for (let i = 1; i < cells.length - 1; i++) {
+    for (let i = 1; i < cells.length - 1; i++) { // skip count and actions cells
         const cell = cells[i];
         const span = cell.querySelector('span');
         const input = cell.querySelector('input');
-        // Only show input for EMS Renewal Date when editing that field
-        if (input && cell.classList.contains('ems-column-shadow')) {
-            Array.from(cell.querySelectorAll('span')).forEach(s => s.style.display = 'none');
-            input.style.display = 'inline-block';
-        } else if (input && cell.classList.contains('gps-column-shadow')) {
-            // Do not show input for GPS when editing EMS
-            span.style.display = 'inline';
-            input.style.display = 'none';
-        } else if (input) {
-            span.style.display = 'none';
-            input.style.display = 'inline-block';
+        if (input) {
+            // For GPS/EMS columns, hide all spans and show input for editing
+            if (cell.classList.contains('gps-column-shadow') || cell.classList.contains('ems-column-shadow')) {
+                Array.from(cell.querySelectorAll('span')).forEach(s => s.style.display = 'none');
+                input.style.display = 'inline-block';
+            } else {
+                span.style.display = 'none';
+                input.style.display = 'inline-block';
+            }
             // Set input value for date/text
             const key = keys[i - 1];
             if (input.type === 'date') {
@@ -753,7 +750,6 @@ async function saveRow(row, id) {
     const updatedEntry = {};
 
     // Map keys to input indices (skip count cell at 0 and actions cell at last)
-    // Map keys to match table columns: skip readonly fields, and ensure emsRenewalDate is mapped to the correct column
     const keys = [
         'vehicleNumber',
         'policyType',
@@ -767,57 +763,33 @@ async function saveRow(row, id) {
         'remarks',
         'maintenanceRenewalDate',
         // maintenanceStatusText is readonly, skip
-        'gps', // display only, skip input
         'renewalDate2',
-        'ems', // display only, skip input
+        'ems',
         'emsRenewalDate'
     ];
 
-    // First, collect all current values from the row (spans and inputs)
     let inputIndex = 0;
-    let renewalDate2Value = '';
-    let emsRenewalDateValue = '';
-    let inputIndexForLoop = 0;
     for (let i = 1; i < cells.length - 1; i++) {
         const cell = cells[i];
         const input = cell.querySelector('input');
-        const span = cell.querySelector('span');
-        const key = keys[inputIndexForLoop];
-        // Skip display-only columns (gps, ems)
-        if (key === 'gps' || key === 'ems') {
-            inputIndexForLoop++;
-            continue;
+        if (!input) continue; // skip readonly fields
+
+        const key = keys[inputIndex];
+        inputIndex++;
+
+        // Ensure EMS Renewal Date is only set in emsRenewalDate, not ems
+        if (key === 'emsRenewalDate') {
+            updatedEntry['emsRenewalDate'] = input.value;
+        } else if (key === 'ems') {
+            updatedEntry['ems'] = input.value.trim();
+        } else if (input.type === 'date') {
+            updatedEntry[key] = input.value;
+        } else if (input.type === 'number') {
+            updatedEntry[key] = Number(input.value);
+        } else {
+            updatedEntry[key] = input.value.trim();
         }
-        // If input is visible (being edited), use its value; otherwise, use the span's value
-        let value = '';
-        if (input && input.style.display === 'inline-block') {
-            value = input.type === 'number' ? Number(input.value) : input.value;
-        } else if (span) {
-            // For date fields, convert display format back to yyyy-mm-dd if possible
-            if (input && input.type === 'date' && span.textContent) {
-                const match = span.textContent.match(/(\d{2})-([A-Za-z]{3})-(\d{4})/);
-                if (match) {
-                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                    const day = match[1];
-                    const month = String(months.indexOf(match[2]) + 1).padStart(2, '0');
-                    const year = match[3];
-                    value = `${year}-${month}-${day}`;
-                } else {
-                    value = span.textContent;
-                }
-            } else {
-                value = span.textContent;
-            }
-        }
-        // Always set both renewalDate2 and emsRenewalDate to their correct values
-        if (key === 'renewalDate2') renewalDate2Value = value;
-        if (key === 'emsRenewalDate') emsRenewalDateValue = value;
-        updatedEntry[key] = value;
-        inputIndexForLoop++;
     }
-    // Ensure both fields are always set in the update payload
-    updatedEntry['renewalDate2'] = renewalDate2Value;
-    updatedEntry['emsRenewalDate'] = emsRenewalDateValue;
 
     // Basic validation including remarks and kmDriven not empty
     if (!updatedEntry.vehicleNumber || !updatedEntry.policyType || !updatedEntry.policyNumber ||
@@ -835,7 +807,7 @@ async function saveRow(row, id) {
 
     // Check if any of the specified fields have changed compared to original values
     const originalValues = {};
-    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate', 'renewalDate2', 'emsRenewalDate'];
+    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate'];
     let hasChanges = false;
 
     // Extract original values from the row's spans
@@ -1037,8 +1009,9 @@ async function updateEntry(id) {
         closingKM: Number(document.getElementById('closingKM').value),
         kmDriven: Number(document.getElementById('kmDriven').value),
         maintenanceRenewalDate: document.getElementById('maintenanceRenewalDate').value,
-        renewalDate2: document.getElementById('renewalDate2').value,
-        emsRenewalDate: document.getElementById('emsRenewalDate') ? document.getElementById('emsRenewalDate').value : ''
+        // Removed gps input field since it was removed from the form
+        // gps: document.getElementById('gps').value,
+        renewalDate2: document.getElementById('renewalDate2').value
     };
 
     // Fetch original entry to compare changes
@@ -1081,7 +1054,6 @@ async function updateEntry(id) {
 
     const result = await updateRecord(id, updatedEntry);
     if (result) {
-        // Always reload and render the table to reflect the latest data
         await loadAndRender();
         showNotification('Entry updated successfully.');
         resetForm();
@@ -1101,10 +1073,11 @@ async function addRow(tableId, inputIds) {
     const kmDriven = document.getElementById('kmDriven').value.trim();
     const maintenanceRenewalDate = document.getElementById('maintenanceRenewalDate').value.trim();
     const renewalDate2 = document.getElementById('renewalDate2').value.trim();
-    const emsRenewalDate = document.getElementById('emsRenewalDate') ? document.getElementById('emsRenewalDate').value.trim() : '';
+    const ems = document.getElementById('ems').value.trim();
+    const emsRenewalDate = document.getElementById('emsRenewalDate').value.trim();
     const remarks = document.getElementById('remarks').value.trim();
 
-    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !emsRenewalDate) {
+    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !ems || !emsRenewalDate) {
         showNotification('Please fill in all required fields before adding a record.');
         return;
     }
@@ -1120,6 +1093,7 @@ async function addRow(tableId, inputIds) {
         kmDriven: Number(kmDriven),
         maintenanceRenewalDate,
         renewalDate2,
+        ems,
         emsRenewalDate,
         remarks
     };
@@ -1150,7 +1124,6 @@ function resetForm() {
             'kmDriven',
             'maintenanceRenewalDate',
             'renewalDate2',
-            'emsRenewalDate',
             'remarks'
         ]);
     };
@@ -1165,10 +1138,9 @@ function resetForm() {
         'kmDriven',
         'maintenanceRenewalDate',
         'renewalDate2',
-        'emsRenewalDate',
         'remarks'
     ].forEach(id => {
-        if (document.getElementById(id)) document.getElementById(id).value = '';
+        document.getElementById(id).value = '';
     });
 }
 
@@ -1346,7 +1318,6 @@ window.onload = async function () {
             'kmDriven',
             'maintenanceRenewalDate',
             'renewalDate2',
-            'emsRenewalDate',
             'remarks'
         ]);
     };
