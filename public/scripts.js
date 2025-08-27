@@ -835,7 +835,7 @@ async function saveRow(row, id) {
 
     // Check if any of the specified fields have changed compared to original values
     const originalValues = {};
-    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate'];
+    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate', 'renewalDate2', 'emsRenewalDate'];
     let hasChanges = false;
 
     // Extract original values from the row's spans
