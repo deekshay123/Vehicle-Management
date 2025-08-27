@@ -1017,9 +1017,8 @@ async function updateEntry(id) {
         closingKM: Number(document.getElementById('closingKM').value),
         kmDriven: Number(document.getElementById('kmDriven').value),
         maintenanceRenewalDate: document.getElementById('maintenanceRenewalDate').value,
-        // Removed gps input field since it was removed from the form
-        // gps: document.getElementById('gps').value,
-        renewalDate2: document.getElementById('renewalDate2').value
+        renewalDate2: document.getElementById('renewalDate2').value,
+        emsRenewalDate: document.getElementById('emsRenewalDate') ? document.getElementById('emsRenewalDate').value : ''
     };
 
     // Fetch original entry to compare changes
@@ -1062,6 +1061,7 @@ async function updateEntry(id) {
 
     const result = await updateRecord(id, updatedEntry);
     if (result) {
+        // Always reload and render the table to reflect the latest data
         await loadAndRender();
         showNotification('Entry updated successfully.');
         resetForm();
