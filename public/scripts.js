@@ -773,27 +773,42 @@ async function saveRow(row, id) {
         'emsRenewalDate'
     ];
 
+    // First, collect all current values from the row (spans and inputs)
     let inputIndex = 0;
     for (let i = 1; i < cells.length - 1; i++) {
         const cell = cells[i];
         const input = cell.querySelector('input');
-        if (!input) continue;
-
+        const span = cell.querySelector('span');
         // Skip display-only columns (gps, ems)
         if (keys[inputIndex] === 'gps' || keys[inputIndex] === 'ems') {
             inputIndex++;
             continue;
         }
-
         const key = keys[inputIndex];
         inputIndex++;
-
-        // Only update the field that is currently being edited (visible input)
-        if (input.style.display === 'inline-block') {
+        // If input is visible (being edited), use its value; otherwise, use the span's value
+        if (input && input.style.display === 'inline-block') {
             if (input.type === 'number') {
                 updatedEntry[key] = Number(input.value);
             } else {
                 updatedEntry[key] = input.value;
+            }
+        } else if (span) {
+            // For date fields, convert display format back to yyyy-mm-dd if possible
+            if (input && input.type === 'date' && span.textContent) {
+                // Try to parse dd-MMM-yyyy to yyyy-mm-dd
+                const match = span.textContent.match(/(\d{2})-([A-Za-z]{3})-(\d{4})/);
+                if (match) {
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    const day = match[1];
+                    const month = String(months.indexOf(match[2]) + 1).padStart(2, '0');
+                    const year = match[3];
+                    updatedEntry[key] = `${year}-${month}-${day}`;
+                } else {
+                    updatedEntry[key] = span.textContent;
+                }
+            } else {
+                updatedEntry[key] = span.textContent;
             }
         }
     }
