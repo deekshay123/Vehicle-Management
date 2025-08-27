@@ -752,6 +752,7 @@ async function saveRow(row, id) {
     const updatedEntry = {};
 
     // Map keys to input indices (skip count cell at 0 and actions cell at last)
+    // Map keys to match table columns: skip readonly fields, and ensure emsRenewalDate is mapped to the correct column
     const keys = [
         'vehicleNumber',
         'policyType',
@@ -765,8 +766,9 @@ async function saveRow(row, id) {
         'remarks',
         'maintenanceRenewalDate',
         // maintenanceStatusText is readonly, skip
+        'gps', // display only, skip input
         'renewalDate2',
-        'ems',
+        'ems', // display only, skip input
         'emsRenewalDate'
     ];
 
@@ -774,16 +776,20 @@ async function saveRow(row, id) {
     for (let i = 1; i < cells.length - 1; i++) {
         const cell = cells[i];
         const input = cell.querySelector('input');
-        if (!input) continue; // skip readonly fields
+        // Only process cells that have an input and are not display-only columns (gps, ems)
+        if (!input) continue;
+
+        // Skip display-only columns (gps, ems)
+        if (keys[inputIndex] === 'gps' || keys[inputIndex] === 'ems') {
+            inputIndex++;
+            continue;
+        }
 
         const key = keys[inputIndex];
         inputIndex++;
 
-        // Only update EMS Renewal Date if editing that field
         if (key === 'emsRenewalDate' && input.style.display === 'inline-block') {
             updatedEntry['emsRenewalDate'] = input.value;
-        } else if (key === 'ems' && input.style.display === 'inline-block') {
-            updatedEntry['ems'] = input.value.trim();
         } else if (input.type === 'date' && input.style.display === 'inline-block') {
             updatedEntry[key] = input.value;
         } else if (input.type === 'number' && input.style.display === 'inline-block') {
