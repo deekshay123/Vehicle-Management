@@ -777,7 +777,6 @@ async function saveRow(row, id) {
     for (let i = 1; i < cells.length - 1; i++) {
         const cell = cells[i];
         const input = cell.querySelector('input');
-        // Only process cells that have an input and are not display-only columns (gps, ems)
         if (!input) continue;
 
         // Skip display-only columns (gps, ems)
@@ -789,14 +788,13 @@ async function saveRow(row, id) {
         const key = keys[inputIndex];
         inputIndex++;
 
-        if (key === 'emsRenewalDate' && input.style.display === 'inline-block') {
-            updatedEntry['emsRenewalDate'] = input.value;
-        } else if (input.type === 'date' && input.style.display === 'inline-block') {
-            updatedEntry[key] = input.value;
-        } else if (input.type === 'number' && input.style.display === 'inline-block') {
-            updatedEntry[key] = Number(input.value);
-        } else if (input.style.display === 'inline-block') {
-            updatedEntry[key] = input.value.trim();
+        // Only update the field that is currently being edited (visible input)
+        if (input.style.display === 'inline-block') {
+            if (input.type === 'number') {
+                updatedEntry[key] = Number(input.value);
+            } else {
+                updatedEntry[key] = input.value;
+            }
         }
     }
 
