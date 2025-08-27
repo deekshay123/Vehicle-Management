@@ -824,23 +824,22 @@ async function saveRow(row, id) {
     }
 
     // Compare original and updated values for keysToCheck
-    for (const key of keysToCheck) {
-        let originalVal = originalValues[key];
-        let updatedVal = updatedEntry[key];
-
-        // Normalize numbers to string for comparison
-        if (typeof updatedVal === 'number') {
-            updatedVal = updatedVal.toString();
+        for (let i = 0; i < keysToCheck.length; i++) {
+            const key = keysToCheck[i];
+            let originalVal = originalValues[key];
+            let updatedVal = updatedEntry[key];
+            // Normalize numbers to string for comparison
+            if (typeof updatedVal === 'number') {
+                updatedVal = updatedVal.toString();
+            }
+            if (typeof originalVal === 'number') {
+                originalVal = originalVal.toString();
+            }
+            if (originalVal !== updatedVal) {
+                hasChanges = true;
+                break;
+            }
         }
-        if (typeof originalVal === 'number') {
-            originalVal = originalVal.toString();
-        }
-
-        if (originalVal !== updatedVal) {
-            hasChanges = true;
-            break;
-        }
-    }
 
     if (!hasChanges) {
         showNotification('No changes detected in the specified fields. Save cancelled.');
