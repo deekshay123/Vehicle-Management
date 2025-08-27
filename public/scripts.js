@@ -647,19 +647,21 @@ function enterEditMode(row, originalValues) {
         'emsRenewalDate'
     ];
     let inputIndex = 0;
-    for (let i = 1; i < cells.length - 1; i++) { // skip count and actions cells
+    for (let i = 1; i < cells.length - 1; i++) {
         const cell = cells[i];
         const span = cell.querySelector('span');
         const input = cell.querySelector('input');
-        if (input) {
-            // For GPS/EMS columns, hide all spans and show input for editing
-            if (cell.classList.contains('gps-column-shadow') || cell.classList.contains('ems-column-shadow')) {
-                Array.from(cell.querySelectorAll('span')).forEach(s => s.style.display = 'none');
-                input.style.display = 'inline-block';
-            } else {
-                span.style.display = 'none';
-                input.style.display = 'inline-block';
-            }
+        // Only show input for EMS Renewal Date when editing that field
+        if (input && cell.classList.contains('ems-column-shadow')) {
+            Array.from(cell.querySelectorAll('span')).forEach(s => s.style.display = 'none');
+            input.style.display = 'inline-block';
+        } else if (input && cell.classList.contains('gps-column-shadow')) {
+            // Do not show input for GPS when editing EMS
+            span.style.display = 'inline';
+            input.style.display = 'none';
+        } else if (input) {
+            span.style.display = 'none';
+            input.style.display = 'inline-block';
             // Set input value for date/text
             const key = keys[i - 1];
             if (input.type === 'date') {
@@ -777,16 +779,16 @@ async function saveRow(row, id) {
         const key = keys[inputIndex];
         inputIndex++;
 
-        // Ensure EMS Renewal Date is only set in emsRenewalDate, not ems
-        if (key === 'emsRenewalDate') {
+        // Only update EMS Renewal Date if editing that field
+        if (key === 'emsRenewalDate' && input.style.display === 'inline-block') {
             updatedEntry['emsRenewalDate'] = input.value;
-        } else if (key === 'ems') {
+        } else if (key === 'ems' && input.style.display === 'inline-block') {
             updatedEntry['ems'] = input.value.trim();
-        } else if (input.type === 'date') {
+        } else if (input.type === 'date' && input.style.display === 'inline-block') {
             updatedEntry[key] = input.value;
-        } else if (input.type === 'number') {
+        } else if (input.type === 'number' && input.style.display === 'inline-block') {
             updatedEntry[key] = Number(input.value);
-        } else {
+        } else if (input.style.display === 'inline-block') {
             updatedEntry[key] = input.value.trim();
         }
     }
@@ -1073,11 +1075,10 @@ async function addRow(tableId, inputIds) {
     const kmDriven = document.getElementById('kmDriven').value.trim();
     const maintenanceRenewalDate = document.getElementById('maintenanceRenewalDate').value.trim();
     const renewalDate2 = document.getElementById('renewalDate2').value.trim();
-    const ems = document.getElementById('ems').value.trim();
-    const emsRenewalDate = document.getElementById('emsRenewalDate').value.trim();
+    const emsRenewalDate = document.getElementById('emsRenewalDate') ? document.getElementById('emsRenewalDate').value.trim() : '';
     const remarks = document.getElementById('remarks').value.trim();
 
-    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !ems || !emsRenewalDate) {
+    if (!vehicleNumber || !policyType || !policyNumber || !vehicleRenewalDate || !maintenanceType || !openingKM || !closingKM || !kmDriven || !maintenanceRenewalDate || !renewalDate2 || !emsRenewalDate) {
         showNotification('Please fill in all required fields before adding a record.');
         return;
     }
@@ -1093,7 +1094,6 @@ async function addRow(tableId, inputIds) {
         kmDriven: Number(kmDriven),
         maintenanceRenewalDate,
         renewalDate2,
-        ems,
         emsRenewalDate,
         remarks
     };
@@ -1124,6 +1124,7 @@ function resetForm() {
             'kmDriven',
             'maintenanceRenewalDate',
             'renewalDate2',
+            'emsRenewalDate',
             'remarks'
         ]);
     };
@@ -1138,9 +1139,10 @@ function resetForm() {
         'kmDriven',
         'maintenanceRenewalDate',
         'renewalDate2',
+        'emsRenewalDate',
         'remarks'
     ].forEach(id => {
-        document.getElementById(id).value = '';
+        if (document.getElementById(id)) document.getElementById(id).value = '';
     });
 }
 
@@ -1318,6 +1320,7 @@ window.onload = async function () {
             'kmDriven',
             'maintenanceRenewalDate',
             'renewalDate2',
+            'emsRenewalDate',
             'remarks'
         ]);
     };
