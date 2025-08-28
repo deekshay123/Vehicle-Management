@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 // console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
@@ -238,27 +239,6 @@ app.get('/api/records/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch record' });
   }
 });
-// Only one POST /api/records route needed, ensure emsRenewalDate and ems are always present
-app.post('/api/records', async (req, res) => {
-  try {
-    const division = req.headers['x-division'] || req.session.division;
-    const newRecord = req.body;
-    // Ensure EMS and emsRenewalDate fields are present for all divisions
-    newRecord.ems = typeof newRecord.ems === 'string' ? newRecord.ems : '';
-    newRecord.emsRenewalDate = typeof newRecord.emsRenewalDate === 'string' ? newRecord.emsRenewalDate : '';
-    let result;
-    if (division === 'feedmill') {
-      result = await feedmillCollection.insertOne(newRecord);
-    } else if (division === 'headoffice') {
-      result = await headOfficeCollection.insertOne(newRecord);
-    } else {
-      result = await vehicleCollection.insertOne(newRecord);
-    }
-    res.status(201).json({ _id: result.insertedId, ...newRecord });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create record' });
-  }
-});
 app.post('/api/records', async (req, res) => {
   try {
     const division = req.headers['x-division'] || req.session.division;
@@ -276,13 +256,10 @@ app.post('/api/records', async (req, res) => {
     res.status(500).json({ error: 'Failed to create record' });
   }
 });
-// Only one PUT /api/records/:id route needed, ensure emsRenewalDate and ems are always present
 app.put('/api/records/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const updatedRecord = req.body;
-    updatedRecord.ems = typeof updatedRecord.ems === 'string' ? updatedRecord.ems : '';
-    updatedRecord.emsRenewalDate = typeof updatedRecord.emsRenewalDate === 'string' ? updatedRecord.emsRenewalDate : '';
     const division = req.headers['x-division'] || req.session.division;
 
     // Fetch current record before update
@@ -300,7 +277,7 @@ app.put('/api/records/:id', async (req, res) => {
     }
 
     // Check if any of the specified fields have changed
-    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate', 'ems', 'emsRenewalDate'];
+    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate'];
     let hasChanges = false;
 
     for (const key of keysToCheck) {
@@ -332,9 +309,7 @@ app.put('/api/records/:id', async (req, res) => {
           closingKM: currentRecord.closingKM,
           kmDriven: currentRecord.kmDriven,
           remarks: currentRecord.remarks,
-          lastServiceDate: currentRecord.maintenanceRenewalDate,
-          ems: currentRecord.ems,
-          emsRenewalDate: currentRecord.emsRenewalDate
+          lastServiceDate: currentRecord.maintenanceRenewalDate
         },
         editedBy: req.session.user || 'Unknown',
         editedAt: new Date()
