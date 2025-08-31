@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1682,9 +1681,13 @@
             <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
             <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
             <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-             <div class="form-group">
+            <div class="form-group">
                 <label for="renewalDate2">GPS Renewal</label>
                 <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
+            </div>
+            <div class="form-group">
+                <label for="renewalDate3">EMS Renewal</label>
+                <input type="date" id="renewalDate3" name="renewalDate3" placeholder="Renewal Date" required />
             </div>
             <button type="submit">Add Entry</button>
         </form>
@@ -1714,6 +1717,7 @@
                 <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchVehicleNumberInput2" placeholder="Additional VehicleNumber Filter..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchGpsRenewalDateInput" placeholder="Search by GPS Renewal Date..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchEmsRenewalDateInput" placeholder="Search by EMS Renewal Date..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <div style="display:flex;gap:10px;align-items:center;flex:1 1 220px;min-width:120px;">
                     <button id="exportPdfBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to PDF</button>
                     <button id="exportExcelBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to Excel</button>
@@ -1750,6 +1754,8 @@
                                 <th style="text-align: center;">Status</th>
                                 <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
                                 <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
+                                <th class="ems-column" style="background-color: #1e70a7; text-align: center;">EMS</th>
+                                <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(EMS)</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
