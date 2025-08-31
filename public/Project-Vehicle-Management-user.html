@@ -1713,6 +1713,7 @@
                 <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchVehicleNumberInput2" placeholder="Additional VehicleNumber Filter..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchGpsRenewalDateInput" placeholder="Search by GPS Renewal Date..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
+                <input type="text" id="searchEmsRenewalDateInput" placeholder="Search by EMS Renewal Date..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <div style="display:flex;gap:10px;align-items:center;flex:1 1 220px;min-width:120px;">
                     <button id="exportPdfBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to PDF</button>
                     <button id="exportExcelBtn" style="padding: 6px 14px; font-size: 14px; border-radius: 4px; width:100%;">Export to Excel</button>
@@ -1749,6 +1750,8 @@
                                 <th style="text-align: center;">Status</th>
                                 <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
                                 <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
+                                <th class="ems-column" style="background-color: #1e70a7; text-align: center;">EMS</th>
+                                <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(EMS)</th>
 <!--                                 <th>Actions</th> -->
                             </tr>
                         </thead>
@@ -2386,6 +2389,57 @@
                             }
                         }
                         // Match incremental search
+                        if (monthPart.startsWith(filterValue)) {
+                            matched = true;
+                        } else if (cellText.includes(filterValue)) {
+                            matched = true;
+                        }
+                    }
+                    row.style.display = matched ? '' : 'none';
+                });
+                updateSerialNumbers();
+            });
+        }
+    });
+
+    // EMS Renewal Date search input filtering logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const emsSearchInput = document.getElementById('searchEmsRenewalDateInput');
+        if (emsSearchInput) {
+            emsSearchInput.addEventListener('input', function() {
+                const filterValue = emsSearchInput.value.trim().toLowerCase();
+                const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                const tbody = document.querySelector('#combinedTable tbody');
+                const emsColIdx = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th'))
+                    .findIndex(th => th.textContent.trim().toLowerCase().includes('renewal date(ems)'));
+
+                tbody.querySelectorAll('tr').forEach(row => {
+                    let cellText = '';
+                    if (emsColIdx !== -1 && row.cells[emsColIdx]) {
+                        cellText = row.cells[emsColIdx].textContent.trim().toLowerCase();
+                    }
+                    let matched = false;
+                    if (filterValue === '') {
+                        matched = true;
+                    } else {
+                        let monthPart = '';
+                        let dateParts = cellText.split('-');
+                        if (dateParts.length === 3) {
+                            monthPart = dateParts[1].toLowerCase();
+                            if (/^\d+$/.test(monthPart)) {
+                                let monthIdx = parseInt(monthPart, 10) - 1;
+                                if (monthIdx >= 0 && monthIdx < 12) {
+                                    monthPart = monthOrder[monthIdx];
+                                }
+                            }
+                        } else {
+                            for (let m of monthOrder) {
+                                if (cellText.includes(m)) {
+                                    monthPart = m;
+                                    break;
+                                }
+                            }
+                        }
                         if (monthPart.startsWith(filterValue)) {
                             matched = true;
                         } else if (cellText.includes(filterValue)) {
