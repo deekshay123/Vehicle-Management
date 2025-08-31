@@ -1669,7 +1669,7 @@
         <form
             id="combinedForm"
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
-            onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
+            onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'renewalDate3']);"
         >
             <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
             <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
@@ -1681,9 +1681,13 @@
             <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
             <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
             <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-             <div class="form-group">
+            <div class="form-group">
                 <label for="renewalDate2">GPS Renewal</label>
                 <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
+            </div>
+            <div class="form-group">
+                <label for="renewalDate3">EMS Renewal</label>
+                <input type="date" id="renewalDate3" name="renewalDate3" placeholder="Renewal Date" required />
             </div>
             <button type="submit">Add Entry</button>
         </form>
