@@ -1,4 +1,4 @@
-logic for without headoffice/// Toggle form visibility and arrow direction
+// Toggle form visibility and arrow direction
 const toggleBtn = document.getElementById('toggleFormBtn');
 const form = document.getElementById('combinedForm');
 const arrow = toggleBtn.querySelector('.arrow');
