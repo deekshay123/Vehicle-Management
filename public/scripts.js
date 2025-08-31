@@ -338,6 +338,10 @@ function updateStatusCounts(data) {
         const gpsRenewalDate = new Date(entry.renewalDate2);
         const gpsDiffDays = Math.ceil((gpsRenewalDate - today) / (1000 * 60 * 60 * 24));
 
+        // Check EMS renewal date status
+        const emsRenewalDate = new Date(entry.renewalDate3);
+        const emsDiffDays = Math.ceil((emsRenewalDate - today) / (1000 * 60 * 60 * 24));
+
         // Helper function to categorize status for a date difference
         function categorizeStatus(diffDays) {
             if (diffDays > 30) {
@@ -360,6 +364,12 @@ function updateStatusCounts(data) {
         if (gpsStatus === 'active') activeCount++;
         else if (gpsStatus === 'expiring') expiringCount++;
         else if (gpsStatus === 'expired') expiredCount++;
+
+        // Count EMS renewal status
+        const emsStatus = categorizeStatus(emsDiffDays);
+        if (emsStatus === 'active') activeCount++;
+        else if (emsStatus === 'expiring') expiringCount++;
+        else if (emsStatus === 'expired') expiredCount++;
 
         // Do not count maintenanceRenewalDate status
         /*
@@ -417,6 +427,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         maintenanceRenewalDate: entry.maintenanceRenewalDate,
         maintenanceStatusText: maintenanceStatus.text,
         renewalDate2: entry.renewalDate2,
+        renewalDate3: entry.renewalDate3,
         remarks: entry.remarks || ''
     };
 
@@ -434,7 +445,9 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'maintenanceRenewalDate', type: 'date' },
         { key: 'maintenanceStatusText', type: 'text', readonly: true },
         { key: 'gps', type: 'gps' },
-        { key: 'renewalDate2', type: 'date' }
+        { key: 'renewalDate2', type: 'date' },
+        { key: 'ems', type: 'ems' },
+        { key: 'renewalDate3', type: 'date' }
     ];
 
     fields.forEach((field, index) => {
@@ -502,6 +515,83 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
             input.type = 'date';
             if (originalValues.renewalDate2) {
                 const d = new Date(originalValues.renewalDate2);
+                if (!isNaN(d)) {
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    input.value = `${yyyy}-${mm}-${dd}`;
+                }
+            }
+            input.style.display = 'none';
+            input.classList.add('inline-edit-input');
+            cell.appendChild(input);
+
+            cell.style.textAlign = 'center';
+            return;
+        }
+
+        if (field.key === 'ems') {
+            const today = new Date();
+            const renewalDate3 = new Date(entry.renewalDate3);
+            const diffTime = renewalDate3 - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                            // Circle color logic
+                            let circleClass = '';
+                            if (diffDays > 30) {
+                                circleClass = 'circle-icon circle-green';
+                            } else if (diffDays > 15) {
+                                circleClass = 'circle-icon circle-yellow';
+                            } else if (diffDays >= 3 && diffDays <= 15) {
+                                circleClass = 'circle-icon circle-red circle-blink';
+                            } else {
+                                circleClass = 'circle-icon circle-red';
+                            }
+
+                            // Professional medium-sized SVG circle icon
+                            cell.innerHTML =
+                                `<span class="${circleClass}" title="Renewal in ${diffDays} day(s)">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
+                                        <circle cx="10" cy="10" r="8" fill="${
+                                            circleClass.includes('circle-green') ? '#2e7d32' : // professional green
+                                            circleClass.includes('circle-yellow') ? '#fbc02d' : // professional yellow
+                                            '#c62828' // professional red
+                                        }" stroke="#444" stroke-width="2" />
+                                    </svg>
+                                </span>
+                                <span class="renewal-days-text" style="margin-left:8px;font-weight:500;color:#222;font-size:15px;">Renewal in ${diffDays} day(s)</span>`;
+            cell.style.textAlign = 'center';
+            cell.classList.add('ems-column-shadow');
+            return;
+        }
+
+        if (field.key === 'renewalDate3') {
+            const span = document.createElement('span');
+            let displayValue = originalValues.renewalDate3;
+            if (displayValue) {
+                displayValue = (function formatDate(dateStr) {
+                    if (!dateStr) return '';
+                    const months = [
+                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                    ];
+                    const dateObj = new Date(dateStr);
+                    if (isNaN(dateObj)) return '';
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = months[dateObj.getMonth()];
+                    const year = dateObj.getFullYear();
+                    return `${day}-${month}-${year}`;
+                })(displayValue);
+            } else {
+                displayValue = '';
+            }
+            span.textContent = displayValue;
+            cell.appendChild(span);
+
+            const input = document.createElement('input');
+            input.type = 'date';
+            if (originalValues.renewalDate3) {
+                const d = new Date(originalValues.renewalDate3);
                 if (!isNaN(d)) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -621,7 +711,9 @@ function enterEditMode(row, originalValues) {
         'maintenanceRenewalDate',
         'maintenanceStatusText', // readonly, no input
         'gps', // no input
-        'renewalDate2'
+        'renewalDate2',
+        'ems', // no input
+        'renewalDate3'
     ];
     let inputIndex = 0;
     for (let i = 1; i < cells.length - 1; i++) { // skip count and actions cells
@@ -737,7 +829,8 @@ async function saveRow(row, id) {
         'remarks',
         'maintenanceRenewalDate',
         // maintenanceStatusText is readonly, skip
-        'renewalDate2'
+        'renewalDate2',
+        'renewalDate3'
     ];
 
     let inputIndex = 0;
@@ -761,7 +854,7 @@ async function saveRow(row, id) {
     // Basic validation including remarks and kmDriven not empty
     if (!updatedEntry.vehicleNumber || !updatedEntry.policyType || !updatedEntry.policyNumber ||
         !updatedEntry.vehicleRenewalDate || !updatedEntry.maintenanceType || isNaN(updatedEntry.kmDriven) ||
-        updatedEntry.kmDriven === '' || !updatedEntry.remarks || !updatedEntry.maintenanceRenewalDate || !updatedEntry.renewalDate2) {
+        updatedEntry.kmDriven === '' || !updatedEntry.remarks || !updatedEntry.maintenanceRenewalDate || !updatedEntry.renewalDate2 || !updatedEntry.renewalDate3) {
         showNotification('Please fill in all required fields correctly, including KM Driven and Remarks.');
         return;
     }
@@ -769,49 +862,6 @@ async function saveRow(row, id) {
     // Validate that both renewal dates are different
     if (updatedEntry.vehicleRenewalDate === updatedEntry.renewalDate2) {
         showNotification('Vehicle Renewal Date and GPS Renewal Date must be different.');
-        return;
-    }
-
-    // Check if any of the specified fields have changed compared to original values
-    const originalValues = {};
-    const keysToCheck = ['vehicleNumber', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'remarks', 'maintenanceRenewalDate'];
-    let hasChanges = false;
-
-    // Extract original values from the row's spans
-    let keyIndex = 0;
-    for (let i = 1; i < cells.length - 1; i++) {
-        const cell = cells[i];
-        const span = cell.querySelector('span');
-        if (!span) continue;
-        const key = keys[keyIndex];
-        if (keysToCheck.includes(key)) {
-            originalValues[key] = span.textContent.trim();
-        }
-        keyIndex++;
-    }
-
-    // Compare original and updated values for keysToCheck
-    for (const key of keysToCheck) {
-        let originalVal = originalValues[key];
-        let updatedVal = updatedEntry[key];
-
-        // Normalize numbers to string for comparison
-        if (typeof updatedVal === 'number') {
-            updatedVal = updatedVal.toString();
-        }
-        if (typeof originalVal === 'number') {
-            originalVal = originalVal.toString();
-        }
-
-        if (originalVal !== updatedVal) {
-            hasChanges = true;
-            break;
-        }
-    }
-
-    if (!hasChanges) {
-        showNotification('No changes detected in the specified fields. Save cancelled.');
-        exitEditMode(row, originalValues);
         return;
     }
 
@@ -1057,6 +1107,7 @@ async function addRow(tableId, inputIds) {
         kmDriven: Number(kmDriven),
         maintenanceRenewalDate,
         renewalDate2,
+        renewalDate3: document.getElementById('renewalDate3').value,
         remarks
     };
 
@@ -1190,16 +1241,18 @@ function filterTableByStatus(statusType) {
     const filteredData = data.filter(entry => {
         const vehicleStatus = calculateStatus(entry.vehicleRenewalDate).text.toLowerCase();
         const gpsStatus = calculateStatus(entry.renewalDate2).text.toLowerCase();
+        const emsStatus = calculateStatus(entry.renewalDate3).text.toLowerCase();
         // Exclude maintenanceStatus from filtering
         // const maintenanceStatus = calculateStatus(entry.maintenanceRenewalDate).text.toLowerCase();
 
         if (statusType === 'active') {
-            return vehicleStatus === 'active' || gpsStatus === 'active';
+            return vehicleStatus === 'active' || gpsStatus === 'active' || emsStatus === 'active';
         } else if (statusType === 'expiring') {
             return vehicleStatus.includes('days left') || vehicleStatus === 'expiring soon' ||
-                gpsStatus.includes('days left') || gpsStatus === 'expiring soon';
+                gpsStatus.includes('days left') || gpsStatus === 'expiring soon' ||
+                emsStatus.includes('days left') || emsStatus === 'expiring soon';
         } else if (statusType === 'expired') {
-            return vehicleStatus === 'expired' || gpsStatus === 'expired';
+            return vehicleStatus === 'expired' || gpsStatus === 'expired' || emsStatus === 'expired';
         }
         return false;
     });
@@ -1413,6 +1466,61 @@ window.onload = async function () {
                 let cellText = '';
                 if (entry.renewalDate2) {
                     cellText = entry.renewalDate2.toLowerCase();
+                }
+                let matched = false;
+                if (filterValue === '') {
+                    matched = true;
+                } else {
+                    let monthPart = '';
+                    let dateParts = cellText.split('-');
+                    if (dateParts.length === 3) {
+                        monthPart = dateParts[1].toLowerCase();
+                        if (/^\d+$/.test(monthPart)) {
+                          let monthIdx = parseInt(monthPart, 10) - 1;
+                          if (monthIdx >= 0 && monthIdx < 12) {
+                            monthPart = monthOrder[monthIdx];
+                          }
+                        }
+                    } else {
+                        for (let m of monthOrder) {
+                            if (cellText.includes(m)) {
+                                monthPart = m;
+                                break;
+                            }
+                        }
+                    }
+                    if (monthPart.startsWith(filterValue)) {
+                        matched = true;
+                    } else if (cellText.includes(filterValue)) {
+                        matched = true;
+                    }
+                }
+                return matched;
+            });
+            renderTable(filteredData);
+        });
+    }
+
+    // Add EMS Renewal Date search input filtering
+    const searchEmsRenewalDateInput = document.getElementById('searchEmsRenewalDateInput');
+
+    if (searchEmsRenewalDateInput && combinedTable) {
+        searchEmsRenewalDateInput.addEventListener('input', () => {
+            const filterValue = searchEmsRenewalDateInput.value.toLowerCase().trim();
+            const visibleIndices = getVisibleColumnIndices();
+            const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
+            const emsColIdx = headers.findIndex(h => h.toLowerCase().includes('renewal date(ems)'));
+            // Only filter if EMS column is visible
+            if (!visibleIndices.includes(emsColIdx)) {
+                renderTable([]); // Hide all rows if EMS column not visible
+                return;
+            }
+            const data = window.currentData || [];
+            const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+            const filteredData = data.filter(entry => {
+                let cellText = '';
+                if (entry.renewalDate3) {
+                    cellText = entry.renewalDate3.toLowerCase();
                 }
                 let matched = false;
                 if (filterValue === '') {
