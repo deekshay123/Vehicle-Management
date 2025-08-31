@@ -2418,6 +2418,56 @@
             });
         }
     });
+     // EMS Renewal Date search input filtering logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const emsSearchInput = document.getElementById('searchEmsRenewalDateInput');
+        if (emsSearchInput) {
+            emsSearchInput.addEventListener('input', function() {
+                const filterValue = emsSearchInput.value.trim().toLowerCase();
+                const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                const tbody = document.querySelector('#combinedTable tbody');
+                const emsColIdx = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th'))
+                    .findIndex(th => th.textContent.trim().toLowerCase().includes('renewal date(ems)'));
+
+                tbody.querySelectorAll('tr').forEach(row => {
+                    let cellText = '';
+                    if (emsColIdx !== -1 && row.cells[emsColIdx]) {
+                        cellText = row.cells[emsColIdx].textContent.trim().toLowerCase();
+                    }
+                    let matched = false;
+                    if (filterValue === '') {
+                        matched = true;
+                    } else {
+                        let monthPart = '';
+                        let dateParts = cellText.split('-');
+                        if (dateParts.length === 3) {
+                            monthPart = dateParts[1].toLowerCase();
+                            if (/^\d+$/.test(monthPart)) {
+                                let monthIdx = parseInt(monthPart, 10) - 1;
+                                if (monthIdx >= 0 && monthIdx < 12) {
+                                    monthPart = monthOrder[monthIdx];
+                                }
+                            }
+                        } else {
+                            for (let m of monthOrder) {
+                                if (cellText.includes(m)) {
+                                    monthPart = m;
+                                    break;
+                                }
+                            }
+                        }
+                        if (monthPart.startsWith(filterValue)) {
+                            matched = true;
+                        } else if (cellText.includes(filterValue)) {
+                            matched = true;
+                        }
+                    }
+                    row.style.display = matched ? '' : 'none';
+                });
+                updateSerialNumbers();
+            });
+        }
+    });
     </script>
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
