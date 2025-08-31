@@ -1,4 +1,4 @@
-// Toggle form visibility and arrow direction
+logic for without headoffice/// Toggle form visibility and arrow direction
 const toggleBtn = document.getElementById('toggleFormBtn');
 const form = document.getElementById('combinedForm');
 const arrow = toggleBtn.querySelector('.arrow');
@@ -339,8 +339,11 @@ function updateStatusCounts(data) {
         const gpsDiffDays = Math.ceil((gpsRenewalDate - today) / (1000 * 60 * 60 * 24));
 
         // Check EMS renewal date status
-        const emsRenewalDate = new Date(entry.renewalDate3);
-        const emsDiffDays = Math.ceil((emsRenewalDate - today) / (1000 * 60 * 60 * 24));
+        let emsDiffDays = null;
+        if (entry.renewalDate3) {
+            const emsRenewalDate = new Date(entry.renewalDate3);
+            emsDiffDays = Math.ceil((emsRenewalDate - today) / (1000 * 60 * 60 * 24));
+        }
 
         // Helper function to categorize status for a date difference
         function categorizeStatus(diffDays) {
@@ -366,10 +369,12 @@ function updateStatusCounts(data) {
         else if (gpsStatus === 'expired') expiredCount++;
 
         // Count EMS renewal status
-        const emsStatus = categorizeStatus(emsDiffDays);
-        if (emsStatus === 'active') activeCount++;
-        else if (emsStatus === 'expiring') expiringCount++;
-        else if (emsStatus === 'expired') expiredCount++;
+        if (emsDiffDays !== null) {
+            const emsStatus = categorizeStatus(emsDiffDays);
+            if (emsStatus === 'active') activeCount++;
+            else if (emsStatus === 'expiring') expiringCount++;
+            else if (emsStatus === 'expired') expiredCount++;
+        }
 
         // Do not count maintenanceRenewalDate status
         /*
@@ -414,6 +419,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
     const countCell = newRow.insertCell();
     countCell.textContent = rowIndex;
 
+    const division = getDivision();
     const originalValues = {
         vehicleNumber: entry.vehicleNumber,
         policyType: entry.policyType,
@@ -426,12 +432,17 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         kmDriven: entry.kmDriven,
         maintenanceRenewalDate: entry.maintenanceRenewalDate,
         maintenanceStatusText: maintenanceStatus.text,
-        renewalDate2: entry.renewalDate2,
-        renewalDate3: entry.renewalDate3,
         remarks: entry.remarks || ''
     };
 
-    const fields = [
+    if (division !== 'headoffice') {
+        originalValues.renewalDate2 = entry.renewalDate2;
+        originalValues.renewalDate3 = entry.renewalDate3;
+    } else {
+        originalValues.renewalDate2 = entry.renewalDate2;
+    }
+
+    let fields = [
         { key: 'vehicleNumber', type: 'text' },
         { key: 'policyType', type: 'text' },
         { key: 'policyNumber', type: 'text' },
@@ -443,12 +454,22 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'kmDriven', type: 'number' },
         { key: 'remarks', type: 'text' },
         { key: 'maintenanceRenewalDate', type: 'date' },
-        { key: 'maintenanceStatusText', type: 'text', readonly: true },
-        { key: 'gps', type: 'gps' },
-        { key: 'renewalDate2', type: 'date' },
-        { key: 'ems', type: 'ems' },
-        { key: 'renewalDate3', type: 'date' }
+        { key: 'maintenanceStatusText', type: 'text', readonly: true }
     ];
+
+    if (division !== 'headoffice') {
+        fields.push(
+            { key: 'gps', type: 'gps' },
+            { key: 'renewalDate2', type: 'date' },
+            { key: 'ems', type: 'ems' },
+            { key: 'renewalDate3', type: 'date' }
+        );
+    } else {
+        fields.push(
+            { key: 'gps', type: 'gps' },
+            { key: 'renewalDate2', type: 'date' }
+        );
+    }
 
     fields.forEach((field, index) => {
         const cell = newRow.insertCell();
@@ -697,7 +718,8 @@ if (!field.readonly) {
 // Enter edit mode for a row
 function enterEditMode(row, originalValues) {
     const cells = row.cells;
-    const keys = [
+    const division = getDivision();
+    let keys = [
         'vehicleNumber',
         'policyType',
         'policyNumber',
@@ -709,12 +731,14 @@ function enterEditMode(row, originalValues) {
         'kmDriven',
         'remarks',
         'maintenanceRenewalDate',
-        'maintenanceStatusText', // readonly, no input
-        'gps', // no input
-        'renewalDate2',
-        'ems', // no input
-        'renewalDate3'
+        'maintenanceStatusText' // readonly, no input
     ];
+
+    if (division !== 'headoffice') {
+        keys.push('gps', 'renewalDate2', 'ems', 'renewalDate3');
+    } else {
+        keys.push('gps', 'renewalDate2');
+    }
     let inputIndex = 0;
     for (let i = 1; i < cells.length - 1; i++) { // skip count and actions cells
         const cell = cells[i];
@@ -816,7 +840,8 @@ async function saveRow(row, id) {
     const updatedEntry = {};
 
     // Map keys to input indices (skip count cell at 0 and actions cell at last)
-    const keys = [
+    const division = getDivision();
+    let keys = [
         'vehicleNumber',
         'policyType',
         'policyNumber',
@@ -827,11 +852,15 @@ async function saveRow(row, id) {
         'closingKM',
         'kmDriven',
         'remarks',
-        'maintenanceRenewalDate',
+        'maintenanceRenewalDate'
         // maintenanceStatusText is readonly, skip
-        'renewalDate2',
-        'renewalDate3'
     ];
+
+    if (division !== 'headoffice') {
+        keys.push('renewalDate2', 'renewalDate3');
+    } else {
+        keys.push('renewalDate2');
+    }
 
     let inputIndex = 0;
     for (let i = 1; i < cells.length - 1; i++) {
@@ -852,9 +881,20 @@ async function saveRow(row, id) {
     }
 
     // Basic validation including remarks and kmDriven not empty
-    if (!updatedEntry.vehicleNumber || !updatedEntry.policyType || !updatedEntry.policyNumber ||
-        !updatedEntry.vehicleRenewalDate || !updatedEntry.maintenanceType || isNaN(updatedEntry.kmDriven) ||
-        updatedEntry.kmDriven === '' || !updatedEntry.remarks || !updatedEntry.maintenanceRenewalDate || !updatedEntry.renewalDate2 || !updatedEntry.renewalDate3) {
+    let validationFields = ['vehicleNumber', 'policyType', 'policyNumber', 'vehicleRenewalDate', 'maintenanceType', 'kmDriven', 'remarks', 'maintenanceRenewalDate', 'renewalDate2'];
+
+    if (division !== 'headoffice') {
+        validationFields.push('renewalDate3');
+    }
+
+    const isValid = validationFields.every(field => {
+        if (field === 'kmDriven') {
+            return !isNaN(updatedEntry[field]) && updatedEntry[field] !== '';
+        }
+        return updatedEntry[field];
+    });
+
+    if (!isValid) {
         showNotification('Please fill in all required fields correctly, including KM Driven and Remarks.');
         return;
     }
@@ -1088,6 +1128,7 @@ async function addRow(tableId, inputIds) {
         return;
     }
 
+    const division = getDivision();
     const newEntry = {
         vehicleNumber,
         policyType,
@@ -1099,9 +1140,12 @@ async function addRow(tableId, inputIds) {
         kmDriven: Number(kmDriven),
         maintenanceRenewalDate,
         renewalDate2,
-        renewalDate3: document.getElementById('renewalDate3').value,
         remarks
     };
+
+    if (division !== 'headoffice') {
+        newEntry.renewalDate3 = document.getElementById('renewalDate3').value;
+    }
 
     const result = await addRecord(newEntry);
     if (result) {
@@ -1233,18 +1277,21 @@ function filterTableByStatus(statusType) {
     const filteredData = data.filter(entry => {
         const vehicleStatus = calculateStatus(entry.vehicleRenewalDate).text.toLowerCase();
         const gpsStatus = calculateStatus(entry.renewalDate2).text.toLowerCase();
-        const emsStatus = calculateStatus(entry.renewalDate3).text.toLowerCase();
+        let emsStatus = '';
+        if (entry.renewalDate3) {
+            emsStatus = calculateStatus(entry.renewalDate3).text.toLowerCase();
+        }
         // Exclude maintenanceStatus from filtering
         // const maintenanceStatus = calculateStatus(entry.maintenanceRenewalDate).text.toLowerCase();
 
         if (statusType === 'active') {
-            return vehicleStatus === 'active' || gpsStatus === 'active' || emsStatus === 'active';
+            return vehicleStatus === 'active' || gpsStatus === 'active' || (emsStatus && emsStatus === 'active');
         } else if (statusType === 'expiring') {
             return vehicleStatus.includes('days left') || vehicleStatus === 'expiring soon' ||
                 gpsStatus.includes('days left') || gpsStatus === 'expiring soon' ||
-                emsStatus.includes('days left') || emsStatus === 'expiring soon';
+                (emsStatus && (emsStatus.includes('days left') || emsStatus === 'expiring soon'));
         } else if (statusType === 'expired') {
-            return vehicleStatus === 'expired' || gpsStatus === 'expired' || emsStatus === 'expired';
+            return vehicleStatus === 'expired' || gpsStatus === 'expired' || (emsStatus && emsStatus === 'expired');
         }
         return false;
     });
