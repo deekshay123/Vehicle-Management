@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 // console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
@@ -237,6 +236,23 @@ app.get('/api/records/:id', async (req, res) => {
     res.json(record);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch record' });
+  }
+});
+app.post('/api/records', async (req, res) => {
+  try {
+    const division = req.headers['x-division'] || req.session.division;
+    const newRecord = req.body;
+    let result;
+    if (division === 'feedmill') {
+      result = await feedmillCollection.insertOne(newRecord);
+    } else if (division === 'headoffice') {
+      result = await headOfficeCollection.insertOne(newRecord);
+    } else {
+      result = await vehicleCollection.insertOne(newRecord);
+    }
+    res.status(201).json({ _id: result.insertedId, ...newRecord });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create record' });
   }
 });
 app.post('/api/records', async (req, res) => {
