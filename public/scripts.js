@@ -940,20 +940,12 @@ document.getElementById('deleteForm').addEventListener('submit', async (event) =
     }
 
     try {
-        // Proceed to delete the original record with deleteReason and deletedBy in body
-        const deleteResult = await fetch(`${API_BASE_URL}/${deleteId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                deleteReason: reason,
-                deletedBy: adminName
-            })
-        });
-        if (!deleteResult.ok) {
-            throw new Error('Failed to delete record');
+        // Use the deleteRecord function which includes division header
+        const deleteResult = await deleteRecord(deleteId, reason, adminName);
+        if (deleteResult) {
+            await loadAndRender();
+            showNotification('Entry deleted and stored successfully.');
         }
-        await loadAndRender();
-        showNotification('Entry deleted and stored successfully.');
     } catch (error) {
         alert('Error during deletion: ' + error.message);
     }
