@@ -164,11 +164,11 @@ tbody tr:hover {
 }
 
 .status-active {
-    color: #27ae60;
+    color: #27ae60 !important;
     font-weight: bold;
 }
 .status-expiring {
-    color: hsl(258, 100%, 63%) !important;
+    color: #f39c12 !important;
     font-weight: bold;
 }
 
@@ -177,7 +177,7 @@ tbody tr:hover {
     font-weight: bold;
 }
 .status-expired {
-    color: #c0392b;
+    color: #c0392b !important;
     font-weight: bold;
 }
 
