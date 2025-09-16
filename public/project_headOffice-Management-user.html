@@ -1,13 +1,32 @@
+<!--
+        Vehicle Management User Page
+        --------------------------------
+        This HTML file provides the user interface for viewing vehicle and maintenance records.
+        It includes:
+            - Responsive UI with status counts
+            - Search, filter, export, and column selection features
+            - Modal dialogs for column selection and deletion confirmation
+            - Loading overlay and notifications
+            - Well-commented CSS for maintainability
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vehicle and Maintenance Tables</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="custom_styles.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <style>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Vehicle and Maintenance Tables</title>
+        <!-- Main Stylesheets -->
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="stylesheet" href="custom_styles.css" />
+        <!-- Font Awesome for icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+        <!-- Inline CSS for custom user UI -->
+        <style>
+    /*
+        =====================
+        Layout & Typography
+        =====================
+    */
     body {
         min-height: 100vh;
         margin: 0;
@@ -26,6 +45,11 @@
         width: 100vw;
         min-width: 0;
     }
+    /*
+        =============
+        Header Styles
+        =============
+    */
     .app-header {
      background: linear-gradient(135deg, #a18cd1, #fbc2eb);
     color: #222e3a;
@@ -69,6 +93,11 @@
         text-align: center;
     }
     /* Button Styles */
+    /*
+        =============
+        Button Styles
+        =============
+    */
     button {
         border: none;
         outline: none;
@@ -140,6 +169,11 @@
         to { opacity: 1; transform: translateY(0);}
     }
     /* Input Styles */
+    /*
+        =============
+        Input Styles
+        =============
+    */
     input[type="text"], input[type="number"], input[type="date"], textarea {
     border: 1.5px solid #b0bec5;
     background: #f5f7fa;
@@ -159,23 +193,32 @@
     color: #222e3a;
     }
     /* Table Container Card */
+    /*
+        =====================
+        Table Container Card
+        =====================
+    */
     .table-container {
     background: #fff;
     border: 1.5px solid #b0bec5;
         border-radius: 20px;
         box-shadow: 0 4px 24px rgba(44,83,100,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
         padding: 28px 24px 24px 24px;
-        margin: 0 auto 36px auto;
-        max-width: 99vw;
-        width: 99vw;
-        overflow-x: auto;
-        transition: box-shadow 0.3s;
-        position: relative;
-        z-index: 1;
-        margin: 0 auto 36px auto;
-        animation: fadeInUp 0.8s cubic-bezier(.77,0,.18,1) 0.2s 1;
+    margin: 0 auto 36px auto;
+    max-width: 99vw;
+    width: 99vw;
+    overflow-x: auto;
+    transition: box-shadow 0.3s;
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.8s cubic-bezier(.77,0,.18,1) 0.2s 1;
     }
     /* Status Counts Card */
+    /*
+        =====================
+        Status Counts Card
+        =====================
+    */
     .status-counts-container {
         display: flex;
         flex-direction: row;
@@ -257,6 +300,11 @@
     .expired-box .status-count-number { color: #d32f2f; }
     .all-box .status-count-number { color: #1976d2; }
     /* Table Styles */
+    /*
+        =============
+        Table Styles
+        =============
+    */
     #combinedTable {
         width: 100%;
         min-width: 900px;
@@ -317,6 +365,11 @@
         white-space: nowrap;
     }
     /* Search Inputs Row */
+    /*
+        =====================
+        Search Inputs Row
+        =====================
+    */
     .table-container > div[style*="display: flex"] {
         width: 100%;
         box-sizing: border-box;
@@ -335,6 +388,11 @@
         background: #fff;
     }
     /* Export/Reload/Column Buttons */
+    /*
+        =====================
+        Export/Reload/Column Buttons
+        =====================
+    */
     #exportPdfBtn, #exportExcelBtn, #reloadBtn, #columnFilterBtn {
         background: linear-gradient(90deg, #2b5876 0%, #43cea2 100%);
         border: 1.5px solid #c7d0e1;
@@ -345,6 +403,11 @@
         border: 1.5px solid #8fa1c7;
     }
     /* Pagination Controls */
+    /*
+        =====================
+        Pagination Controls
+        =====================
+    */
     .pagination-controls {
         margin-top: 22px;
         text-align: center;
@@ -356,6 +419,11 @@
         animation: fadeInUp 0.8s cubic-bezier(.77,0,.18,1) 0.5s 1;
     }
     /* Column Filter Modal */
+    /*
+        =====================
+        Column Filter Modal
+        =====================
+    */
     .column-filter-modal {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -539,6 +607,11 @@
         }
     }
     /* Notification */
+    /*
+        =====================
+        Notification Styles
+        =====================
+    */
     .notification {
         position: fixed;
         top: 28px;
@@ -561,6 +634,11 @@
         to { opacity: 1; transform: translateY(0);}
     }
     /* Confirm Dialog */
+    /*
+        =====================
+        Confirm Dialog Styles
+        =====================
+    */
     .confirm-dialog {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -658,6 +736,11 @@
         box-shadow: 0 4px 16px rgba(44,83,100,0.13);
     }
     /* Loading overlay styles */
+    /*
+        =====================
+        Loading Overlay Styles
+        =====================
+    */
     .loading-overlay {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -696,6 +779,11 @@
         font-family: inherit;
     }
     /* Responsive */
+    /*
+        =====================
+        Responsive Styles
+        =====================
+    */
     @media (max-width: 1100px) {
         .app-header, .status-counts-container, .table-container {
             max-width: 100vw;
@@ -1653,16 +1741,31 @@
     </style>
 </head>
 <body>
+    <!--
+        =====================
+        Header & Logout Button
+        =====================
+    -->
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR INDUSTRIES & PVT LTD-[HEAD OFFICE]</h3>
     </header>
-    <!-- Move logout button here, inside a wrapper -->
     <div class="logout-btn-wrapper">
         <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </div>
+    <!--
+        =====================
+        Main Content Section
+        =====================
+    -->
     <div class="main-content">
+        <!--
+            =============
+            (Form hidden for user view)
+            =============
+            The form is commented out for users. Only admins can add entries.
+        -->
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
@@ -1671,21 +1774,7 @@
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
             onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
         >
-<!--             <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
-            <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
-            <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
-            <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
-            <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
-            <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
-            <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
-            <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
-            <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
-            <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-             <div class="form-group">
-                <label for="renewalDate2">GPS Renewal</label>
-                <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
-            </div>
-            <button type="submit">Add Entry</button> -->
+            <!-- User cannot add entries. Form fields are hidden/commented. -->
         </form>
         <!-- Status count boxes -->
         <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
