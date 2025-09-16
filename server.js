@@ -504,57 +504,6 @@ app.delete('/api/records/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete and store record' });
   }
 });
-app.delete('/api/records/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const deleteReason = req.body.deleteReason || 'No reason provided';
-    const deletedBy = req.body.deletedBy || req.session.user || 'Unknown';
-    const division = req.headers['x-division'] || req.session.division;
-
-    let recordToDelete;
-    if (division === 'feedmill') {
-      recordToDelete = await feedmillCollection.findOne({ _id: new ObjectId(id) });
-    } else if (division === 'headoffice') {
-      recordToDelete = await headOfficeCollection.findOne({ _id: new ObjectId(id) });
-    } else {
-      recordToDelete = await vehicleCollection.findOne({ _id: new ObjectId(id) });
-    }
-
-    if (!recordToDelete) {
-      return res.status(404).json({ error: 'Record not found' });
-    }
-
-    // Add deletion metadata
-    const deletedRecord = {
-      ...recordToDelete,
-      deleteReason,
-      deletedBy,
-      deletedAt: new Date()
-    };
-
-    // Store deleted record in deletedRecords collection
-    await deletedRecordsCollection.insertOne(deletedRecord);
-
-    // Delete the record from the main collection
-    let result;
-    if (division === 'feedmill') {
-      result = await feedmillCollection.deleteOne({ _id: new ObjectId(id) });
-    } else if (division === 'headoffice') {
-      result = await headOfficeCollection.deleteOne({ _id: new ObjectId(id) });
-    } else {
-      result = await vehicleCollection.deleteOne({ _id: new ObjectId(id) });
-    }
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ error: 'Record not found' });
-    }
-
-    res.json({ message: 'Record deleted and stored in deleted records' });
-  } catch (error) {
-    console.error('Error in DELETE /api/records/:id:', error);
-    res.status(500).json({ error: 'Failed to delete and store record' });
-  }
-});
 
 app.post('/api/save_history', async (req, res) => {
   try {
