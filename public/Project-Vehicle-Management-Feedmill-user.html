@@ -1,4 +1,10 @@
-
+<!--
+    File: project_vehicle-Management-feedmill-admin.html
+    Purpose: Admin dashboard for Feedmill Division vehicle management.
+    Features: Vehicle/maintenance data entry, status tracking, table export, column filtering, and admin actions.
+    Last updated: September 16, 2025
+    Author: [Deeksh@y]
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +34,7 @@
         min-width: 0;
     }
     .app-header {
-        background: rgba(255,255,255,0.98);
+        background: linear-gradient(135deg, #ffffff, #e0e0e0);
         color: #1a2233;
         padding: 2rem 0 2rem 0;
         text-align: center;
@@ -1654,25 +1660,29 @@
     </style>
 </head>
 <body>
+    <!-- ===================== HEADER SECTION ===================== -->
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR FEEDMILL DIVISION</h3>
     </header>
     <!-- Move logout button here, inside a wrapper -->
+    <!-- ===================== LOGOUT BUTTON ===================== -->
     <div class="logout-btn-wrapper">
         <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </div>
+    <!-- ===================== MAIN CONTENT ===================== -->
     <div class="main-content">
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
-        <form
+    <!-- ====== VEHICLE/MAINTENANCE ENTRY FORM ====== -->
+    <form
             id="combinedForm"
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
             onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
         >
-<!--             <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
+            <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
             <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
             <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
             <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
@@ -1686,10 +1696,11 @@
                 <label for="renewalDate2">GPS Renewal</label>
                 <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
             </div>
-            <button type="submit">Add Entry</button> -->
+            <button type="submit">Add Entry</button>
         </form>
         <!-- Status count boxes -->
-        <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
+    <!-- ===================== STATUS COUNTS ===================== -->
+    <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
             <div id="activeCountBox" class="status-count-box active-box">
                 <h3>Active</h3>
                 <p id="activeCount" class="status-count-number">0</p>
@@ -1707,7 +1718,8 @@
                 <p id="allCount" class="status-count-number">0</p>
             </div>
         </div>
-        <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
+    <!-- ===================== TABLE CONTAINER ===================== -->
+    <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
             <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
@@ -1750,7 +1762,7 @@
                                 <th style="text-align: center;">Status</th>
                                 <th class="gps-column" style="background-color: #1e70a7; text-align: center;">GPS</th>
                                 <th class="shadow-column" style="background-color: #1e70a7;">Renewal Date(GPS)</th>
-<!--                                 <th>Actions</th> -->
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1762,6 +1774,7 @@
         </div>
     </div>
     <!-- Column selection modal -->
+    <!-- ===================== COLUMN SELECTION MODAL ===================== -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
@@ -1781,9 +1794,11 @@
     </div>
 
     <!-- Notification container -->
+    <!-- ===================== NOTIFICATION CONTAINER ===================== -->
     <div id="notification" class="notification" role="alert" aria-live="assertive" aria-atomic="true" style="display:none;"></div>
 
     <!-- Confirmation dialog container -->
+    <!-- ===================== CONFIRMATION DIALOG ===================== -->
     <div id="confirmDialog" class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogDesc" style="display:none;">
         <div class="confirm-dialog-content">
             <h3 id="confirmDialogTitle">Confirm Deletion</h3>
@@ -1802,6 +1817,7 @@
     </div>
 
     <!-- Loading overlay -->
+    <!-- ===================== LOADING OVERLAY ===================== -->
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="loading-spinner">
             <div class="spinner"></div>
@@ -1811,6 +1827,10 @@
 
     <script>
      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
+    /**
+     * Export table data to PDF using jsPDF and autoTable with plugin availability check
+     * Called by: Export to PDF button
+     */
     function exportTableToPDF() {
         try {
             const { jsPDF } = window.jspdf;
@@ -1977,6 +1997,11 @@
             });
 
             // Helper function to format date as dd-mm-yyyy
+            /**
+             * Helper function to format a JS Date as dd-mm-yyyy
+             * @param {Date} date
+             * @returns {string}
+             */
             function formatDateDDMMYYYY(date) {
                 const d = date.getDate().toString().padStart(2, '0');
                 const m = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -2097,7 +2122,11 @@
         sessionStorage.setItem('division', 'feedmill');
         
         // Function to style only the vehicle number part (without brackets)
-        function styleVehicleNumbers() {
+    /**
+     * Styles the vehicle number column (violet/bold) in the table.
+     * Called on DOMContentLoaded and after table updates.
+     */
+    function styleVehicleNumbers() {
             const vehicleCells = document.querySelectorAll('#combinedTable td:nth-child(2)');
             
             vehicleCells.forEach(cell => {
@@ -2149,14 +2178,24 @@
     });
 
     // Show/hide loading overlay
+    /**
+     * Shows the loading overlay.
+     */
     function showLoadingOverlay() {
         document.getElementById('loadingOverlay').style.display = 'flex';
     }
+    /**
+     * Hides the loading overlay.
+     */
     function hideLoadingOverlay() {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 
     // Fetch and reload table data only (simulate fetch here, replace with your actual fetch logic)
+    /**
+     * Fetch and reload table data (simulate fetch here, replace with actual fetch logic)
+     * Called by: Reload button
+     */
     async function reloadTableData() {
         showLoadingOverlay();
         try {
@@ -2212,7 +2251,10 @@
         const table = document.getElementById('combinedTable');
 
         // Helper to get all columns (header cells)
-        function getAllColumns() {
+    /**
+     * Returns all columns (header cells) as an array of objects.
+     */
+    function getAllColumns() {
             const ths = table.querySelectorAll('thead tr:nth-child(2) th');
             let cols = [];
             ths.forEach((th, idx) => {
@@ -2305,7 +2347,11 @@
         ];
 
         // Helper to check columns by name
-        function checkColumnsByNames(names) {
+    /**
+     * Checks columns by their names in the column filter modal.
+     * Used by quick-select report buttons.
+     */
+    function checkColumnsByNames(names) {
             const labels = document.querySelectorAll('#columnFilterForm label');
             labels.forEach(label => {
                 const cb = label.querySelector('input[type="checkbox"]');
@@ -2338,6 +2384,9 @@
     });
     
     // Helper function to update the serial number column (#) after filtering
+    /**
+     * Updates the serial number column (#) after filtering.
+     */
     function updateSerialNumbers() {
         const tbody = document.querySelector('#combinedTable tbody');
         let count = 1;
