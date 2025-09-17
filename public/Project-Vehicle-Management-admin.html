@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="custom_styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
+    /* Global Styles */
     body {
         min-height: 100vh;
         margin: 0;
@@ -27,6 +28,8 @@
         width: 100vw;
         min-width: 0;
     }
+
+    /* Header Styles */
     .app-header {
     background: linear-gradient(90deg, #b6c9ff 0%, #61c8ff 100%);
     color: #222e3a;
@@ -1654,41 +1657,56 @@
     </style>
 </head>
 <body>
+    <!-- Header Section -->
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR PROCESSING DIVISION</h3>
     </header>
-    <!-- Move logout button here, inside a wrapper -->
+    <!-- Logout Button Wrapper -->
     <div class="logout-btn-wrapper">
         <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </div>
     <div class="main-content">
+        <!-- Toggle Form Button -->
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
+        <!-- Combined Form for Vehicle and Maintenance Entries -->
         <form
             id="combinedForm"
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
             onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
         >
+            <!-- Vehicle Number Input -->
             <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
+            <!-- Policy Type Input -->
             <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
+            <!-- Policy Number Input -->
             <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
+            <!-- Renewal Date Input -->
             <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
+            <!-- Maintenance Type Input -->
             <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
+            <!-- Opening KM Input -->
             <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
+            <!-- Closing KM Input -->
             <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
+            <!-- KM Driven Input -->
             <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
+            <!-- Remarks Input -->
             <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
+            <!-- Maintenance Renewal Date Input -->
             <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-             <div class="form-group">
+            <div class="form-group">
+                <!-- GPS Renewal Date Input -->
                 <label for="renewalDate2">GPS Renewal</label>
                 <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
             </div>
+            <!-- Submit Button -->
             <button type="submit">Add Entry</button>
         </form>
-        <!-- Status count boxes -->
+        <!-- Status Count Boxes -->
         <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
             <div id="activeCountBox" class="status-count-box active-box">
                 <h3>Active</h3>
@@ -1707,7 +1725,9 @@
                 <p id="allCount" class="status-count-number">0</p>
             </div>
         </div>
+        <!-- Table Container -->
         <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
+            <!-- Search Inputs and Action Buttons -->
             <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
@@ -1725,6 +1745,7 @@
                     </button>
                 </div>
             </div>
+            <!-- Scrollable Table Wrapper -->
             <div style="width:100%;overflow-x:auto;">
                 <div class="scrollable-table-wrapper">
                     <table id="combinedTable" style="width:100%;min-width:600px;">
@@ -1761,7 +1782,7 @@
             <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center; width:100%;"></div>
         </div>
     </div>
-    <!-- Column selection modal -->
+    <!-- Column Filter Modal -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
@@ -1780,10 +1801,10 @@
         </div>
     </div>
 
-    <!-- Notification container -->
+    <!-- Notification Container -->
     <div id="notification" class="notification" role="alert" aria-live="assertive" aria-atomic="true" style="display:none;"></div>
 
-    <!-- Confirmation dialog container -->
+    <!-- Confirmation Dialog -->
     <div id="confirmDialog" class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogDesc" style="display:none;">
         <div class="confirm-dialog-content">
             <h3 id="confirmDialogTitle">Confirm Deletion</h3>
@@ -1801,7 +1822,7 @@
         </div>
     </div>
 
-    <!-- Loading overlay -->
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="loading-spinner">
             <div class="spinner"></div>
@@ -1809,6 +1830,7 @@
         </div>
     </div>
 
+    <!-- Inline JavaScript -->
     <script>
      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
@@ -2400,6 +2422,7 @@
         }
     });
     </script>
+    <!-- External Scripts -->
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
