@@ -226,78 +226,34 @@
         }
         /* Add toggle button styles */
         .toggle-section-btn {
-            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
-            color: #fff;
-            border: none;
-            border-radius: 7px;
-            font-weight: 600;
-            font-size: 1rem;
-            padding: 10px 22px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(41, 128, 185, 0.08);
-            transition: background 0.3s, transform 0.2s;
-            outline: none;
-        }
-        .toggle-section-btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-        @media (max-width: 900px) {
-            .search-container {
-                flex-direction: column;
-                max-width: 100%;
-                gap: 10px;
-            }
-        }
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px;
-                padding: 14px 8px;
-            }
-            header h2 {
-                font-size: 1.2rem;
-                margin-bottom: 8px;
-            }
-            #logoutBtn {
-                width: 100%;
-                justify-content: center;
-                font-size: 1rem;
-                padding: 12px 0;
-            }
-            .main-content {
-                padding: 10px 4px;
-            }
-            .search-container {
-                padding: 10px 4px;
-                margin-bottom: 10px;
-                border-radius: 0;
-            }
-            .search-container input {
-                font-size: 1rem;
-                padding: 10px 8px;
-            }
-            .export-buttons {
-                flex-direction: column;
-                gap: 8px;
-                margin-bottom: 10px;
-            }
-            .table-container {
-                border-radius: 0;
-                max-height: 45vh;
-                min-height: 0;
-                margin: 0 -4px;
-            }
-            #combinedTable {
-                font-size: 12px;
-                min-width: 600px;
-            }
-            #combinedTable th,
-            #combinedTable td {
-                padding: 8px 4px;
-            }
-        }
+    background: linear-gradient(100deg, #1976d2 0%, #43c6ac 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 7px 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px 0 rgba(67, 198, 172, 0.10), 0 1px 4px 0 rgba(25, 118, 210, 0.10);
+    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.2px;
+}
+.toggle-section-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(120deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0.01) 100%);
+    pointer-events: none;
+    border-radius: 6px;
+}
+.toggle-section-btn:hover {
+    background: linear-gradient(100deg, #1565c0 0%, #11998e 100%);
+    transform: translateY(-1px) scale(1.03);
+    box-shadow: 0 4px 16px 0 rgba(67, 198, 172, 0.13), 0 2px 8px 0 rgba(25, 118, 210, 0.13);
+}
     </style>
 </head>
 <body>
@@ -655,48 +611,96 @@
                     return;
                 }
                 const table = document.getElementById('combinedTable');
-                // Get visible column indices and headers (in order)
                 const checkboxes = document.querySelectorAll('.col-toggle');
+                // Get visible column indices and headers
                 const visibleCols = [];
                 checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
-                const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
-                const headers = visibleCols.map(i => headerCells[i].textContent.trim());
-
+                const headerCells = table.querySelectorAll('thead tr th');
+                let headers = [];
+                visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
+                // Insert Vehicle Type, Make-Model, Division after Vehicle Number (if not present)
+                const insertAfter = (arr, afterKey, newKey) => {
+                    const idx = arr.indexOf(afterKey);
+                    if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
+                };
+                insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
+                insertAfter(headers, 'Vehicle Type', 'Make-Model');
+                insertAfter(headers, 'Make-Model', 'Division');
                 // Prepare columns for autoTable with dataKey
                 const columns = headers.map(header => ({ header: header, dataKey: header }));
-
-                // Get all rows data for visible columns, parsing Vehicle Number fields for those columns
+                // Map table columns to their data index for each row
+                const colIndexMap = {};
+                headers.forEach((header, i) => {
+                    if (['Vehicle Type', 'Make-Model', 'Division'].includes(header)) {
+                        colIndexMap[header] = -1;
+                    } else {
+                        let idx = -1;
+                        for (let j = 0; j < visibleCols.length; j++) {
+                            if (headerCells[visibleCols[j]].textContent.trim() === header) {
+                                idx = visibleCols[j];
+                                break;
+                            }
+                        }
+                        colIndexMap[header] = idx;
+                    }
+                });
+                // Helper: parse vehicle number
+                function processVehicleNumber(vehicleNumberRaw) {
+                    let vehicleNumber = vehicleNumberRaw || '';
+                    let vehicleType = '';
+                    let makeModel = '';
+                    let division = '';
+                    const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
+                    let usedType = false, usedDivision = false;
+                    vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
+                    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+                    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+                    bracketMatches.forEach(bracket => {
+                        const val = bracket.replace(/[\[\]]/g, '').trim();
+                        const valUpper = val.toUpperCase();
+                        if (!usedType && knownTypes.includes(valUpper)) {
+                            vehicleType = `[${val}]`;
+                            usedType = true;
+                        } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                            division = `[${val}]`;
+                            usedDivision = true;
+                        } else if (!makeModel) {
+                            makeModel = `[${val}]`;
+                        }
+                    });
+                    return { vehicleNumber, vehicleType, makeModel, division };
+                }
+                // Get all rows data for visible columns, parsing Vehicle Number
                 const data = [];
                 const rows = table.querySelectorAll('tbody tr');
                 rows.forEach((row, idx) => {
                     const rowData = {};
-                    // Parse vehicle number if any of the parsed columns are visible
-                    let parsed = null;
-                    const vehicleNumberColIdx = headers.indexOf('Vehicle Number');
-                    if (vehicleNumberColIdx !== -1) {
-                        const cellIdx = visibleCols[vehicleNumberColIdx];
-                        const vehicleNumberRaw = row.cells[cellIdx] ? row.cells[cellIdx].textContent.trim() : '';
-                        parsed = processVehicleNumber(vehicleNumberRaw);
+                    let vehicleNumberRaw = '';
+                    if (colIndexMap['Vehicle Number'] !== -1 && row.cells[colIndexMap['Vehicle Number']]) {
+                        vehicleNumberRaw = row.cells[colIndexMap['Vehicle Number']].textContent.trim();
                     }
-                    headers.forEach((header, hIdx) => {
-                        const cellIdx = visibleCols[hIdx];
+                    const parsed = processVehicleNumber(vehicleNumberRaw);
+                    headers.forEach(header => {
                         if (header === '#') {
-                            rowData[header] = row.cells[cellIdx] ? row.cells[cellIdx].textContent.trim() : (idx + 1).toString();
-                        } else if (header === 'Vehicle Number' && parsed) {
+                            rowData[header] = row.cells[colIndexMap[header]] ? row.cells[colIndexMap[header]].textContent.trim() : (idx + 1).toString();
+                        } else if (header === 'Vehicle Number') {
                             rowData[header] = parsed.vehicleNumber;
-                        } else if (header === 'Vehicle Type' && parsed) {
+                        } else if (header === 'Vehicle Type') {
                             rowData[header] = parsed.vehicleType;
-                        } else if (header === 'Make-Model' && parsed) {
+                        } else if (header === 'Make-Model') {
                             rowData[header] = parsed.makeModel;
-                        } else if (header === 'Division' && parsed) {
+                        } else if (header === 'Division') {
                             rowData[header] = parsed.division;
                         } else {
-                            rowData[header] = row.cells[cellIdx] ? row.cells[cellIdx].textContent.trim() : '';
+                            if (colIndexMap[header] !== -1 && row.cells[colIndexMap[header]]) {
+                                rowData[header] = row.cells[colIndexMap[header]].textContent.trim();
+                            } else {
+                                rowData[header] = '';
+                            }
                         }
                     });
                     data.push(rowData);
                 });
-
                 // Helper function to format date as dd-mmm-yyyy with lowercase month
                 function formatDateDDMMMYYYY(date) {
                     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -725,7 +729,7 @@
                         lineColor: [0, 0, 0],
                         fontSize: 10,
                         fontStyle: 'bold',
-                        halign: 'center', // Center align all body cells
+                        halign: 'center',
                         valign: 'middle'
                     },
                     headStyles: {
