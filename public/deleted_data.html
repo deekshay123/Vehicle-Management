@@ -354,6 +354,9 @@
                         <tr>
                             <th>#</th>
                             <th>Vehicle Number</th>
+                            <th>Vehicle Type</th>
+                            <th>Make-Model</th>
+                            <th>Division</th>
                             <th>Policy Type</th>
                             <th>Policy Number</th>
                             <th>Renewal Date</th>
@@ -431,6 +434,36 @@
             }
         }
 
+        // Helper: parse vehicle number like history_service.html
+        function processVehicleNumber(vehicleNumberRaw) {
+            let vehicleNumber = vehicleNumberRaw || '';
+            let vehicleType = '';
+            let makeModel = '';
+            let division = '';
+            // Extract all bracketed values
+            const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
+            let usedType = false, usedDivision = false;
+            // Remove all brackets for clean vehicle number
+            vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
+            // Assign bracketed values in order: type, make-model, division
+            const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+            const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+            bracketMatches.forEach(bracket => {
+                const val = bracket.replace(/[\[\]]/g, '').trim();
+                const valUpper = val.toUpperCase();
+                if (!usedType && knownTypes.includes(valUpper)) {
+                    vehicleType = `[${val}]`;
+                    usedType = true;
+                } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                    division = `[${val}]`;
+                    usedDivision = true;
+                } else if (!makeModel) {
+                    makeModel = `[${val}]`;
+                }
+            });
+            return { vehicleNumber, vehicleType, makeModel, division };
+        }
+
         function renderTable(data) {
             const tbody = document.querySelector('#combinedTable tbody');
             tbody.innerHTML = '';
@@ -439,10 +472,14 @@
             let endIndex = Math.min(startIndex + itemsPerPage, data.length);
             for (let i = startIndex; i < endIndex; i++) {
                 const entry = data[i];
+                const parsed = processVehicleNumber(entry.vehicleNumber || '');
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${i + 1}</td>
-                    <td>${entry.vehicleNumber || ''}</td>
+                    <td><strong>${parsed.vehicleNumber}</strong></td>
+                    <td>${parsed.vehicleType}</td>
+                    <td>${parsed.makeModel}</td>
+                    <td>${parsed.division}</td>
                     <td>${entry.policyType || ''}</td>
                     <td>${entry.policyNumber || ''}</td>
                     <td>${formatDateWithoutTime(entry.vehicleRenewalDate)}</td>
