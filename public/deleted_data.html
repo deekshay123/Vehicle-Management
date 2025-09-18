@@ -283,20 +283,23 @@
             </div>
             <div id="columnSelector" style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; margin-bottom:18px; padding:10px 18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; max-width:100%;">
                 <span style="font-weight:600; color:#2980b9; margin-right:10px;">Select columns to display:</span>
-                <label><input type="checkbox" class="col-toggle" data-col="0" checked> #</label>
-                <label><input type="checkbox" class="col-toggle" data-col="1" checked> Vehicle Number</label>
-                <label><input type="checkbox" class="col-toggle" data-col="2" checked> Policy Type</label>
-                <label><input type="checkbox" class="col-toggle" data-col="3" checked> Policy Number</label>
-                <label><input type="checkbox" class="col-toggle" data-col="4" checked> Renewal Date</label>
-                <label><input type="checkbox" class="col-toggle" data-col="5" checked> Status</label>
-                <label><input type="checkbox" class="col-toggle" data-col="6" checked> Service Type</label>
-                <label><input type="checkbox" class="col-toggle" data-col="7" checked> KM Driven</label>
-                <label><input type="checkbox" class="col-toggle" data-col="8" checked> Maintenance Renewal Date</label>
-                <label><input type="checkbox" class="col-toggle" data-col="9" checked> Status</label>
-                <label><input type="checkbox" class="col-toggle" data-col="10" checked> Renewal Date 2</label>
-                <label><input type="checkbox" class="col-toggle" data-col="11" checked> Deleted Reason</label>
-                <label><input type="checkbox" class="col-toggle" data-col="12" checked> Deleted By</label>
-                <label><input type="checkbox" class="col-toggle" data-col="13" checked> Deleted At</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="0" checked> #</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="1" checked> Vehicle Number</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="2" checked> Vehicle Type</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="3" checked> Make-Model</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="4" checked> Division</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="5" checked> Policy Type</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="6" checked> Policy Number</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="7" checked> Renewal Date</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="8" checked> Status</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="9" checked> Service Type</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="10" checked> KM Driven</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="11" checked> Maintenance Renewal Date</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="12" checked> Status</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="13" checked> Renewal Date 2</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="14" checked> Deleted Reason</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="15" checked> Deleted By</label>
+                    <label><input type="checkbox" class="col-toggle" data-col="16" checked> Deleted At</label>
             </div>
             <!-- ===== EXPORT BUTTONS ===== -->
             <div class="export-buttons">
@@ -618,32 +621,8 @@
                 const headerCells = table.querySelectorAll('thead tr th');
                 let headers = [];
                 visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
-                // Insert Vehicle Type, Make-Model, Division after Vehicle Number (if not present)
-                const insertAfter = (arr, afterKey, newKey) => {
-                    const idx = arr.indexOf(afterKey);
-                    if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
-                };
-                insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
-                insertAfter(headers, 'Vehicle Type', 'Make-Model');
-                insertAfter(headers, 'Make-Model', 'Division');
                 // Prepare columns for autoTable with dataKey
                 const columns = headers.map(header => ({ header: header, dataKey: header }));
-                // Map table columns to their data index for each row
-                const colIndexMap = {};
-                headers.forEach((header, i) => {
-                    if (['Vehicle Type', 'Make-Model', 'Division'].includes(header)) {
-                        colIndexMap[header] = -1;
-                    } else {
-                        let idx = -1;
-                        for (let j = 0; j < visibleCols.length; j++) {
-                            if (headerCells[visibleCols[j]].textContent.trim() === header) {
-                                idx = visibleCols[j];
-                                break;
-                            }
-                        }
-                        colIndexMap[header] = idx;
-                    }
-                });
                 // Helper: parse vehicle number
                 function processVehicleNumber(vehicleNumberRaw) {
                     let vehicleNumber = vehicleNumberRaw || '';
@@ -680,7 +659,6 @@
                     // Build filtered data by matching Vehicle Number and Policy Number (as unique key)
                     exportRows = Array.from(visibleRowEls).map(row => {
                         const cells = row.querySelectorAll('td');
-                        // Try to match by vehicle number and policy number (adjust as needed)
                         const vehicleNumber = cells[1] ? cells[1].textContent.trim() : '';
                         const policyNumber = cells[6] ? cells[6].textContent.trim() : '';
                         return deletedData.find(entry => {
@@ -689,6 +667,25 @@
                         }) || {};
                     });
                 }
+                // Map headers to data property names
+                const headerToProp = {
+                    '#': null,
+                    'Vehicle Number': 'vehicleNumber',
+                    'Vehicle Type': null,
+                    'Make-Model': null,
+                    'Division': null,
+                    'Policy Type': 'policyType',
+                    'Policy Number': 'policyNumber',
+                    'Renewal Date': 'vehicleRenewalDate',
+                    'Status': 'status',
+                    'Service Type': 'maintenanceType',
+                    'KM Driven': 'kmDriven',
+                    'Maintenance Renewal Date': 'maintenanceRenewalDate',
+                    'Renewal Date 2': 'renewalDate2',
+                    'Deleted Reason': 'deleteReason',
+                    'Deleted By': 'deletedBy',
+                    'Deleted At': 'deletedAt'
+                };
                 exportRows.forEach((entry, idx) => {
                     const parsed = processVehicleNumber(entry.vehicleNumber || '');
                     const rowData = {};
@@ -703,17 +700,28 @@
                             rowData[header] = parsed.makeModel;
                         } else if (header === 'Division') {
                             rowData[header] = parsed.division;
+                        } else if (headerToProp[header]) {
+                            if (header === 'Renewal Date' || header === 'Maintenance Renewal Date' || header === 'Renewal Date 2') {
+                                rowData[header] = entry[headerToProp[header]] ? formatDateWithoutTime(entry[headerToProp[header]]) : '';
+                            } else if (header === 'Deleted At') {
+                                rowData[header] = entry[headerToProp[header]] ? formatDate(entry[headerToProp[header]]) : '';
+                            } else if (header === 'Status') {
+                                if (headers.includes('Renewal Date') && header === 'Status') {
+                                    rowData[header] = entry['vehicleRenewalDate'] ? calculateStatus(entry['vehicleRenewalDate']) : '';
+                                } else if (headers.includes('Maintenance Renewal Date') && header === 'Status') {
+                                    rowData[header] = entry['maintenanceRenewalDate'] ? calculateStatus(entry['maintenanceRenewalDate']) : '';
+                                } else {
+                                    rowData[header] = entry[headerToProp[header]] || '';
+                                }
+                            } else {
+                                rowData[header] = entry[headerToProp[header]] || '';
+                            }
                         } else {
-                            // Use entry property if available, else blank
-                            rowData[header] = entry[camelToSnake(header)] || '';
+                            rowData[header] = '';
                         }
                     });
                     data.push(rowData);
                 });
-                // Helper to convert header to property name
-                function camelToSnake(header) {
-                    return header.replace(/\s+/g, '').replace(/-/g, '').replace(/#/g, '').replace(/\(.*\)/, '').replace(/\W/g, '').replace(/([A-Z])/g, '_$1').toLowerCase();
-                }
                 // Helper function to format date as dd-mmm-yyyy with lowercase month
                 function formatDateDDMMMYYYY(date) {
                     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -781,50 +789,170 @@
          * Export table data to Excel using SheetJS with styling
          */
         function exportTableToExcel() {
-            const table = document.getElementById('combinedTable');
-            const wb = XLSX.utils.book_new();
-            const checkboxes = document.querySelectorAll('.col-toggle');
-            // Get visible column indices
-            const visibleCols = [];
-            checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
-            // Get headers for visible columns
-            const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
-            const headers = [];
-            visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
-            // Prepare data rows from all table body rows, only visible columns
-            const dataRows = [];
-            const rows = table.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const rowData = [];
-                visibleCols.forEach(colIdx => {
-                    rowData.push(row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '');
-                });
-                dataRows.push(rowData);
-            });
-            // Combine headers and data
-            const worksheetData = [headers, ...dataRows];
-            // Create worksheet
-            const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-            // Apply styling to header row
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let C = 0; C < headers.length; ++C) {
-                const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-                if (!ws[cellAddress]) continue;
-                if (!ws[cellAddress].s) ws[cellAddress].s = {};
-                ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
-                ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
-                ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
-                ws[cellAddress].s.border = {
-                    top: { style: "thin", color: { rgb: "000000" } },
-                    bottom: { style: "thin", color: { rgb: "000000" } },
-                    left: { style: "thin", color: { rgb: "000000" } },
-                    right: { style: "thin", color: { rgb: "000000" } }
+            try {
+                const table = document.getElementById('combinedTable');
+                const wb = XLSX.utils.book_new();
+                const checkboxes = document.querySelectorAll('.col-toggle');
+                // Get visible column indices and headers
+                const visibleCols = [];
+                checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
+                const headerCells = table.querySelectorAll('thead tr th');
+                let headers = [];
+                visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
+                // Helper: parse vehicle number
+                function processVehicleNumber(vehicleNumberRaw) {
+                    let vehicleNumber = vehicleNumberRaw || '';
+                    let vehicleType = '';
+                    let makeModel = '';
+                    let division = '';
+                    const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
+                    let usedType = false, usedDivision = false;
+                    vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
+                    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+                    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+                    bracketMatches.forEach(bracket => {
+                        const val = bracket.replace(/[\[\]]/g, '').trim();
+                        const valUpper = val.toUpperCase();
+                        if (!usedType && knownTypes.includes(valUpper)) {
+                            vehicleType = `[${val}]`;
+                            usedType = true;
+                        } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                            division = `[${val}]`;
+                            usedDivision = true;
+                        } else if (!makeModel) {
+                            makeModel = `[${val}]`;
+                        }
+                    });
+                    return { vehicleNumber, vehicleType, makeModel, division };
+                }
+                // Use the same data source as renderTable for consistency
+                let exportRows = deletedData;
+                // If table is filtered, use only visible rows
+                const visibleRowEls = table.querySelectorAll('tbody tr');
+                if (visibleRowEls.length > 0 && visibleRowEls.length !== deletedData.length) {
+                    // Build filtered data by matching Vehicle Number and Policy Number (as unique key)
+                    exportRows = Array.from(visibleRowEls).map(row => {
+                        const cells = row.querySelectorAll('td');
+                        const vehicleNumber = cells[1] ? cells[1].textContent.trim() : '';
+                        const policyNumber = cells[6] ? cells[6].textContent.trim() : '';
+                        return deletedData.find(entry => {
+                            const parsed = processVehicleNumber(entry.vehicleNumber || '');
+                            return parsed.vehicleNumber === vehicleNumber && (entry.policyNumber || '') === policyNumber;
+                        }) || {};
+                    });
+                }
+                // Map headers to data property names
+                const headerToProp = {
+                    '#': null,
+                    'Vehicle Number': 'vehicleNumber',
+                    'Vehicle Type': null,
+                    'Make-Model': null,
+                    'Division': null,
+                    'Policy Type': 'policyType',
+                    'Policy Number': 'policyNumber',
+                    'Renewal Date': 'vehicleRenewalDate',
+                    'Status': 'status',
+                    'Service Type': 'maintenanceType',
+                    'KM Driven': 'kmDriven',
+                    'Maintenance Renewal Date': 'maintenanceRenewalDate',
+                    'Renewal Date 2': 'renewalDate2',
+                    'Deleted Reason': 'deleteReason',
+                    'Deleted By': 'deletedBy',
+                    'Deleted At': 'deletedAt'
                 };
+                // Prepare data rows
+                const dataRows = [];
+                exportRows.forEach((entry, idx) => {
+                    const parsed = processVehicleNumber(entry.vehicleNumber || '');
+                    const rowData = {};
+                    headers.forEach(header => {
+                        if (header === '#') {
+                            rowData[header] = (idx + 1).toString();
+                        } else if (header === 'Vehicle Number') {
+                            rowData[header] = parsed.vehicleNumber;
+                        } else if (header === 'Vehicle Type') {
+                            rowData[header] = parsed.vehicleType;
+                        } else if (header === 'Make-Model') {
+                            rowData[header] = parsed.makeModel;
+                        } else if (header === 'Division') {
+                            rowData[header] = parsed.division;
+                        } else if (headerToProp[header]) {
+                            if (header === 'Renewal Date' || header === 'Maintenance Renewal Date' || header === 'Renewal Date 2') {
+                                rowData[header] = entry[headerToProp[header]] ? formatDateWithoutTime(entry[headerToProp[header]]) : '';
+                            } else if (header === 'Deleted At') {
+                                rowData[header] = entry[headerToProp[header]] ? formatDate(entry[headerToProp[header]]) : '';
+                            } else if (header === 'Status') {
+                                if (headers.includes('Renewal Date') && header === 'Status') {
+                                    rowData[header] = entry['vehicleRenewalDate'] ? calculateStatus(entry['vehicleRenewalDate']) : '';
+                                } else if (headers.includes('Maintenance Renewal Date') && header === 'Status') {
+                                    rowData[header] = entry['maintenanceRenewalDate'] ? calculateStatus(entry['maintenanceRenewalDate']) : '';
+                                } else {
+                                    rowData[header] = entry[headerToProp[header]] || '';
+                                }
+                            } else {
+                                rowData[header] = entry[headerToProp[header]] || '';
+                            }
+                        } else {
+                            rowData[header] = '';
+                        }
+                    });
+                    dataRows.push(headers.map(header => rowData[header] || ''));
+                });
+                // Add heading and date row at the top
+                function formatDateDDMMMYYYY(date) {
+                    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                    const d = date.getDate().toString().padStart(2, '0');
+                    const m = months[date.getMonth()];
+                    const y = date.getFullYear();
+                    return `${d}-${m}-${y}`;
+                }
+                const heading = ['Deleted Vehicle and Maintenance Records'];
+                const dateRow = [`Date: ${formatDateDDMMMYYYY(new Date())}`];
+                // Pad heading and date row to match headers length
+                while (heading.length < headers.length) heading.push('');
+                while (dateRow.length < headers.length) dateRow.push('');
+                const worksheetData = [heading, dateRow, headers, ...dataRows];
+                // Create worksheet
+                const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+                // Style heading row
+                const headingCell = XLSX.utils.encode_cell({ r: 0, c: 0 });
+                ws[headingCell].s = {
+                    font: { bold: true, sz: 15 },
+                    alignment: { horizontal: 'center', vertical: 'center' }
+                };
+                // Merge heading row
+                ws['!merges'] = ws['!merges'] || [];
+                ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } });
+                // Style date row
+                const dateCell = XLSX.utils.encode_cell({ r: 1, c: 0 });
+                ws[dateCell].s = {
+                    font: { italic: true, sz: 12 },
+                    alignment: { horizontal: 'center', vertical: 'center' }
+                };
+                ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: headers.length - 1 } });
+                // Style header row
+                for (let C = 0; C < headers.length; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: 2, c: C });
+                    if (!ws[cellAddress]) continue;
+                    if (!ws[cellAddress].s) ws[cellAddress].s = {};
+                    ws[cellAddress].s.font = { bold: true, color: { rgb: "FFFFFF" } };
+                    ws[cellAddress].s.fill = { fgColor: { rgb: "2980b9" } };
+                    ws[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
+                    ws[cellAddress].s.border = {
+                        top: { style: "thin", color: { rgb: "000000" } },
+                        bottom: { style: "thin", color: { rgb: "000000" } },
+                        left: { style: "thin", color: { rgb: "000000" } },
+                        right: { style: "thin", color: { rgb: "000000" } }
+                    };
+                }
+                // Set column widths for better appearance (default width for all visible columns)
+                ws['!cols'] = headers.map(() => ({ wch: 15 }));
+                XLSX.utils.book_append_sheet(wb, ws, 'DeletedVehicleMaintenance');
+                XLSX.writeFile(wb, 'deleted_vehicle_maintenance_table.xlsx');
+            } catch (error) {
+                console.error('Error generating Excel:', error);
+                alert('Failed to generate Excel. Please check console for details.');
             }
-            // Set column widths for better appearance (default width for all visible columns)
-            ws['!cols'] = headers.map(() => ({ wch: 15 }));
-            XLSX.utils.book_append_sheet(wb, ws, 'DeletedVehicleMaintenance');
-            XLSX.writeFile(wb, 'deleted_vehicle_maintenance_table.xlsx');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
