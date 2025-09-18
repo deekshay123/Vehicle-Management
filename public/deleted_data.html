@@ -185,7 +185,7 @@
             background: #fff;
             color: #222;
             font-size: 0.97rem;
-            font-weight: normal;
+            font-weight: bold;
         }
         #combinedTable td:nth-child(2) {
             color: #2980b9;
@@ -300,6 +300,24 @@
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." />
                 <input type="text" id="searchStatusInput" placeholder="Search by Status..." />
             </div>
+            <!-- ===== COLUMN SELECTOR UI ===== -->
+            <div id="columnSelector" style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; margin-bottom:18px; padding:10px 18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; max-width:100%;">
+                <span style="font-weight:600; color:#2980b9; margin-right:10px;">Select columns to display:</span>
+                <label><input type="checkbox" class="col-toggle" data-col="0" checked> #</label>
+                <label><input type="checkbox" class="col-toggle" data-col="1" checked> Vehicle Number</label>
+                <label><input type="checkbox" class="col-toggle" data-col="2" checked> Policy Type</label>
+                <label><input type="checkbox" class="col-toggle" data-col="3" checked> Policy Number</label>
+                <label><input type="checkbox" class="col-toggle" data-col="4" checked> Renewal Date</label>
+                <label><input type="checkbox" class="col-toggle" data-col="5" checked> Status</label>
+                <label><input type="checkbox" class="col-toggle" data-col="6" checked> Service Type</label>
+                <label><input type="checkbox" class="col-toggle" data-col="7" checked> KM Driven</label>
+                <label><input type="checkbox" class="col-toggle" data-col="8" checked> Maintenance Renewal Date</label>
+                <label><input type="checkbox" class="col-toggle" data-col="9" checked> Status</label>
+                <label><input type="checkbox" class="col-toggle" data-col="10" checked> Renewal Date 2</label>
+                <label><input type="checkbox" class="col-toggle" data-col="11" checked> Deleted Reason</label>
+                <label><input type="checkbox" class="col-toggle" data-col="12" checked> Deleted By</label>
+                <label><input type="checkbox" class="col-toggle" data-col="13" checked> Deleted At</label>
+            </div>
             <!-- ===== EXPORT BUTTONS ===== -->
             <div class="export-buttons">
                 <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
@@ -392,17 +410,12 @@
         function renderTable(data) {
             const tbody = document.querySelector('#combinedTable tbody');
             tbody.innerHTML = '';
-            
             data.sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
-
-
             let startIndex = (currentPage - 1) * itemsPerPage;
             let endIndex = Math.min(startIndex + itemsPerPage, data.length);
-
             for (let i = startIndex; i < endIndex; i++) {
                 const entry = data[i];
                 const row = document.createElement('tr');
-
                 row.innerHTML = `
                     <td>${i + 1}</td>
                     <td>${entry.vehicleNumber || ''}</td>
@@ -422,7 +435,35 @@
                 tbody.appendChild(row);
             }
             renderPaginationControls(data.length);
+            updateTableColumnVisibility();
         }
+
+        // ===== COLUMN VISIBILITY LOGIC =====
+        function updateTableColumnVisibility() {
+            const checkboxes = document.querySelectorAll('.col-toggle');
+            const table = document.getElementById('combinedTable');
+            if (!table) return;
+            // For each column, show/hide th and all tds
+            checkboxes.forEach(cb => {
+                const colIdx = parseInt(cb.getAttribute('data-col'));
+                const visible = cb.checked;
+                // th
+                const th = table.querySelector(`thead th:nth-child(${colIdx + 1})`);
+                if (th) th.style.display = visible ? '' : 'none';
+                // tds
+                table.querySelectorAll(`tbody tr`).forEach(tr => {
+                    const td = tr.children[colIdx];
+                    if (td) td.style.display = visible ? '' : 'none';
+                });
+            });
+        }
+
+        // Listen for column selector changes
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.col-toggle').forEach(cb => {
+                cb.addEventListener('change', updateTableColumnVisibility);
+            });
+        });
 
         function renderPaginationControls(totalItems) {
             const paginationContainer = document.getElementById('paginationControls');
@@ -516,35 +557,31 @@
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('l', 'pt', 'a4');
-
                 if (typeof doc.autoTable !== 'function') {
                     alert('jsPDF autoTable plugin is not loaded. Please include it before exporting to PDF.');
                     return;
                 }
-
                 const table = document.getElementById('combinedTable');
-                const headers = [];
-                const data = [];
-
-                // Get headers from the first thead row, include all columns
+                const checkboxes = document.querySelectorAll('.col-toggle');
+                // Get visible column indices
+                const visibleCols = [];
+                checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
+                // Get headers for visible columns
                 const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
-                for (let i = 0; i < headerCells.length; i++) {
-                    headers.push(headerCells[i].textContent.trim());
-                }
-
+                const headers = [];
+                visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
                 // Prepare columns for autoTable with dataKey
                 const columns = headers.map(header => ({ header: header, dataKey: header }));
-
-                // Get all rows data including hidden rows (all pages)
+                // Get all rows data for visible columns
+                const data = [];
                 const rows = table.querySelectorAll('tbody tr');
                 rows.forEach(row => {
                     const rowData = {};
-                    for (let i = 0; i < row.cells.length; i++) {
-                        rowData[headers[i]] = row.cells[i].textContent.trim();
-                    }
+                    visibleCols.forEach((colIdx, j) => {
+                        rowData[headers[j]] = row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '';
+                    });
                     data.push(rowData);
                 });
-
                 // Helper function to format date as dd-mmm-yyyy with lowercase month
                 function formatDateDDMMMYYYY(date) {
                     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -553,18 +590,15 @@
                     const y = date.getFullYear();
                     return `${d}-${m}-${y}`;
                 }
-
                 // Add heading text above the table with professional styling
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(15);
                 doc.text('Deleted Vehicle and Maintenance Records', doc.internal.pageSize.getWidth() / 2, 25, { align: 'center' });
-
                 // Add current date below heading
                 const currentDateStr = formatDateDDMMMYYYY(new Date());
                 doc.setFont('helvetica', 'normal');
                 doc.setFontSize(12);
                 doc.text(`Date: ${currentDateStr}`, doc.internal.pageSize.getWidth() / 2, 45, { align: 'center' });
-
                 // Generate PDF with autoTable, startY adjusted to leave space for heading and date
                 doc.autoTable({
                     columns: columns,
@@ -575,6 +609,7 @@
                         lineWidth: 0.5,
                         lineColor: [0, 0, 0],
                         fontSize: 10,
+                        fontStyle: 'bold', // Make all cell contents bold
                     },
                     columnStyles: columns.reduce((acc, col, index) => {
                         acc[col.dataKey] = { cellWidth: 'auto', halign: 'left', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
@@ -590,25 +625,20 @@
                         fillColor: [245, 245, 245],
                     },
                     didDrawPage: function (data) {
-                        console.log('didDrawPage called for page:', data.pageNumber);
                         const pageWidth = doc.internal.pageSize.getWidth();
                         const pageHeight = doc.internal.pageSize.getHeight();
                         doc.setDrawColor(0);
                         doc.setLineWidth(0.5);
                         doc.line(40, pageHeight - 30, pageWidth - 40, pageHeight - 30);
-
                         doc.setFont('helvetica', 'italic');
                         doc.setFontSize(10);
                         doc.setTextColor(0, 0, 0);
                         doc.text('all right reserved by Deeksh@y', pageWidth / 2, pageHeight - 15, { align: 'center' });
-
-                        const pageNumber = doc.internal.getNumberOfPages();
                         doc.setFontSize(8);
                         doc.setTextColor(0, 0, 0);
                         doc.text(`Page ${data.pageNumber}`, pageWidth - 60, pageHeight - 15);
                     }
                 });
-
                 doc.save('deleted_vehicle_maintenance_table.pdf');
             } catch (error) {
                 console.error('Error generating PDF:', error);
@@ -622,45 +652,31 @@
         function exportTableToExcel() {
             const table = document.getElementById('combinedTable');
             const wb = XLSX.utils.book_new();
-
-            // Define headers matching the deleted_data.html table columns
-            const headers = [
-                '#',
-                'Vehicle Number',
-                'Policy Type',
-                'Policy Number',
-                'Renewal Date',
-                'Status',
-                'Maintenance/Tyre',
-                'KM Driven',
-                'Maintenance Renewal Date',
-                'Status',
-                'Renewal Date 2',
-                'Deleted Reason',
-                'Deleted By',
-                'Deleted At'
-            ];
-
-            // Prepare data rows from all table body rows
+            const checkboxes = document.querySelectorAll('.col-toggle');
+            // Get visible column indices
+            const visibleCols = [];
+            checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
+            // Get headers for visible columns
+            const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
+            const headers = [];
+            visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
+            // Prepare data rows from all table body rows, only visible columns
             const dataRows = [];
             const rows = table.querySelectorAll('tbody tr');
             rows.forEach(row => {
                 const rowData = [];
-                for (let i = 0; i < row.cells.length; i++) {
-                    rowData.push(row.cells[i].textContent.trim());
-                }
+                visibleCols.forEach(colIdx => {
+                    rowData.push(row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '');
+                });
                 dataRows.push(rowData);
             });
-
             // Combine headers and data
             const worksheetData = [headers, ...dataRows];
-
             // Create worksheet
             const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-
             // Apply styling to header row
             const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let C = 0; C <= range.e.c; ++C) {
+            for (let C = 0; C < headers.length; ++C) {
                 const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
                 if (!ws[cellAddress]) continue;
                 if (!ws[cellAddress].s) ws[cellAddress].s = {};
@@ -674,25 +690,8 @@
                     right: { style: "thin", color: { rgb: "000000" } }
                 };
             }
-
-            // Set column widths for better appearance
-            ws['!cols'] = [
-                { wch: 5 },  // #
-                { wch: 15 }, // Vehicle Number
-                { wch: 15 }, // Policy Type
-                { wch: 15 }, // Policy Number
-                { wch: 15 }, // Renewal Date
-                { wch: 12 }, // Status
-                { wch: 18 }, // Maintenance/Tyre
-                { wch: 12 }, // KM Driven
-                { wch: 15 }, // Maintenance Renewal Date
-                { wch: 12 }, // Status
-                { wch: 15 }, // Renewal Date 2
-                { wch: 20 }, // Deleted Reason
-                { wch: 15 }, // Deleted By
-                { wch: 20 }  // Deleted At
-            ];
-
+            // Set column widths for better appearance (default width for all visible columns)
+            ws['!cols'] = headers.map(() => ({ wch: 15 }));
             XLSX.utils.book_append_sheet(wb, ws, 'DeletedVehicleMaintenance');
             XLSX.writeFile(wb, 'deleted_vehicle_maintenance_table.xlsx');
         }
