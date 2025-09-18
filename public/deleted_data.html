@@ -655,105 +655,43 @@
                     return;
                 }
                 const table = document.getElementById('combinedTable');
+                // Get visible column indices and headers (in order)
                 const checkboxes = document.querySelectorAll('.col-toggle');
-                // Get visible column indices
                 const visibleCols = [];
                 checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
-                // Get headers for visible columns
                 const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
-                let headers = [];
-                visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
-
-                // Insert Vehicle Type, Make-Model, Division after Vehicle Number (if not present)
-                const insertAfter = (arr, afterKey, newKey) => {
-                    const idx = arr.indexOf(afterKey);
-                    if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
-                };
-                insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
-                insertAfter(headers, 'Vehicle Type', 'Make-Model');
-                insertAfter(headers, 'Make-Model', 'Division');
+                const headers = visibleCols.map(i => headerCells[i].textContent.trim());
 
                 // Prepare columns for autoTable with dataKey
                 const columns = headers.map(header => ({ header: header, dataKey: header }));
 
-                // Helper: parse vehicle number like history_service.html
-                function processVehicleNumber(vehicleNumberRaw) {
-                    let vehicleNumber = vehicleNumberRaw || '';
-                    let vehicleType = '';
-                    let makeModel = '';
-                    let division = '';
-                    // Extract all bracketed values
-                    const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
-                    let usedType = false, usedDivision = false;
-                    // Remove all brackets for clean vehicle number
-                    vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
-                    // Assign bracketed values in order: type, make-model, division
-                    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
-                    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
-                    bracketMatches.forEach(bracket => {
-                        const val = bracket.replace(/[\[\]]/g, '').trim();
-                        const valUpper = val.toUpperCase();
-                        if (!usedType && knownTypes.includes(valUpper)) {
-                            vehicleType = `[${val}]`;
-                            usedType = true;
-                        } else if (!usedDivision && knownDivisions.includes(valUpper)) {
-                            division = `[${val}]`;
-                            usedDivision = true;
-                        } else if (!makeModel) {
-                            makeModel = `[${val}]`;
-                        }
-                    });
-                    return { vehicleNumber, vehicleType, makeModel, division };
-                }
-
-                // Map table columns to their data index for each row
-                const colIndexMap = {};
-                headers.forEach((header, i) => {
-                    // For inserted columns, mark as -1
-                    if (['Vehicle Type', 'Make-Model', 'Division'].includes(header)) {
-                        colIndexMap[header] = -1;
-                    } else {
-                        // Find the index in visibleCols for this header
-                        let idx = -1;
-                        for (let j = 0; j < visibleCols.length; j++) {
-                            if (headerCells[visibleCols[j]].textContent.trim() === header) {
-                                idx = visibleCols[j];
-                                break;
-                            }
-                        }
-                        colIndexMap[header] = idx;
-                    }
-                });
-
-                // Get all rows data for visible columns, parsing Vehicle Number
+                // Get all rows data for visible columns, parsing Vehicle Number fields for those columns
                 const data = [];
                 const rows = table.querySelectorAll('tbody tr');
                 rows.forEach((row, idx) => {
                     const rowData = {};
-                    // Get the raw vehicle number cell (if present)
-                    let vehicleNumberRaw = '';
-                    if (colIndexMap['Vehicle Number'] !== -1 && row.cells[colIndexMap['Vehicle Number']]) {
-                        vehicleNumberRaw = row.cells[colIndexMap['Vehicle Number']].textContent.trim();
+                    // Parse vehicle number if any of the parsed columns are visible
+                    let parsed = null;
+                    const vehicleNumberColIdx = headers.indexOf('Vehicle Number');
+                    if (vehicleNumberColIdx !== -1) {
+                        const cellIdx = visibleCols[vehicleNumberColIdx];
+                        const vehicleNumberRaw = row.cells[cellIdx] ? row.cells[cellIdx].textContent.trim() : '';
+                        parsed = processVehicleNumber(vehicleNumberRaw);
                     }
-                    const parsed = processVehicleNumber(vehicleNumberRaw);
-                    headers.forEach(header => {
+                    headers.forEach((header, hIdx) => {
+                        const cellIdx = visibleCols[hIdx];
                         if (header === '#') {
-                            rowData[header] = row.cells[colIndexMap[header]] ? row.cells[colIndexMap[header]].textContent.trim() : (idx + 1).toString();
-                        } else if (header === 'Vehicle Number') {
+                            rowData[header] = row.cells[cellIdx] ? row.cells[cellIdx].textContent.trim() : (idx + 1).toString();
+                        } else if (header === 'Vehicle Number' && parsed) {
                             rowData[header] = parsed.vehicleNumber;
-                        } else if (header === 'Vehicle Type') {
+                        } else if (header === 'Vehicle Type' && parsed) {
                             rowData[header] = parsed.vehicleType;
-                        } else if (header === 'Make-Model') {
+                        } else if (header === 'Make-Model' && parsed) {
                             rowData[header] = parsed.makeModel;
-                        } else if (header === 'Division') {
+                        } else if (header === 'Division' && parsed) {
                             rowData[header] = parsed.division;
                         } else {
-                            // For all other columns, use the mapped index
-                            if (colIndexMap[header] !== -1 && row.cells[colIndexMap[header]]) {
-                                rowData[header] = row.cells[colIndexMap[header]].textContent.trim();
-                            } else {
-                                rowData[header] = '';
-                            }
+                            rowData[header] = row.cells[cellIdx] ? row.cells[cellIdx].textContent.trim() : '';
                         }
                     });
                     data.push(rowData);
