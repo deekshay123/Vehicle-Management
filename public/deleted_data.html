@@ -9,76 +9,194 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- =========================
+        PAGE STYLES
+        ========================= -->
     <style>
-        /* Additional styles for deleted data page */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 20px;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        header h2 {
+            background: #fff;
+            min-height: 100vh;
+            min-width: 100vw;
             color: #333;
         }
-       .table-container {
-          max-height: 600px;
-          overflow-y: auto;
-          position: relative;
-        }
-
-        thead tr {
-         position: sticky;
-         top: 0;
-         background-color: #2980b9;
-         color: white;
-         z-index: 2;
-        }
-
-        .search-container {
-            margin-bottom: 15px;
+        .container {
+            width: 100vw;
+            min-height: 100vh;
+            margin: 0;
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+        }
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+            border-bottom: 1px solid #e9ecef;
+            text-align: left;
+        }
+        header h2 {
+            color: #fff;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        #logoutBtn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 12px 24px;
+            margin: 0;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.08);
+        }
+        #logoutBtn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        .main-content {
+            flex: 1 1 auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            height: 1px;
+        }
+        .search-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 1px 4px rgba(52, 152, 219, 0.06);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .search-container input {
             flex: 1;
-            padding: 8px 12px;
-            font-size: 14px;
-            border: 1.5px solid #ccc;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border: 1.5px solid #b9d6f2;
+            border-radius: 7px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            background: #fafdff;
+            color: #222;
+            box-shadow: 0 1px 2px rgba(41, 128, 185, 0.03);
         }
-        #logoutBtn {
-            margin-top: 0;
-            margin-bottom: 15px;
-            padding: 10px 20px;
-            background-color: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
+        .search-container input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
-        #logoutBtn:hover {
-            background-color: #1c5980;
+        .export-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .export-btn {
-            margin-right: 10px;
-            padding: 10px 20px;
-            background-color: #27ae60;
-            color: white;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 7px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(41, 128, 185, 0.08);
         }
-        .export-btn:hover {
-            background-color: #1e8449;
+        #exportPdfBtn.export-btn {
+            background: #3498db;
+            color: white;
+        }
+        #exportPdfBtn.export-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        #exportExcelBtn.export-btn {
+            background: #27ae60;
+            color: white;
+        }
+        #exportExcelBtn.export-btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            max-height: 60vh;
+            box-shadow: 0 2px 12px rgba(41, 128, 185, 0.07);
+            margin-top: 10px;
+        }
+        #combinedTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        #combinedTable th {
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
+            color: #fff;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid #2980b9;
+        }
+        #combinedTable td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+            background: #fff;
+            color: #222;
+            font-size: 0.97rem;
+            font-weight: normal;
+        }
+        #combinedTable td:nth-child(2) {
+            color: #2980b9;
+            font-weight: bold;
+        }
+        #combinedTable tr:nth-child(even) td {
+            background: #f6fafd;
+        }
+        #combinedTable tr:hover td {
+            background: #eaf6fb;
+            transition: background 0.2s;
         }
         /* Pagination styles */
         .pagination-controls {
@@ -87,69 +205,138 @@
         }
         .pagination-btn {
             margin: 0 3px;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border: 1.5px solid #2980b9;
             background-color: white;
             color: #2980b9;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 1rem;
+            transition: background 0.3s, color 0.3s;
         }
         .pagination-btn:hover {
-            background-color: #2980b9;
+            background: #2980b9;
             color: white;
         }
         .pagination-btn.active {
-            background-color: #2980b9;
+            background: #2980b9;
             color: white;
             cursor: default;
+        }
+        @media (max-width: 900px) {
+            .search-container {
+                flex-direction: column;
+                max-width: 100%;
+                gap: 10px;
+            }
+        }
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+                padding: 14px 8px;
+            }
+            header h2 {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            #logoutBtn {
+                width: 100%;
+                justify-content: center;
+                font-size: 1rem;
+                padding: 12px 0;
+            }
+            .main-content {
+                padding: 10px 4px;
+            }
+            .search-container {
+                padding: 10px 4px;
+                margin-bottom: 10px;
+                border-radius: 0;
+            }
+            .search-container input {
+                font-size: 1rem;
+                padding: 10px 8px;
+            }
+            .export-buttons {
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            .table-container {
+                border-radius: 0;
+                max-height: 45vh;
+                min-height: 0;
+                margin: 0 -4px;
+            }
+            #combinedTable {
+                font-size: 12px;
+                min-width: 600px;
+            }
+            #combinedTable th,
+            #combinedTable td {
+                padding: 8px 4px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h2>Deleted Vehicle and Maintenance Records</h2>
-    </header>
-
-    <div class="search-container">
-        <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." />
-        <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." />
-        <input type="text" id="searchStatusInput" placeholder="Search by Status..." />
+    <!-- =========================
+         MAIN PAGE CONTAINER
+         ========================= -->
+    <div class="container">
+        <!-- ===== HEADER SECTION ===== -->
+        <header>
+            <h2>Deleted Vehicle and Maintenance Records</h2>
+            <button id="logoutBtn">Logout</button>
+        </header>
+        <!-- ===== MAIN CONTENT AREA ===== -->
+        <div class="main-content">
+            <!-- ===== SEARCH FILTERS ===== -->
+            <div class="search-container">
+                <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." />
+                <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." />
+                <input type="text" id="searchStatusInput" placeholder="Search by Status..." />
+            </div>
+            <!-- ===== EXPORT BUTTONS ===== -->
+            <div class="export-buttons">
+                <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
+                <button id="exportExcelBtn" class="export-btn">Export to Excel</button>
+            </div>
+            <!-- ===== DATA TABLE SECTION ===== -->
+            <div class="table-container">
+                <table id="combinedTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Vehicle Number</th>
+                            <th>Policy Type</th>
+                            <th>Policy Number</th>
+                            <th>Renewal Date</th>
+                            <th>Status</th>
+                            <th>Service Type</th>
+                            <th>KM Driven</th>
+                            <th>Maintenance Renewal Date</th>
+                            <th>Status</th>
+                            <th>Renewal Date 2</th>
+                            <th>Deleted Reason</th>
+                            <th>Deleted By</th>
+                            <th>Deleted At</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <!-- ===== PAGINATION CONTROLS ===== -->
+                <div id="paginationControls" class="pagination-controls"></div>
+            </div>
+        </div>
     </div>
 
-    <button id="logoutBtn">Logout</button>
-
-    <div class="export-buttons" style="margin-bottom: 15px; display: flex; justify-content: flex-end; gap: 10px;">
-        <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
-        <button id="exportExcelBtn" class="export-btn">Export to Excel</button>
-    </div>
-
-    <div class="table-container">
-        <table id="combinedTable" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #2980b9; color: white;">
-                    <th>#</th>
-                    <th>Vehicle Number</th>
-                    <th>Policy Type</th>
-                    <th>Policy Number</th>
-                    <th>Renewal Date</th>
-                    <th>Status</th>
-                    <th>Service Type</th>
-                    <th>KM Driven</th>
-                    <th>Maintenance Renewal Date</th>
-                    <th>Status</th>
-                    <th>Renewal Date 2</th>
-                    <th>Deleted Reason</th>
-                    <th>Deleted By</th>
-                    <th>Deleted At</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <div id="paginationControls" class="pagination-controls"></div>
-    </div>
-
+    <!-- =========================
+        MAIN DATA LOGIC & RENDERING
+        ========================= -->
     <script>
         const API_DELETED_URL = '/api/deleted-records';
         const itemsPerPage = 50;
@@ -318,6 +505,9 @@
 
         window.onload = loadDeletedData;
     </script>
+    <!-- =========================
+        EXPORT TO PDF & EXCEL LOGIC
+        ========================= -->
     <script>
         /**
          * Export table data to PDF using jsPDF and autoTable with plugin availability check
