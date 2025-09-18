@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,7 @@
     <link rel="stylesheet" href="custom_styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
-    /* Global Styles */
+    /* ===================== LAYOUT & BODY ===================== */
     body {
         min-height: 100vh;
         margin: 0;
@@ -28,38 +29,28 @@
         min-width: 0;
     }
 
-    /* Header Styles */
+    /* ===================== HEADER ===================== */
     .app-header {
-    background: linear-gradient(90deg, #b6c9ff 0%, #61c8ff 100%);
-    color: #222e3a;
-        padding: 2rem 0 2rem 0;
+        background: linear-gradient(90deg, #b6c9ff 0%, #61c8ff 100%);
+        color: #222e3a;
+        padding: 2rem 0;
         text-align: center;
         font-family: inherit;
         font-weight: 800;
         font-size: 2.1rem;
         letter-spacing: 2px;
-    box-shadow: 0 4px 24px 0 rgba(44,83,100,0.10);
-    border-radius: 24px;
-        margin: 36px auto 24px auto;
-        max-width: 900px;
+        box-shadow: 0 4px 24px 0 rgba(44,83,100,0.10);
+        border-radius: 0 0 24px 24px;
         border: 1.5px solid #c7d0e1;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         width: 100vw;
-        margin: 0;
-        border-radius: 0 0 24px 24px;
         z-index: 100;
-        max-width: none;
         box-sizing: border-box;
         justify-content: center;
         align-items: center;
-        text-align: center;
-    }
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-40px);}
-        to { opacity: 1; transform: translateY(0);}
     }
     .app-header h3 {
         margin: 0;
@@ -71,7 +62,12 @@
         width: 100%;
         text-align: center;
     }
-    /* Button Styles */
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-40px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+
+    /* ===================== BUTTONS ===================== */
     button {
         border: none;
         outline: none;
@@ -80,9 +76,9 @@
         font-size: 1rem;
         font-weight: 600;
         margin: 0 4px;
-    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
-    border: 1.5px solid #b0bec5;
-    color: #fff;
+        background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+        border: 1.5px solid #b0bec5;
+        color: #fff;
         box-shadow: 0 2px 8px rgba(44,83,100,0.08);
         cursor: pointer;
         transition: background 0.18s, box-shadow 0.18s, transform 0.12s, border 0.18s;
@@ -93,22 +89,24 @@
         z-index: 1;
     }
     button:hover, button:focus {
-    background: linear-gradient(90deg, #26a69a 0%, #1976d2 100%);
-    border: 1.5px solid #1976d2;
-    color: #fff;
+        background: linear-gradient(90deg, #26a69a 0%, #1976d2 100%);
+        border: 1.5px solid #1976d2;
+        color: #fff;
     }
     button:active {
-    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
-    box-shadow: 0 1px 4px rgba(44,83,100,0.12);
-    transform: scale(0.98);
+        background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+        box-shadow: 0 1px 4px rgba(44,83,100,0.12);
+        transform: scale(0.98);
     }
+
+    /* Logout Button (special style) */
     #logoutBtn {
         position: static;
         float: right;
         margin-top: 0;
         margin-right: 0;
-    background: linear-gradient(90deg, #d32f2f 0%, #1976d2 100%);
-    color: #fff;
+        background: linear-gradient(90deg, #d32f2f 0%, #1976d2 100%);
+        color: #fff;
         font-size: 1rem;
         padding: 10px 22px;
         z-index: 1001;
@@ -127,15 +125,16 @@
             padding: 6px 10px;
         }
     }
+
+    /* Toggle Form Button */
     #toggleFormBtn {
         margin: 0 auto 22px auto;
         display: block;
-    background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
-    color: #fff;
+        background: linear-gradient(90deg, #1976d2 0%, #26a69a 100%);
+        color: #fff;
         font-size: 1rem;
         padding: 10px 22px;
         border: 1.5px solid #c7d0e1;
-        margin: 0 auto 22px auto;
         animation: fadeInUp 0.7s cubic-bezier(.77,0,.18,1) 0.1s 1;
     }
     @keyframes fadeInUp {
@@ -206,9 +205,10 @@
             gap: 10px !important;
         }
     }
+    /* ===================== STATUS COUNTS ===================== */
     .status-count-box {
-    background: linear-gradient(120deg, #e3f2fd 60%, #f5f7fa 100%);
-    border: 1.5px solid #b0bec5;
+        background: linear-gradient(120deg, #e3f2fd 60%, #f5f7fa 100%);
+        border: 1.5px solid #b0bec5;
         border-radius: 14px;
         box-shadow: 0 2px 12px rgba(44,83,100,0.08);
         padding: 18px 32px;
@@ -216,7 +216,6 @@
         text-align: center;
         transition: box-shadow 0.2s, transform 0.15s, border 0.18s;
         z-index: 1;
-        min-width: 140px;
         margin: 0 8px;
         animation: popIn 0.7s cubic-bezier(.77,0,.18,1);
     }
@@ -259,7 +258,7 @@
     .expiring-box .status-count-number { color: #ffa726; }
     .expired-box .status-count-number { color: #d32f2f; }
     .all-box .status-count-number { color: #1976d2; }
-    /* Table Styles */
+    /* ===================== TABLE STYLES ===================== */
     #combinedTable {
         width: 100%;
         min-width: 900px;
@@ -358,7 +357,7 @@
         text-shadow: none;
         animation: fadeInUp 0.8s cubic-bezier(.77,0,.18,1) 0.5s 1;
     }
-    /* Column Filter Modal */
+    /* ===================== COLUMN FILTER MODAL ===================== */
     .column-filter-modal {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -368,10 +367,9 @@
         justify-content: center;
         z-index: 1000;
         backdrop-filter: blur(6px);
-        transition: background 0.2s;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.35s cubic-bezier(.77,0,.18,1);
+        transition: background 0.2s, opacity 0.35s cubic-bezier(.77,0,.18,1);
     }
     .column-filter-modal[aria-hidden="false"], .column-filter-modal.show {
         opacity: 1;
@@ -1656,56 +1654,49 @@
     </style>
 </head>
 <body>
-    <!-- Header Section -->
+    <!-- ===================== HEADER SECTION ===================== -->
     <header class="app-header">
         <h3>VEHICLE MANAGEMENT FOR PROCESSING DIVISION</h3>
     </header>
-    <!-- Logout Button Wrapper -->
+
+    <!-- ===================== LOGOUT BUTTON ===================== -->
     <div class="logout-btn-wrapper">
         <button id="logoutBtn" title="Logout" onclick="window.location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </div>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
     <div class="main-content">
-        <!-- Toggle Form Button -->
+        <!-- ===== Toggle Form Button ===== -->
         <button id="toggleFormBtn" aria-expanded="false" aria-controls="combinedForm" style="margin:24px auto 0 auto;">
             <span class="arrow down">&#9660;</span> Show Form
         </button>
-        <!-- Combined Form for Vehicle and Maintenance Entries -->
+
+        <!-- ====== VEHICLE/MAINTENANCE ENTRY FORM ====== -->
         <form
             id="combinedForm"
             style="display:none; max-width:1200px; width:96vw; margin:18px auto 0 auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px #e3eaf2; padding:18px 24px; overflow:hidden;"
             onsubmit="event.preventDefault(); addRow('combinedTable', ['vehicleNumber', 'policyType', 'policyNumber', 'renewalDate', 'maintenanceType', 'openingKM', 'closingKM', 'kmDriven', 'maintenanceRenewalDate', 'renewalDate2', 'remarks']);"
         >
-            <!-- Vehicle Number Input -->
             <input type="text" id="vehicleNumber" name="vehicleNumber" placeholder="Vehicle Number" required />
-            <!-- Policy Type Input -->
             <input type="text" id="policyType" name="policyType" placeholder="Policy Type" required />
-            <!-- Policy Number Input -->
             <input type="text" id="policyNumber" name="policyNumber" placeholder="Policy Number" required />
-            <!-- Renewal Date Input -->
             <input type="date" id="renewalDate" name="renewalDate" placeholder="Renewal Date" required />
-            <!-- Maintenance Type Input -->
             <input type="text" id="maintenanceType" name="maintenanceType" placeholder="Service Type" required />
-            <!-- Opening KM Input -->
             <input type="number" id="openingKM" name="openingKM" placeholder="Opening KM" min="0" required />
-            <!-- Closing KM Input -->
             <input type="number" id="closingKM" name="closingKM" placeholder="Closing KM" min="0" required />
-            <!-- KM Driven Input -->
             <input type="number" id="kmDriven" name="kmDriven" placeholder="KM Driven" min="0" required/>
-            <!-- Remarks Input -->
             <input type="text" id="remarks" name="remarks" placeholder="Remarks" required />
-            <!-- Maintenance Renewal Date Input -->
             <input type="date" id="maintenanceRenewalDate" name="maintenanceRenewalDate" placeholder="Maintenance Renewal Date" required />
-            <div class="form-group">
-                <!-- GPS Renewal Date Input -->
+             <div class="form-group">
                 <label for="renewalDate2">GPS Renewal</label>
                 <input type="date" id="renewalDate2" name="renewalDate2" placeholder="Renewal Date" required />
             </div>
-            <!-- Submit Button -->
             <button type="submit">Add Entry</button>
         </form>
-        <!-- Status Count Boxes -->
+
+        <!-- ====== STATUS COUNTS ====== -->
         <div id="statusCounts" class="status-counts-container" style="width:100vw;max-width:none;margin-top:18px;padding:0 2vw;">
             <div id="activeCountBox" class="status-count-box active-box">
                 <h3>Active</h3>
@@ -1724,9 +1715,7 @@
                 <p id="allCount" class="status-count-number">0</p>
             </div>
         </div>
-        <!-- Table Container -->
         <div class="table-container" style="width:100vw;max-width:none;margin-top:0;padding:0 2vw;box-sizing:border-box;">
-            <!-- Search Inputs and Action Buttons -->
             <div style="display: flex; gap: 18px; margin-bottom: 22px; align-items: center; flex-wrap: wrap; justify-content: flex-start; width:100%">
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
                 <input type="text" id="searchStatusInput" placeholder="Search by Policy Type.." style="flex: 1 1 180px; min-width:120px; max-width:100%" />
@@ -1744,7 +1733,6 @@
                     </button>
                 </div>
             </div>
-            <!-- Scrollable Table Wrapper -->
             <div style="width:100%;overflow-x:auto;">
                 <div class="scrollable-table-wrapper">
                     <table id="combinedTable" style="width:100%;min-width:600px;">
@@ -1781,7 +1769,7 @@
             <div id="paginationControls" class="pagination-controls" style="margin-top: 15px; text-align: center; width:100%;"></div>
         </div>
     </div>
-    <!-- Column Filter Modal -->
+    <!-- Column selection modal -->
     <div id="columnFilterModal" class="column-filter-modal" role="dialog" aria-modal="true" aria-labelledby="columnFilterTitle" aria-hidden="true" style="display:none;">
         <div class="column-filter-content">
             <h3 id="columnFilterTitle">Select Columns to Display</h3>
@@ -1800,10 +1788,10 @@
         </div>
     </div>
 
-    <!-- Notification Container -->
+    <!-- Notification container -->
     <div id="notification" class="notification" role="alert" aria-live="assertive" aria-atomic="true" style="display:none;"></div>
 
-    <!-- Confirmation Dialog -->
+    <!-- Confirmation dialog container -->
     <div id="confirmDialog" class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogDesc" style="display:none;">
         <div class="confirm-dialog-content">
             <h3 id="confirmDialogTitle">Confirm Deletion</h3>
@@ -1821,7 +1809,7 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
+    <!-- Loading overlay -->
     <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="loading-spinner">
             <div class="spinner"></div>
@@ -1829,7 +1817,6 @@
         </div>
     </div>
 
-    <!-- Inline JavaScript -->
     <script>
      // * Export table data to PDF using jsPDF and autoTable with plugin availability check
     function exportTableToPDF() {
@@ -2421,7 +2408,6 @@
         }
     });
     </script>
-    <!-- External Scripts -->
     <script src="scripts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
