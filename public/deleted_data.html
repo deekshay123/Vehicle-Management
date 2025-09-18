@@ -672,17 +672,29 @@
                 }
                 // Get all rows data for visible columns, parsing Vehicle Number
                 const data = [];
-                const rows = table.querySelectorAll('tbody tr');
-                rows.forEach((row, idx) => {
+                // Use the same data source as renderTable for consistency
+                let exportRows = deletedData;
+                // If table is filtered, use only visible rows
+                const visibleRowEls = table.querySelectorAll('tbody tr');
+                if (visibleRowEls.length > 0 && visibleRowEls.length !== deletedData.length) {
+                    // Build filtered data by matching Vehicle Number and Policy Number (as unique key)
+                    exportRows = Array.from(visibleRowEls).map(row => {
+                        const cells = row.querySelectorAll('td');
+                        // Try to match by vehicle number and policy number (adjust as needed)
+                        const vehicleNumber = cells[1] ? cells[1].textContent.trim() : '';
+                        const policyNumber = cells[6] ? cells[6].textContent.trim() : '';
+                        return deletedData.find(entry => {
+                            const parsed = processVehicleNumber(entry.vehicleNumber || '');
+                            return parsed.vehicleNumber === vehicleNumber && (entry.policyNumber || '') === policyNumber;
+                        }) || {};
+                    });
+                }
+                exportRows.forEach((entry, idx) => {
+                    const parsed = processVehicleNumber(entry.vehicleNumber || '');
                     const rowData = {};
-                    let vehicleNumberRaw = '';
-                    if (colIndexMap['Vehicle Number'] !== -1 && row.cells[colIndexMap['Vehicle Number']]) {
-                        vehicleNumberRaw = row.cells[colIndexMap['Vehicle Number']].textContent.trim();
-                    }
-                    const parsed = processVehicleNumber(vehicleNumberRaw);
                     headers.forEach(header => {
                         if (header === '#') {
-                            rowData[header] = row.cells[colIndexMap[header]] ? row.cells[colIndexMap[header]].textContent.trim() : (idx + 1).toString();
+                            rowData[header] = (idx + 1).toString();
                         } else if (header === 'Vehicle Number') {
                             rowData[header] = parsed.vehicleNumber;
                         } else if (header === 'Vehicle Type') {
@@ -692,15 +704,16 @@
                         } else if (header === 'Division') {
                             rowData[header] = parsed.division;
                         } else {
-                            if (colIndexMap[header] !== -1 && row.cells[colIndexMap[header]]) {
-                                rowData[header] = row.cells[colIndexMap[header]].textContent.trim();
-                            } else {
-                                rowData[header] = '';
-                            }
+                            // Use entry property if available, else blank
+                            rowData[header] = entry[camelToSnake(header)] || '';
                         }
                     });
                     data.push(rowData);
                 });
+                // Helper to convert header to property name
+                function camelToSnake(header) {
+                    return header.replace(/\s+/g, '').replace(/-/g, '').replace(/#/g, '').replace(/\(.*\)/, '').replace(/\W/g, '').replace(/([A-Z])/g, '_$1').toLowerCase();
+                }
                 // Helper function to format date as dd-mmm-yyyy with lowercase month
                 function formatDateDDMMMYYYY(date) {
                     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
