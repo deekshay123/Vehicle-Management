@@ -224,6 +224,24 @@
             color: white;
             cursor: default;
         }
+        /* Add toggle button styles */
+        .toggle-section-btn {
+            background: linear-gradient(90deg, #3498db 60%, #2980b9 100%);
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 10px 22px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(41, 128, 185, 0.08);
+            transition: background 0.3s, transform 0.2s;
+            outline: none;
+        }
+        .toggle-section-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
         @media (max-width: 900px) {
             .search-container {
                 flex-direction: column;
@@ -294,13 +312,19 @@
         </header>
         <!-- ===== MAIN CONTENT AREA ===== -->
         <div class="main-content">
-            <!-- ===== SEARCH FILTERS ===== -->
-            <div class="search-container">
+            <!-- ===== SEARCH FILTERS WITH TOGGLE BUTTON ===== -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <button id="toggleSearchBtn" class="toggle-section-btn" type="button">🔍 Show/Hide Search</button>
+            </div>
+            <div class="search-container" id="searchContainerSection">
                 <input type="text" id="searchVehicleNumberInput" placeholder="Search by Vehicle Number..." />
                 <input type="text" id="searchMonthInput" placeholder="Search by Renewal Month..." />
                 <input type="text" id="searchStatusInput" placeholder="Search by Status..." />
             </div>
-            <!-- ===== COLUMN SELECTOR UI ===== -->
+            <!-- ===== COLUMN SELECTOR UI WITH TOGGLE BUTTON ===== -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <button id="toggleColumnSelectorBtn" class="toggle-section-btn" type="button">📑 Show/Hide Columns</button>
+            </div>
             <div id="columnSelector" style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; margin-bottom:18px; padding:10px 18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; max-width:100%;">
                 <span style="font-weight:600; color:#2980b9; margin-right:10px;">Select columns to display:</span>
                 <label><input type="checkbox" class="col-toggle" data-col="0" checked> #</label>
@@ -463,6 +487,38 @@
             document.querySelectorAll('.col-toggle').forEach(cb => {
                 cb.addEventListener('change', updateTableColumnVisibility);
             });
+            // Toggle search section
+            const toggleSearchBtn = document.getElementById('toggleSearchBtn');
+            const searchContainerSection = document.getElementById('searchContainerSection');
+            if (toggleSearchBtn && searchContainerSection) {
+                toggleSearchBtn.addEventListener('click', () => {
+                    if (searchContainerSection.style.display === 'none') {
+                        searchContainerSection.style.display = '';
+                        toggleSearchBtn.textContent = '🔍 Hide Search';
+                    } else {
+                        searchContainerSection.style.display = 'none';
+                        toggleSearchBtn.textContent = '🔍 Show Search';
+                    }
+                });
+                // Default: show
+                toggleSearchBtn.textContent = '🔍 Hide Search';
+            }
+            // Toggle column selector section
+            const toggleColumnSelectorBtn = document.getElementById('toggleColumnSelectorBtn');
+            const columnSelector = document.getElementById('columnSelector');
+            if (toggleColumnSelectorBtn && columnSelector) {
+                toggleColumnSelectorBtn.addEventListener('click', () => {
+                    if (columnSelector.style.display === 'none') {
+                        columnSelector.style.display = '';
+                        toggleColumnSelectorBtn.textContent = '📑 Hide Columns';
+                    } else {
+                        columnSelector.style.display = 'none';
+                        toggleColumnSelectorBtn.textContent = '📑 Show Columns';
+                    }
+                });
+                // Default: show
+                toggleColumnSelectorBtn.textContent = '📑 Hide Columns';
+            }
         });
 
         function renderPaginationControls(totalItems) {
@@ -694,12 +750,15 @@
                         lineColor: [0, 0, 0],
                         fontSize: 10,
                         fontStyle: 'bold',
+                        halign: 'center', // Center align all body cells
+                        valign: 'middle'
                     },
                     headStyles: {
                         fillColor: [41, 128, 185],
                         textColor: 255,
                         fontStyle: 'bold',
                         halign: 'center',
+                        valign: 'middle'
                     },
                     alternateRowStyles: {
                         fillColor: [245, 245, 245],
