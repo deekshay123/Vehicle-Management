@@ -126,6 +126,37 @@
         .toggle-btn.collapsed .arrow {
             transform: rotate(-90deg);
         }
+
+        /* Radiant shiny toggle button styles at root */
+        .toggle-section-btn {
+            background: linear-gradient(100deg, #1976d2 0%, #43c6ac 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 7px 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px 0 rgba(67, 198, 172, 0.10), 0 1px 4px 0 rgba(25, 118, 210, 0.10);
+            transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.2px;
+        }
+        .toggle-section-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(120deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0.01) 100%);
+            pointer-events: none;
+            border-radius: 6px;
+        }
+        .toggle-section-btn:hover {
+            background: linear-gradient(100deg, #1565c0 0%, #11998e 100%);
+            transform: translateY(-1px) scale(1.03);
+            box-shadow: 0 4px 16px 0 rgba(67, 198, 172, 0.13), 0 2px 8px 0 rgba(25, 118, 210, 0.13);
+        }
         
         .search-grid {
             display: grid;
@@ -452,21 +483,38 @@
         <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
             
-            <!-- ===== SEARCH SECTION ===== -->
+            <!-- ===== SEARCH SECTION WITH TOGGLE BUTTON ===== -->
             <section class="search-section">
                 <div class="search-header">
                     <h3>🔍 Search Filters</h3>
-                    <button id="toggleSearchBtn" class="toggle-btn">
-                        <span class="arrow">▼</span>
-                    </button>
+                    <button id="toggleSearchBtn" class="toggle-section-btn" type="button">🔍 Hide Search</button>
                 </div>
-                
                 <div id="searchGrid" class="search-grid">
-                    <input type="text" id="searchVehicleNumberInput" class="search-input" placeholder="🔍 by Vehicle Number..." />
-                    <input type="text" id="searchServiceTypeInput" class="search-input" placeholder="🔍 by Service Type..." />
-                    <input type="text" id="searchMonthInput" class="search-input" placeholder="🔍 by Month..." />
+                    <input type="text" id="searchVehicleNumberInput" class="search-input" placeholder="🔍 by Vehicle Number...">
+                    <input type="text" id="searchServiceTypeInput" class="search-input" placeholder="🔍 by Service Type...">
+                    <input type="text" id="searchMonthInput" class="search-input" placeholder="🔍 by Month...">
                 </div>
             </section>
+            <!-- ===== COLUMN SELECTOR UI WITH TOGGLE BUTTON ===== -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <button id="toggleColumnSelectorBtn" class="toggle-section-btn" type="button">📑 Hide Columns</button>
+            </div>
+            <div id="columnSelector" style="background:#f8f9fa; border:1px solid #e9ecef; border-radius:8px; margin-bottom:18px; padding:10px 18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; max-width:100%;">
+                <span style="font-weight:600; color:#2980b9; margin-right:10px;">Select columns to display:</span>
+                <label><input type="checkbox" class="col-toggle" data-col="0" checked> #</label>
+                <label><input type="checkbox" class="col-toggle" data-col="1" checked> Vehicle Number</label>
+                <label><input type="checkbox" class="col-toggle" data-col="2" checked> Vehicle Type</label>
+                <label><input type="checkbox" class="col-toggle" data-col="3" checked> Make-Model</label>
+                <label><input type="checkbox" class="col-toggle" data-col="4" checked> Division</label>
+                <label><input type="checkbox" class="col-toggle" data-col="5" checked> Service Type</label>
+                <label><input type="checkbox" class="col-toggle" data-col="6" checked> Opening KM</label>
+                <label><input type="checkbox" class="col-toggle" data-col="7" checked> Closing KM</label>
+                <label><input type="checkbox" class="col-toggle" data-col="8" checked> KM Driven</label>
+                <label><input type="checkbox" class="col-toggle" data-col="9" checked> Remarks</label>
+                <label><input type="checkbox" class="col-toggle" data-col="10" checked> Last Service Date</label>
+                <label><input type="checkbox" class="col-toggle" data-col="11" checked> Edited By</label>
+                <label><input type="checkbox" class="col-toggle" data-col="12" checked> Edited At</label>
+            </div>
             
             <!-- ===== EXPORT SECTION ===== -->
             <section class="export-section">
@@ -671,6 +719,26 @@
         }
         
         // ===== UI RENDERING FUNCTIONS =====
+
+        // ===== COLUMN VISIBILITY LOGIC =====
+        function updateTableColumnVisibility() {
+            const checkboxes = document.querySelectorAll('.col-toggle');
+            const table = document.getElementById('historyTable');
+            if (!table) return;
+            // For each column, show/hide th and all tds
+            checkboxes.forEach(cb => {
+                const colIdx = parseInt(cb.getAttribute('data-col'));
+                const visible = cb.checked;
+                // th
+                const th = table.querySelector(`thead th:nth-child(${colIdx + 1})`);
+                if (th) th.style.display = visible ? '' : 'none';
+                // tds
+                table.querySelectorAll(`tbody tr`).forEach(tr => {
+                    const td = tr.children[colIdx];
+                    if (td) td.style.display = visible ? '' : 'none';
+                });
+            });
+        }
         
         /**
          * Render data to the table
@@ -679,7 +747,6 @@
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -690,17 +757,14 @@
                 `;
                 return;
             }
-            
             // Render data in reverse order (newest first)
             for (let i = data.length - 1; i >= 0; i--) {
                 const record = data[i];
                 const serviceType = record.previousData.serviceType || record.previousData.maintenanceType || '';
                 const lastServiceDateRaw = record.previousData.lastServiceDate || record.previousData.maintenanceRenewalDate || '';
                 const lastServiceDate = lastServiceDateRaw ? formatDate(lastServiceDateRaw) : '';
-                
                 // Process vehicle number
                 const vehicleData = processVehicleNumber(record.previousData.vehicleNumber || '');
-                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${data.length - i}</td>
@@ -721,6 +785,7 @@
                 `;
                 tbody.appendChild(tr);
             }
+            updateTableColumnVisibility();
         }
         
         /**
@@ -950,14 +1015,53 @@
             document.getElementById('searchVehicleNumberInput').addEventListener('input', filterData);
             document.getElementById('searchServiceTypeInput').addEventListener('input', filterData);
             document.getElementById('searchMonthInput').addEventListener('input', filterData);
-            
-            // Toggle search button - only the button should trigger toggle
-            document.getElementById('toggleSearchBtn').addEventListener('click', toggleSearchFilters);
-            
+
+            // Toggle search section
+            const toggleSearchBtn = document.getElementById('toggleSearchBtn');
+            const searchGrid = document.getElementById('searchGrid');
+            if (toggleSearchBtn && searchGrid) {
+                toggleSearchBtn.addEventListener('click', function() {
+                    if (searchGrid.style.display === 'none' || searchGrid.classList.contains('collapsed')) {
+                        searchGrid.style.display = '';
+                        searchGrid.classList.remove('collapsed');
+                        toggleSearchBtn.textContent = '🔍 Hide Search';
+                    } else {
+                        searchGrid.style.display = 'none';
+                        searchGrid.classList.add('collapsed');
+                        toggleSearchBtn.textContent = '🔍 Show Search';
+                    }
+                });
+                // Default: show
+                searchGrid.style.display = '';
+                searchGrid.classList.remove('collapsed');
+                toggleSearchBtn.textContent = '🔍 Hide Search';
+            }
+
+            // Toggle column selector section
+            const toggleColumnSelectorBtn = document.getElementById('toggleColumnSelectorBtn');
+            const columnSelector = document.getElementById('columnSelector');
+            if (toggleColumnSelectorBtn && columnSelector) {
+                toggleColumnSelectorBtn.addEventListener('click', function() {
+                    if (columnSelector.style.display === 'none') {
+                        columnSelector.style.display = '';
+                        toggleColumnSelectorBtn.textContent = '📑 Hide Columns';
+                    } else {
+                        columnSelector.style.display = 'none';
+                        toggleColumnSelectorBtn.textContent = '📑 Show Columns';
+                    }
+                });
+                // Default: show
+                columnSelector.style.display = '';
+                toggleColumnSelectorBtn.textContent = '📑 Hide Columns';
+            }
+
+            // Column selector checkboxes
+            document.querySelectorAll('.col-toggle').forEach(cb => {
+                cb.addEventListener('change', updateTableColumnVisibility);
+            });
             // Export buttons
             document.getElementById('exportPdfBtn').addEventListener('click', exportTableToPDF);
             document.getElementById('exportExcelBtn').addEventListener('click', exportTableToExcel);
-            
             // Logout button
             document.getElementById('logoutBtn').addEventListener('click', async () => {
                 try {
