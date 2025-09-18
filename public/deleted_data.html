@@ -571,7 +571,7 @@
                 let headers = [];
                 visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
 
-                // Always add Vehicle Type, Make-Model, Division after Vehicle Number if not present
+                // Insert Vehicle Type, Make-Model, Division after Vehicle Number (if not present)
                 const insertAfter = (arr, afterKey, newKey) => {
                     const idx = arr.indexOf(afterKey);
                     if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
@@ -613,54 +613,54 @@
                     return { vehicleNumber, vehicleType, makeModel, division };
                 }
 
+                // Map table columns to their data index for each row
+                const colIndexMap = {};
+                headers.forEach((header, i) => {
+                    // For inserted columns, mark as -1
+                    if (['Vehicle Type', 'Make-Model', 'Division'].includes(header)) {
+                        colIndexMap[header] = -1;
+                    } else {
+                        // Find the index in visibleCols for this header
+                        let idx = -1;
+                        for (let j = 0; j < visibleCols.length; j++) {
+                            if (headerCells[visibleCols[j]].textContent.trim() === header) {
+                                idx = visibleCols[j];
+                                break;
+                            }
+                        }
+                        colIndexMap[header] = idx;
+                    }
+                });
+
                 // Get all rows data for visible columns, parsing Vehicle Number
                 const data = [];
                 const rows = table.querySelectorAll('tbody tr');
                 rows.forEach((row, idx) => {
                     const rowData = {};
-                    let vehicleNumberCell = null;
-                    // Find the cell index for Vehicle Number
-                    let vehicleNumberColIdx = -1;
-                    for (let i = 0; i < headers.length; i++) {
-                        if (headers[i] === 'Vehicle Number') {
-                            vehicleNumberColIdx = i;
-                            break;
-                        }
-                    }
-                    // Map visibleCols to headers
-                    let colMap = {};
-                    visibleCols.forEach((colIdx, j) => {
-                        colMap[headers[j]] = colIdx;
-                    });
-                    // Parse Vehicle Number and add extra columns
+                    // Get the raw vehicle number cell (if present)
                     let vehicleNumberRaw = '';
-                    if (colMap['Vehicle Number'] !== undefined) {
-                        vehicleNumberRaw = row.cells[colMap['Vehicle Number']] ? row.cells[colMap['Vehicle Number']].textContent.trim() : '';
+                    if (colIndexMap['Vehicle Number'] !== -1 && row.cells[colIndexMap['Vehicle Number']]) {
+                        vehicleNumberRaw = row.cells[colIndexMap['Vehicle Number']].textContent.trim();
                     }
                     const parsed = processVehicleNumber(vehicleNumberRaw);
-                    headers.forEach((header, hIdx) => {
-                        switch(header) {
-                            case '#':
-                                rowData[header] = row.cells[colMap[header]] ? row.cells[colMap[header]].textContent.trim() : (idx + 1).toString();
-                                break;
-                            case 'Vehicle Number':
-                                rowData[header] = parsed.vehicleNumber;
-                                break;
-                            case 'Vehicle Type':
-                                rowData[header] = parsed.vehicleType;
-                                break;
-                            case 'Make-Model':
-                                rowData[header] = parsed.makeModel;
-                                break;
-                            case 'Division':
-                                rowData[header] = parsed.division;
-                                break;
-                            default:
-                                if (colMap[header] !== undefined) {
-                                    rowData[header] = row.cells[colMap[header]] ? row.cells[colMap[header]].textContent.trim() : '';
-                                } else {
-                                    rowData[header] = '';
-                                }
+                    headers.forEach(header => {
+                        if (header === '#') {
+                            rowData[header] = row.cells[colIndexMap[header]] ? row.cells[colIndexMap[header]].textContent.trim() : (idx + 1).toString();
+                        } else if (header === 'Vehicle Number') {
+                            rowData[header] = parsed.vehicleNumber;
+                        } else if (header === 'Vehicle Type') {
+                            rowData[header] = parsed.vehicleType;
+                        } else if (header === 'Make-Model') {
+                            rowData[header] = parsed.makeModel;
+                        } else if (header === 'Division') {
+                            rowData[header] = parsed.division;
+                        } else {
+                            // For all other columns, use the mapped index
+                            if (colIndexMap[header] !== -1 && row.cells[colIndexMap[header]]) {
+                                rowData[header] = row.cells[colIndexMap[header]].textContent.trim();
+                            } else {
+                                rowData[header] = '';
+                            }
                         }
                     });
                     data.push(rowData);
@@ -693,12 +693,8 @@
                         lineWidth: 0.5,
                         lineColor: [0, 0, 0],
                         fontSize: 10,
-                        fontStyle: 'bold', // Make all cell contents bold
+                        fontStyle: 'bold',
                     },
-                    columnStyles: columns.reduce((acc, col, index) => {
-                        acc[col.dataKey] = { cellWidth: 'auto', halign: 'left', fillColor: index % 2 === 0 ? [240, 240, 240] : null };
-                        return acc;
-                    }, {}),
                     headStyles: {
                         fillColor: [41, 128, 185],
                         textColor: 255,
