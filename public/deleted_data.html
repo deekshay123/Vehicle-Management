@@ -572,13 +572,46 @@
                 visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
                 // Prepare columns for autoTable with dataKey
                 const columns = headers.map(header => ({ header: header, dataKey: header }));
-                // Get all rows data for visible columns
+
+                // Helper: parse vehicle number for division/make-model (like history_service.html)
+                function parseVehicleNumber(raw) {
+                    if (!raw) return '';
+                    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+                    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
+                    let vehicleNumber = raw;
+                    let vehicleType = '', makeModel = '', division = '';
+                    const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
+                    let usedType = false, usedDivision = false;
+                    vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
+                    bracketMatches.forEach(bracket => {
+                        const val = bracket.replace(/[\[\]]/g, '').trim();
+                        const valUpper = val.toUpperCase();
+                        if (!usedType && knownTypes.includes(valUpper)) {
+                            vehicleType = `[${val}]`;
+                            usedType = true;
+                        } else if (!usedDivision && knownDivisions.includes(valUpper)) {
+                            division = `[${val}]`;
+                            usedDivision = true;
+                        } else if (!makeModel) {
+                            makeModel = `[${val}]`;
+                        }
+                    });
+                    // Format: [DIVISION] [MAKE-MODEL] (skip empty)
+                    return `${division ? division + ' ' : ''}${makeModel ? makeModel : ''}`.trim();
+                }
+
+                // Get all rows data for visible columns, parse vehicle number for col 1 if visible
                 const data = [];
                 const rows = table.querySelectorAll('tbody tr');
                 rows.forEach(row => {
                     const rowData = {};
                     visibleCols.forEach((colIdx, j) => {
-                        rowData[headers[j]] = row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '';
+                        let cellValue = row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '';
+                        // If this is the Vehicle Number column, parse like in history_service.html
+                        if (headers[j] === 'Vehicle Number' && row.cells[colIdx]) {
+                            cellValue = parseVehicleNumber(cellValue);
+                        }
+                        rowData[headers[j]] = cellValue;
                     });
                     data.push(rowData);
                 });
