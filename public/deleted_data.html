@@ -568,21 +568,35 @@
                 checkboxes.forEach((cb, idx) => { if (cb.checked) visibleCols.push(idx); });
                 // Get headers for visible columns
                 const headerCells = table.querySelectorAll('thead tr:nth-child(1) th');
-                const headers = [];
+                let headers = [];
                 visibleCols.forEach(i => headers.push(headerCells[i].textContent.trim()));
+
+                // Always add Vehicle Type, Make-Model, Division after Vehicle Number if not present
+                const insertAfter = (arr, afterKey, newKey) => {
+                    const idx = arr.indexOf(afterKey);
+                    if (idx !== -1 && !arr.includes(newKey)) arr.splice(idx + 1, 0, newKey);
+                };
+                insertAfter(headers, 'Vehicle Number', 'Vehicle Type');
+                insertAfter(headers, 'Vehicle Type', 'Make-Model');
+                insertAfter(headers, 'Make-Model', 'Division');
+
                 // Prepare columns for autoTable with dataKey
                 const columns = headers.map(header => ({ header: header, dataKey: header }));
 
-                // Helper: parse vehicle number for division/make-model (like history_service.html)
-                function parseVehicleNumber(raw) {
-                    if (!raw) return '';
-                    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
-                    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
-                    let vehicleNumber = raw;
-                    let vehicleType = '', makeModel = '', division = '';
+                // Helper: parse vehicle number like history_service.html
+                function processVehicleNumber(vehicleNumberRaw) {
+                    let vehicleNumber = vehicleNumberRaw || '';
+                    let vehicleType = '';
+                    let makeModel = '';
+                    let division = '';
+                    // Extract all bracketed values
                     const bracketMatches = vehicleNumber.match(/\[([^\[\]]+)\]/g) || [];
                     let usedType = false, usedDivision = false;
+                    // Remove all brackets for clean vehicle number
                     vehicleNumber = vehicleNumber.replace(/\[([^\[\]]+)\]/g, '').trim();
+                    // Assign bracketed values in order: type, make-model, division
+                    const knownTypes = ['HEAVY', '2 WHEEL', '2WHEEL', '4WHEEL', '4 WHEEL'];
+                    const knownDivisions = ['H.O', 'S.K', 'PRO', 'INT', 'R.O', 'FM'];
                     bracketMatches.forEach(bracket => {
                         const val = bracket.replace(/[\[\]]/g, '').trim();
                         const valUpper = val.toUpperCase();
@@ -596,25 +610,62 @@
                             makeModel = `[${val}]`;
                         }
                     });
-                    // Format: [DIVISION] [MAKE-MODEL] (skip empty)
-                    return `${division ? division + ' ' : ''}${makeModel ? makeModel : ''}`.trim();
+                    return { vehicleNumber, vehicleType, makeModel, division };
                 }
 
-                // Get all rows data for visible columns, parse vehicle number for col 1 if visible
+                // Get all rows data for visible columns, parsing Vehicle Number
                 const data = [];
                 const rows = table.querySelectorAll('tbody tr');
-                rows.forEach(row => {
+                rows.forEach((row, idx) => {
                     const rowData = {};
-                    visibleCols.forEach((colIdx, j) => {
-                        let cellValue = row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '';
-                        // If this is the Vehicle Number column, parse like in history_service.html
-                        if (headers[j] === 'Vehicle Number' && row.cells[colIdx]) {
-                            cellValue = parseVehicleNumber(cellValue);
+                    let vehicleNumberCell = null;
+                    // Find the cell index for Vehicle Number
+                    let vehicleNumberColIdx = -1;
+                    for (let i = 0; i < headers.length; i++) {
+                        if (headers[i] === 'Vehicle Number') {
+                            vehicleNumberColIdx = i;
+                            break;
                         }
-                        rowData[headers[j]] = cellValue;
+                    }
+                    // Map visibleCols to headers
+                    let colMap = {};
+                    visibleCols.forEach((colIdx, j) => {
+                        colMap[headers[j]] = colIdx;
+                    });
+                    // Parse Vehicle Number and add extra columns
+                    let vehicleNumberRaw = '';
+                    if (colMap['Vehicle Number'] !== undefined) {
+                        vehicleNumberRaw = row.cells[colMap['Vehicle Number']] ? row.cells[colMap['Vehicle Number']].textContent.trim() : '';
+                    }
+                    const parsed = processVehicleNumber(vehicleNumberRaw);
+                    headers.forEach((header, hIdx) => {
+                        switch(header) {
+                            case '#':
+                                rowData[header] = row.cells[colMap[header]] ? row.cells[colMap[header]].textContent.trim() : (idx + 1).toString();
+                                break;
+                            case 'Vehicle Number':
+                                rowData[header] = parsed.vehicleNumber;
+                                break;
+                            case 'Vehicle Type':
+                                rowData[header] = parsed.vehicleType;
+                                break;
+                            case 'Make-Model':
+                                rowData[header] = parsed.makeModel;
+                                break;
+                            case 'Division':
+                                rowData[header] = parsed.division;
+                                break;
+                            default:
+                                if (colMap[header] !== undefined) {
+                                    rowData[header] = row.cells[colMap[header]] ? row.cells[colMap[header]].textContent.trim() : '';
+                                } else {
+                                    rowData[header] = '';
+                                }
+                        }
                     });
                     data.push(rowData);
                 });
+
                 // Helper function to format date as dd-mmm-yyyy with lowercase month
                 function formatDateDDMMMYYYY(date) {
                     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
