@@ -153,7 +153,7 @@ function exportTableToExcel() {
     const ws = XLSX.utils.aoa_to_sheet(worksheetData);
     ws['!cols'] = new Array(headers.length).fill({ wch: 15 });
     XLSX.utils.book_append_sheet(wb, ws, 'Vehicle Report');
-    XLSX.writeFile(wb, 'processing+[R.O]_vehicle_report.xlsx');
+    XLSX.writeFile(wb, 'vehicle_report.xlsx');
 }
 
 window.addEventListener('DOMContentLoaded', () => {
