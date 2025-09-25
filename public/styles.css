@@ -47,7 +47,6 @@ h2 {
     table#combinedTable tbody tr td {
         font-size: 13px;
         padding: 7px 8px;
-        text-align: center !important;
     }
     form#combinedForm { padding: 10px; }
     #toggleFormBtn { font-size: 15px; padding: 8px 12px; }
@@ -99,7 +98,60 @@ td {
     word-break: break-word;
 }
 
+/* Alignment fixes for specific columns */
+table#combinedTable tbody tr td:nth-child(1),
+table#combinedTable thead tr th:nth-child(1) {
+    text-align: center;
+    border-right: none;
+    box-shadow: 2px 0 5px -3px rgba(0, 0, 0, 0.2);
+}
 
+table#combinedTable tbody tr td:nth-child(2),
+table#combinedTable thead tr th:nth-child(2),
+table#combinedTable tbody tr td:nth-child(3),
+table#combinedTable thead tr th:nth-child(3),
+table#combinedTable tbody tr td:nth-child(4),
+table#combinedTable thead tr th:nth-child(4),
+table#combinedTable tbody tr td:nth-child(5),
+table#combinedTable thead tr th:nth-child(5),
+/* table#combinedTable tbody tr td:nth-child(6), */
+/* table#combinedTable thead tr th:nth-child(6), */
+table#combinedTable tbody tr td:nth-child(7),
+table#combinedTable thead tr th:nth-child(7),
+table#combinedTable tbody tr td:nth-child(8),
+table#combinedTable thead tr th:nth-child(8),
+table#combinedTable tbody tr td:nth-child(9),
+table#combinedTable thead tr th:nth-child(9) {
+    text-align: center !important;
+    border-right: none;
+    box-shadow: 2px 0 5px -3px rgba(0, 0, 0, 0.2);
+}
+
+table#combinedTable tbody tr td:nth-child(6),
+table#combinedTable thead tr th:nth-child(6){
+    text-align: center !important;
+    border-right: 2px solid rgb(201, 201, 201);
+}
+    
+
+table#combinedTable tbody tr td:nth-child(8),
+table#combinedTable thead tr th:nth-child(8) {
+    text-align: center !important;
+}
+
+table#combinedTable tbody tr td:nth-child(5),
+table#combinedTable tbody tr td:nth-child(9),
+table#combinedTable thead tr th:nth-child(5),
+table#combinedTable thead tr th:nth-child(9) {
+    text-align: center !important;
+}
+
+table#combinedTable tbody tr td:nth-child(6),
+table#combinedTable tbody tr td:nth-child(10),
+table#combinedTable thead tr th:nth-child(6),
+table#combinedTable thead tr th:nth-child(10) {
+    text-align: center !important;
+}
 
 tbody tr:nth-child(even) {
     background-color: #f2f6fc;
