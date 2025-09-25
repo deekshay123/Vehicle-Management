@@ -1117,12 +1117,14 @@ const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 const searchVehicleNumberInput2 = document.getElementById('searchVehicleNumberInput2');
+const searchLastServiceDateInput = document.getElementById('searchLastServiceDateInput');
 
 function combinedFilter() {
     const monthText = searchMonthInput.value.trim().toLowerCase();
     const statusText = searchStatusInput.value.trim().toLowerCase();
     const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
     const vehicleNumberText2 = searchVehicleNumberInput2.value.trim().toLowerCase();
+    const lastServiceDateText = searchLastServiceDateInput.value.trim().toLowerCase();
 
     // Get visible column indices and names
     const visibleIndices = getVisibleColumnIndices();
@@ -1148,6 +1150,10 @@ function combinedFilter() {
         if (vehicleNumberText2 && visibleHeaders.includes('Vehicle Number')) {
             match = match && entry.vehicleNumber.toLowerCase().includes(vehicleNumberText2);
         }
+        if (lastServiceDateText && visibleHeaders.includes('Last Service Date')) {
+            const lastServiceDate = entry.lastServiceDate ? entry.lastServiceDate.toLowerCase() : '';
+            match = match && lastServiceDate.includes(lastServiceDateText);
+        }
         return match;
     });
     renderTable(filteredData);
@@ -1157,6 +1163,7 @@ searchMonthInput.addEventListener('input', combinedFilter);
 searchStatusInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput2.addEventListener('input', combinedFilter);
+searchLastServiceDateInput.addEventListener('input', combinedFilter);
 
 function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText, vehicleNumberText2) {
     const data = window.currentData || [];
