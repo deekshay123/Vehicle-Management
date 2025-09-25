@@ -414,12 +414,10 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         openingKM: entry.openingKM,
         closingKM: entry.closingKM,
         kmDriven: entry.kmDriven,
-        remarks: entry.remarks || '',
-        lastServiceDate: entry.lastServiceDate,
         maintenanceRenewalDate: entry.maintenanceRenewalDate,
         maintenanceStatusText: maintenanceStatus.text,
-        gps: entry.gps,
-        renewalDate2: entry.renewalDate2
+        renewalDate2: entry.renewalDate2,
+        remarks: entry.remarks || ''
     };
 
     const fields = [
@@ -433,7 +431,6 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'closingKM', type: 'number' },
         { key: 'kmDriven', type: 'number' },
         { key: 'remarks', type: 'text' },
-        { key: 'lastServiceDate', type: 'date' },
         { key: 'maintenanceRenewalDate', type: 'date' },
         { key: 'maintenanceStatusText', type: 'text', readonly: true },
         { key: 'gps', type: 'gps' },
@@ -522,7 +519,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
 
         const span = document.createElement('span');
         let displayValue = originalValues[field.key];
-        if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate' || field.key === 'lastServiceDate') {
+        if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate') {
             if (field.key === 'maintenanceStatusText') {
                 // This block is replaced below
             } else {
@@ -1120,14 +1117,12 @@ const searchMonthInput = document.getElementById('searchMonthInput');
 const searchStatusInput = document.getElementById('searchStatusInput');
 const searchVehicleNumberInput = document.getElementById('searchVehicleNumberInput');
 const searchVehicleNumberInput2 = document.getElementById('searchVehicleNumberInput2');
-const searchLastServiceDateInput = document.getElementById('searchLastServiceDateInput');
 
 function combinedFilter() {
     const monthText = searchMonthInput.value.trim().toLowerCase();
     const statusText = searchStatusInput.value.trim().toLowerCase();
     const vehicleNumberText = searchVehicleNumberInput.value.trim().toLowerCase();
     const vehicleNumberText2 = searchVehicleNumberInput2.value.trim().toLowerCase();
-    const lastServiceDateText = searchLastServiceDateInput.value.trim().toLowerCase();
 
     // Get visible column indices and names
     const visibleIndices = getVisibleColumnIndices();
@@ -1153,11 +1148,6 @@ function combinedFilter() {
         if (vehicleNumberText2 && visibleHeaders.includes('Vehicle Number')) {
             match = match && entry.vehicleNumber.toLowerCase().includes(vehicleNumberText2);
         }
-        if (lastServiceDateText && visibleHeaders.includes('Last Service Date')) {
-            // Match by month name in lastServiceDate
-            const lastServiceMonth = getMonthName(entry.lastServiceDate);
-            match = match && lastServiceMonth.includes(lastServiceDateText);
-        }
         return match;
     });
     renderTable(filteredData);
@@ -1167,7 +1157,6 @@ searchMonthInput.addEventListener('input', combinedFilter);
 searchStatusInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput.addEventListener('input', combinedFilter);
 searchVehicleNumberInput2.addEventListener('input', combinedFilter);
-searchLastServiceDateInput.addEventListener('input', combinedFilter);
 
 function filterTableByMonthStatusVehicle(monthText, statusText, vehicleNumberText, vehicleNumberText2) {
     const data = window.currentData || [];
@@ -1424,6 +1413,60 @@ window.onload = async function () {
                 let cellText = '';
                 if (entry.renewalDate2) {
                     cellText = entry.renewalDate2.toLowerCase();
+                }
+                let matched = false;
+                if (filterValue === '') {
+                    matched = true;
+                } else {
+                    let monthPart = '';
+                    let dateParts = cellText.split('-');
+                    if (dateParts.length === 3) {
+                        monthPart = dateParts[1].toLowerCase();
+                        if (/^\d+$/.test(monthPart)) {
+                          let monthIdx = parseInt(monthPart, 10) - 1;
+                          if (monthIdx >= 0 && monthIdx < 12) {
+                            monthPart = monthOrder[monthIdx];
+                          }
+                        }
+                    } else {
+                        for (let m of monthOrder) {
+                            if (cellText.includes(m)) {
+                                monthPart = m;
+                                break;
+                            }
+                        }
+                    }
+                    if (monthPart.startsWith(filterValue)) {
+                        matched = true;
+                    } else if (cellText.includes(filterValue)) {
+                        matched = true;
+                    }
+                }
+                return matched;
+            });
+            renderTable(filteredData);
+        });
+    }
+
+    // Add Last Service Date search input filtering
+    const searchLastServiceDateInput = document.getElementById('searchLastServiceDateInput');
+    if (searchLastServiceDateInput && combinedTable) {
+        searchLastServiceDateInput.addEventListener('input', () => {
+            const filterValue = searchLastServiceDateInput.value.toLowerCase().trim();
+            const visibleIndices = getVisibleColumnIndices();
+            const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
+            const lastServiceColIdx = headers.findIndex(h => h.toLowerCase() === 'last service date');
+            // Only filter if Last Service Date column is visible
+            if (!visibleIndices.includes(lastServiceColIdx)) {
+                renderTable([]); // Hide all rows if column not visible
+                return;
+            }
+            const data = window.currentData || [];
+            const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+            const filteredData = data.filter(entry => {
+                let cellText = '';
+                if (entry.lastServiceDate) {
+                    cellText = entry.lastServiceDate.toLowerCase();
                 }
                 let matched = false;
                 if (filterValue === '') {
