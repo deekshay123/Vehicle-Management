@@ -1455,7 +1455,7 @@ window.onload = async function () {
             const filterValue = searchLastServiceDateInput.value.toLowerCase().trim();
             const visibleIndices = getVisibleColumnIndices();
             const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
-            const lastServiceColIdx = headers.findIndex(h => h.toLowerCase() === 'last service date');
+            const lastServiceColIdx = headers.findIndex(h => h.toLowerCase().includes('last service date'));
             // Only filter if Last Service Date column is visible
             if (!visibleIndices.includes(lastServiceColIdx)) {
                 renderTable([]); // Hide all rows if column not visible
