@@ -1151,8 +1151,9 @@ function combinedFilter() {
             match = match && entry.vehicleNumber.toLowerCase().includes(vehicleNumberText2);
         }
         if (lastServiceDateText && visibleHeaders.includes('Last Service Date')) {
-            const lastServiceDate = entry.lastServiceDate ? entry.lastServiceDate.toLowerCase() : '';
-            match = match && lastServiceDate.includes(lastServiceDateText);
+            // Match by month name in lastServiceDate
+            const lastServiceMonth = getMonthName(entry.lastServiceDate);
+            match = match && lastServiceMonth.includes(lastServiceDateText);
         }
         return match;
     });
