@@ -1448,6 +1448,34 @@ window.onload = async function () {
         });
     }
 
+    // Add Last Service Date search input filtering
+    const searchLastServiceDateInput = document.getElementById('searchLastServiceDateInput');
+    if (searchLastServiceDateInput && combinedTable) {
+        searchLastServiceDateInput.addEventListener('input', () => {
+            const filterValue = searchLastServiceDateInput.value.toLowerCase().trim();
+            const visibleIndices = getVisibleColumnIndices();
+            const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
+            const lastServiceColIdx = headers.findIndex(h => h.toLowerCase().includes('last service date'));
+            if (!visibleIndices.includes(lastServiceColIdx)) {
+                renderTable([]);
+                return;
+            }
+            const data = window.currentData || [];
+            // Try to match on remarks or maintenanceRenewalDate if that's the actual data field
+            const filteredData = data.filter(entry => {
+                let cellText = '';
+                // Try to use maintenanceRenewalDate for Last Service Date
+                if (entry.maintenanceRenewalDate) {
+                    cellText = entry.maintenanceRenewalDate.toLowerCase();
+                } else if (entry.lastServiceDate) {
+                    cellText = entry.lastServiceDate.toLowerCase();
+                }
+                return cellText.includes(filterValue);
+            });
+            renderTable(filteredData);
+        });
+    }
+
     // Column filter modal and button logic
     const columnFilterBtn = document.getElementById('columnFilterBtn');
     const columnFilterModal = document.getElementById('columnFilterModal');
@@ -1570,10 +1598,16 @@ function updateSearchInputsState() {
     searchInputs.forEach(({ id, header }) => {
         const input = document.getElementById(id);
         if (input) {
-            input.disabled = !visibleHeaders.includes(header);
-            input.placeholder = visibleHeaders.includes(header)
-                ? input.getAttribute('data-original-placeholder') || input.placeholder
-                : 'Column hidden';
+            const isVisible = visibleHeaders.includes(header);
+            input.disabled = !isVisible;
+            if (!isVisible) {
+                input.classList.add('column-hidden-input');
+                input.value = '';
+                input.placeholder = 'Column hidden';
+            } else {
+                input.classList.remove('column-hidden-input');
+                input.placeholder = input.getAttribute('data-original-placeholder') || input.placeholder;
+            }
         }
     });
 }
