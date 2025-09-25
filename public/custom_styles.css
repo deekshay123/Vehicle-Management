@@ -308,3 +308,13 @@ table#combinedTable tbody td:nth-child(12) {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+.column-hidden-input {
+    background: repeating-linear-gradient(135deg, #f8f9fa 0 10px, #e9ecef 10px 20px);
+    color: #b0b0b0 !important;
+    border: 1.5px dashed #b0b0b0 !important;
+    cursor: not-allowed !important;
+    font-style: italic;
+    opacity: 0.7;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+}
