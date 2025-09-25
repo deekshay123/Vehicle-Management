@@ -1461,16 +1461,28 @@ window.onload = async function () {
                 return;
             }
             const data = window.currentData || [];
-            // Try to match on remarks or maintenanceRenewalDate if that's the actual data field
+            // Normalize date for flexible search
+            function normalizeDate(str) {
+                if (!str) return '';
+                // Replace separators, lowercase, trim
+                let s = str.toLowerCase().replace(/\//g, '-').replace(/\s+/g, '').trim();
+                // Convert full month to short
+                s = s.replace(/-january-/, '-jan-').replace(/-february-/, '-feb-').replace(/-march-/, '-mar-')
+                    .replace(/-april-/, '-apr-').replace(/-may-/, '-may-').replace(/-june-/, '-jun-')
+                    .replace(/-july-/, '-jul-').replace(/-august-/, '-aug-').replace(/-september-/, '-sep-')
+                    .replace(/-october-/, '-oct-').replace(/-november-/, '-nov-').replace(/-december-/, '-dec-');
+                return s;
+            }
+            const normFilter = normalizeDate(filterValue);
             const filteredData = data.filter(entry => {
                 let cellText = '';
-                // Try to use maintenanceRenewalDate for Last Service Date
                 if (entry.maintenanceRenewalDate) {
-                    cellText = entry.maintenanceRenewalDate.toLowerCase();
+                    cellText = normalizeDate(entry.maintenanceRenewalDate);
                 } else if (entry.lastServiceDate) {
-                    cellText = entry.lastServiceDate.toLowerCase();
+                    cellText = normalizeDate(entry.lastServiceDate);
                 }
-                return cellText.includes(filterValue);
+                // Allow search by day, month, year, or any part
+                return cellText.includes(normFilter);
             });
             renderTable(filteredData);
         });
