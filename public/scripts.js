@@ -1448,60 +1448,6 @@ window.onload = async function () {
         });
     }
 
-    // Add Last Service Date search input filtering
-    const searchLastServiceDateInput = document.getElementById('searchLastServiceDateInput');
-    if (searchLastServiceDateInput && combinedTable) {
-        searchLastServiceDateInput.addEventListener('input', () => {
-            const filterValue = searchLastServiceDateInput.value.toLowerCase().trim();
-            const visibleIndices = getVisibleColumnIndices();
-            const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim());
-            const lastServiceColIdx = headers.findIndex(h => h.toLowerCase().includes('last service date'));
-            // Only filter if Last Service Date column is visible
-            if (!visibleIndices.includes(lastServiceColIdx)) {
-                renderTable([]); // Hide all rows if column not visible
-                return;
-            }
-            const data = window.currentData || [];
-            const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-            const filteredData = data.filter(entry => {
-                let cellText = '';
-                if (entry.lastServiceDate) {
-                    cellText = entry.lastServiceDate.toLowerCase();
-                }
-                let matched = false;
-                if (filterValue === '') {
-                    matched = true;
-                } else {
-                    let monthPart = '';
-                    let dateParts = cellText.split('-');
-                    if (dateParts.length === 3) {
-                        monthPart = dateParts[1].toLowerCase();
-                        if (/^\d+$/.test(monthPart)) {
-                          let monthIdx = parseInt(monthPart, 10) - 1;
-                          if (monthIdx >= 0 && monthIdx < 12) {
-                            monthPart = monthOrder[monthIdx];
-                          }
-                        }
-                    } else {
-                        for (let m of monthOrder) {
-                            if (cellText.includes(m)) {
-                                monthPart = m;
-                                break;
-                            }
-                        }
-                    }
-                    if (monthPart.startsWith(filterValue)) {
-                        matched = true;
-                    } else if (cellText.includes(filterValue)) {
-                        matched = true;
-                    }
-                }
-                return matched;
-            });
-            renderTable(filteredData);
-        });
-    }
-
     // Column filter modal and button logic
     const columnFilterBtn = document.getElementById('columnFilterBtn');
     const columnFilterModal = document.getElementById('columnFilterModal');
@@ -1605,6 +1551,48 @@ window.onload = async function () {
 
     // Apply saved column visibility on page load
     applyColumnVisibility();
+
+    // Utility to enable/disable search inputs based on column visibility
+function updateSearchInputsState() {
+    const headers = Array.from(document.querySelectorAll('#combinedTable thead tr:nth-child(2) th')).map(th => th.textContent.trim().toLowerCase());
+    const visibleIndices = getVisibleColumnIndices();
+    const visibleHeaders = visibleIndices.map(idx => headers[idx]);
+
+    // Map search input IDs to their corresponding column header (lowercase)
+    const searchInputs = [
+        { id: 'searchMonthInput', header: 'renewal date(vehicles)' },
+        { id: 'searchStatusInput', header: 'policy type' },
+        { id: 'searchVehicleNumberInput', header: 'vehicle number' },
+        { id: 'searchVehicleNumberInput2', header: 'vehicle number' },
+        { id: 'searchLastServiceDateInput', header: 'last service date' },
+        { id: 'searchGpsRenewalDateInput', header: 'renewal date(gps)' }
+    ];
+    searchInputs.forEach(({ id, header }) => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.disabled = !visibleHeaders.includes(header);
+            input.placeholder = visibleHeaders.includes(header)
+                ? input.getAttribute('data-original-placeholder') || input.placeholder
+                : 'Column hidden';
+        }
+    });
+}
+
+// Save original placeholders for restoration
+['searchMonthInput','searchStatusInput','searchVehicleNumberInput','searchVehicleNumberInput2','searchLastServiceDateInput','searchGpsRenewalDateInput'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input && !input.getAttribute('data-original-placeholder')) {
+        input.setAttribute('data-original-placeholder', input.placeholder);
+    }
+});
+
+// Call on page load and after column visibility changes
+updateSearchInputsState();
+const origApplyColumnVisibility = applyColumnVisibility;
+applyColumnVisibility = function() {
+    origApplyColumnVisibility();
+    updateSearchInputsState();
+};
 };
 
 // Add CSS for globe styles and blinking effect (inject once)
