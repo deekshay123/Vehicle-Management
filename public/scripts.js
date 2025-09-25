@@ -414,10 +414,12 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         openingKM: entry.openingKM,
         closingKM: entry.closingKM,
         kmDriven: entry.kmDriven,
+        remarks: entry.remarks || '',
+        lastServiceDate: entry.lastServiceDate,
         maintenanceRenewalDate: entry.maintenanceRenewalDate,
         maintenanceStatusText: maintenanceStatus.text,
-        renewalDate2: entry.renewalDate2,
-        remarks: entry.remarks || ''
+        gps: entry.gps,
+        renewalDate2: entry.renewalDate2
     };
 
     const fields = [
@@ -431,6 +433,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
         { key: 'closingKM', type: 'number' },
         { key: 'kmDriven', type: 'number' },
         { key: 'remarks', type: 'text' },
+        { key: 'lastServiceDate', type: 'date' },
         { key: 'maintenanceRenewalDate', type: 'date' },
         { key: 'maintenanceStatusText', type: 'text', readonly: true },
         { key: 'gps', type: 'gps' },
@@ -519,7 +522,7 @@ function insertRow(tableBody, entry, rowIndex, visibleIndices = null) {
 
         const span = document.createElement('span');
         let displayValue = originalValues[field.key];
-        if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate') {
+        if (field.key === 'vehicleRenewalDate' || field.key === 'maintenanceRenewalDate' || field.key === 'lastServiceDate') {
             if (field.key === 'maintenanceStatusText') {
                 // This block is replaced below
             } else {
