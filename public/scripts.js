@@ -1461,28 +1461,43 @@ window.onload = async function () {
                 return;
             }
             const data = window.currentData || [];
-            // Normalize date for flexible search
-            function normalizeDate(str) {
-                if (!str) return '';
-                // Replace separators, lowercase, trim
-                let s = str.toLowerCase().replace(/\//g, '-').replace(/\s+/g, '').trim();
-                // Convert full month to short
-                s = s.replace(/-january-/, '-jan-').replace(/-february-/, '-feb-').replace(/-march-/, '-mar-')
-                    .replace(/-april-/, '-apr-').replace(/-may-/, '-may-').replace(/-june-/, '-jun-')
-                    .replace(/-july-/, '-jul-').replace(/-august-/, '-aug-').replace(/-september-/, '-sep-')
-                    .replace(/-october-/, '-oct-').replace(/-november-/, '-nov-').replace(/-december-/, '-dec-');
-                return s;
-            }
-            const normFilter = normalizeDate(filterValue);
+            const monthOrder = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
             const filteredData = data.filter(entry => {
                 let cellText = '';
                 if (entry.maintenanceRenewalDate) {
-                    cellText = normalizeDate(entry.maintenanceRenewalDate);
+                    cellText = entry.maintenanceRenewalDate.toLowerCase();
                 } else if (entry.lastServiceDate) {
-                    cellText = normalizeDate(entry.lastServiceDate);
+                    cellText = entry.lastServiceDate.toLowerCase();
                 }
-                // Allow search by day, month, year, or any part
-                return cellText.includes(normFilter);
+                let matched = false;
+                if (filterValue === '') {
+                    matched = true;
+                } else {
+                    let monthPart = '';
+                    let dateParts = cellText.split('-');
+                    if (dateParts.length === 3) {
+                        monthPart = dateParts[1].toLowerCase();
+                        if (/^\d+$/.test(monthPart)) {
+                            let monthIdx = parseInt(monthPart, 10) - 1;
+                            if (monthIdx >= 0 && monthIdx < 12) {
+                                monthPart = monthOrder[monthIdx];
+                            }
+                        }
+                    } else {
+                        for (let m of monthOrder) {
+                            if (cellText.includes(m)) {
+                                monthPart = m;
+                                break;
+                            }
+                        }
+                    }
+                    if (monthPart.startsWith(filterValue)) {
+                        matched = true;
+                    } else if (cellText.includes(filterValue)) {
+                        matched = true;
+                    }
+                }
+                return matched;
             });
             renderTable(filteredData);
         });
