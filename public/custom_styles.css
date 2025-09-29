@@ -309,58 +309,9 @@ table#combinedTable tbody td:nth-child(12) {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Professional hidden column styles */
-.hidden-column {
-    opacity: 0.15;
-    pointer-events: none;
-    background: repeating-linear-gradient(135deg, #f4f6f8 0px, #e1e5ea 8px, #f4f6f8 16px);
-    border: none !important;
-    color: #b0b0b0 !important;
-    font-style: italic;
-    position: relative;
-    transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1), background 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-
-.hidden-column::after {
-    content: "Hidden";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 13px;
-    color: #b0b0b0;
-    background: rgba(255,255,255,0.7);
-    padding: 2px 8px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    pointer-events: none;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    letter-spacing: 0.5px;
-}
-
-/* For table headers when hidden */
+/* Completely hide columns and headers */
+.hidden-column,
 th.hidden-column {
-    opacity: 0.25;
-    background: linear-gradient(90deg, #e1e5ea 60%, #f4f6f8 100%);
-    color: #b0b0b0 !important;
-    font-weight: 400;
-    font-style: italic;
-    position: relative;
-}
-
-th.hidden-column::after {
-    content: "Hidden";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: #b0b0b0;
-    background: rgba(255,255,255,0.6);
-    padding: 1px 6px;
-    border-radius: 5px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    pointer-events: none;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    letter-spacing: 0.4px;
+    display: none !important;
+    visibility: hidden !important;
 }
